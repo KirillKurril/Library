@@ -17,12 +17,10 @@ namespace Library.Application.BookUseCases.Queries
             
             return await _unitOfWork.BookRepository.ListAsync(
                 book => (string.IsNullOrEmpty(searchTerm) || 
-                        book.Title.ToLower().Contains(searchTerm) ||
-                        book.Description.ToLower().Contains(searchTerm) ||
-                        book.ISBN.ToLower().Contains(searchTerm)) &&
-                       (request.Genre == null || book.Genre.ToString().ToLower() == request.Genre.ToString().ToLower())
-                       && (!request.IsAvailable.HasValue || book.IsAvailable == request.IsAvailable.Value),
-                cancellationToken);
+                        book.Title.ToLower().Contains(searchTerm))
+                        && (request.Genre == null || book.Genre.Name == request.Genre)
+                        && (request.AuthorId == null || book.Genre.Name == request.Genre),
+                        cancellationToken);
         }
     }
 }

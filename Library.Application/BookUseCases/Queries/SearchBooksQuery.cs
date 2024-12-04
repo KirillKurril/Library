@@ -1,7 +1,7 @@
 namespace Library.Application.BookUseCases.Queries
 {
     public sealed record SearchBooksQuery(
-        string SearchTerm,
-        Genre? Genre = null,
-        bool? IsAvailable = null) : IRequest<IEnumerable<Book>>;
+        string? SearchTerm,
+        string? Genre = null,
+        int? AuthorId = null) : IRequest<IEnumerable<Book>>;
 }
