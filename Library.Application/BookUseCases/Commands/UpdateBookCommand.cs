@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
+using Library.Domain.Entities;
+using MediatR;
 
 namespace Library.Application.BookUseCases.Commands
 {
-    internal class UpdateBookCommand
-    {
-    }
+    public sealed record UpdateBookCommand(
+        int Id,
+        string ISBN,
+        string Title,
+        string Description,
+        Genre Genre,
+        int AuthorId,
+        string ImageUrl) : IRequest<Book>;
 }

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Library.Application.GenreUseCases.Queries
 {
-    internal class GetGenreByIdQuery
-    {
-    }
+    public sealed record GetGenreByIdQuery(int Id) : IRequest<Genre>;
 }

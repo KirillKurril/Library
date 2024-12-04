@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Library.Application.BookUseCases.Commands
 {
-    internal class CreateBookCommand
-    {
-    }
+    public sealed record CreateBookCommand(
+        string ISBN,
+        string Title,
+        string Description,
+        Genre Genre,
+        int AuthorId,
+        string ImageUrl) : IRequest<Book>;
 }

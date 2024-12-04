@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Library.Application.GenreUseCases.Commands
 {
-    internal class DeleteGenreCommand
-    {
-    }
+    public sealed record DeleteGenreCommand(int Id) : IRequest<Genre>;
 }

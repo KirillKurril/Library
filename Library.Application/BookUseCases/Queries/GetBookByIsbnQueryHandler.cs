@@ -1,12 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Library.Application.BookUseCases.Queries
 {
-    internal class GetBookByIsbnQueryHandler
+    public class GetBookByIsbnQueryHandler : IRequestHandler<GetBookByIsbnQuery, Book>
     {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GetBookByIsbnQueryHandler(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<Book> Handle(GetBookByIsbnQuery request, CancellationToken cancellationToken)
+        {
+            var book = await _unitOfWork.BookRepository.FirstOrDefaultAsync(
+                b => b.ISBN == request.ISBN,
+                cancellationToken);
+
+            if (book == null)
+            {
+                throw new NotFoundException(nameof(Book), $"ISBN: {request.ISBN}");
+            }
+
+            return book;
+        }
     }
 }

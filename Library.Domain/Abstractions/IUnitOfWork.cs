@@ -10,8 +10,12 @@ namespace Library.Domain.Abstractions
 {
     public interface IUnitOfWork
     {
-        IRepository<Author> SingerRepository { get; }
-        IRepository<Book> SongRepository { get; }
-        public Task SaveAllAsync();     
+        IRepository<Author> AuthorRepository { get; }
+        IRepository<Book> BookRepository { get; }
+        IRepository<User> UserRepository { get; }
+        IRepository<Genre> GenreRepository { get; }
+        public Task SaveChangesAsync();
+        public Task DeleteDataBaseAsync();
+        public Task CreateDataBaseAsync();
     }
 }

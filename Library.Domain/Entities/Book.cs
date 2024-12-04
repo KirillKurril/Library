@@ -7,13 +7,13 @@ namespace Library.Domain.Entities
         public string ISBN { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string Genre { get; set; }
-        public Guid AuthorId { get; set; }
-        public string ImageUrl { get; set; }
+        public Genre Genre { get; set; }
+        public int AuthorId { get; set; }
+        public string? ImageUrl { get; set; }
         public bool IsAvailable { get; set; }
-        public Guid UserId { get; set; }
-        public DateTime BorrowedAt { get; set; }
-        public DateTime ReturnDate { get; set; }
-        public DateTime ActualReturnDate { get; set; }
+        public int UserId { get; set; }
+        public DateTime? BorrowedAt { get; set; }
+        public DateTime? ReturnDate { get; set; }
+        public DateTime? ActualReturnDate { get; set; }
     }
 }

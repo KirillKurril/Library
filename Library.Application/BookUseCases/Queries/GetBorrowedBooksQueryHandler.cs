@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Library.Application.BookUseCases.Queries
 {
-    internal class GetBorrowedBooksQueryHandler
+    public class GetBorrowedBooksQueryHandler : IRequestHandler<GetBorrowedBooksQuery, IEnumerable<Book>>
     {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GetBorrowedBooksQueryHandler(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<IEnumerable<Book>> Handle(GetBorrowedBooksQuery request, CancellationToken cancellationToken)
+        {
+            return await _unitOfWork.BookRepository.ListAsync(
+                book => book.UserId == request.UserId && !book.IsAvailable,
+                cancellationToken);
+        }
     }
 }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Library.Application.BookUseCases.Queries
 {
-    internal class SearchBooksQuery
-    {
-    }
+    public sealed record SearchBooksQuery(
+        string SearchTerm,
+        Genre? Genre = null,
+        bool? IsAvailable = null) : IRequest<IEnumerable<Book>>;
 }
