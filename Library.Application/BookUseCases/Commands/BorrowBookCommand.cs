@@ -6,6 +6,5 @@ namespace Library.Application.BookUseCases.Commands
 {
     public sealed record BorrowBookCommand(
         int BookId,
-        int UserId,
-        DateTime ReturnDate) : IRequest<Book>;
+        int UserId) : IRequest<Book>;
 }

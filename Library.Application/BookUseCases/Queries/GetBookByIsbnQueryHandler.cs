@@ -11,7 +11,7 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<Book> Handle(GetBookByIsbnQuery request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.BookRepository.FirstOrDefaultAsync(
+            var book = await _unitOfWork.BookRepository.FirstOrDefault(
                 b => b.ISBN == request.ISBN,
                 cancellationToken);
 

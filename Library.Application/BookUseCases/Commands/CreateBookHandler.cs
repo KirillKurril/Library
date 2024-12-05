@@ -25,7 +25,6 @@ namespace Library.Application.BookUseCases.Commands
             }
 
             var book = _mapper.Map<Book>(request);
-            book.IsAvailable = true;
 
             await _unitOfWork.BookRepository.AddAsync(book, cancellationToken);
             await _unitOfWork.SaveChangesAsync();

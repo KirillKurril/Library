@@ -2,5 +2,6 @@
 {
     public interface IBookImageService
     {
+        public string SaveImage(IFormFile image);
     }
 }

@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Library.Application.Common.Exceptions;
+using Library.Application.GenreUseCases.Commands;
+using Library.Application.GenreUseCases.Queries;
+using Library.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Presentation.Controllers
@@ -7,24 +11,71 @@ namespace Library.Presentation.Controllers
     [ApiController]
     public class GenreController : ControllerBase
     {
+        private readonly IMediator _mediator;
+        public GenreController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
         [HttpGet]
         [Route("")]
-        public IActionResult GetAllList()
+        public async Task<ActionResult<IEnumerable<Genre>>> GetAllList(
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var query = new GetAllGenresQuery();
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving all genres. {ex.Message}");
+            }
         }
 
 
         [HttpPost]
-        public IActionResult Create(string genreName)
+        public async Task<IActionResult> Create(
+            string genreName,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = new CreateGenreCommand(genreName);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while creating the genre. {ex.Message}");
+            }
         }
 
         [HttpDelete]
-        public IActionResult Delete(int id)
+        [Route("{id:int}")]
+        public async Task<IActionResult> Delete(
+                   int id,
+                   CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = new DeleteGenreCommand(id);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting genre with ID {id}. {ex.Message}");
+            }
         }
     }
 }

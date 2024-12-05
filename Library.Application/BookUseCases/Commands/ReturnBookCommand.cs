@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Library.Application.BookUseCases.Commands
 {
-    public sealed record ReturnBookCommand(int BookId) : IRequest<Book>;
+    public sealed record ReturnBookCommand(int BookId, int UserId) : IRequest<Book>;
 }

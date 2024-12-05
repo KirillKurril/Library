@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Library.Application.BookUseCases.Commands;
+using Library.Application.BookUseCases.Queries;
+using Library.Application.Common.Exceptions;
+using Library.Presentation.Services.BookImage;
+using Library.Presentation.Services.DebtorNotifier;
+using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Presentation.Controllers
@@ -7,83 +13,256 @@ namespace Library.Presentation.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
+        private readonly IMediator _mediator;
+        private readonly IBookImageService _imageService;
+        public BookController(IMediator mediator, IBookImageService bookImageService)
+        {
+            _mediator = mediator;
+            _imageService = bookImageService;
+        }
+
         [HttpGet]
         [Route("my-books")]
-        public IActionResult GetBorrowedList(
+        public async Task<ActionResult<IEnumerable<BookDTO>>> GetBorrowedList(
             [FromQuery] int userId,
             [FromQuery] int? pageNo,
-            [FromQuery] int? itemsPerPage)
+            [FromQuery] int? itemsPerPage,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving borrowed books. {ex.Message}");
+            }
         }
 
         [HttpGet]
         [Route("catalog")]
-        public IActionResult GetFiltredList(
+        public async Task<ActionResult<IEnumerable<BookDTO>>> GetFiltredList(
             [FromQuery] string? searchTerm,
             [FromQuery] string? genre,
             [FromQuery] int? AuthorId,
             [FromQuery] int? pageNo,
-            [FromQuery] int? itemsPerPage)
+            [FromQuery] int? itemsPerPage,
+            CancellationToken cancellationToken)
         {
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("")]
-        public IActionResult GetAllList()
-        {
-            return Ok();
+            try
+            {
+                var query = new SearchBooksQuery(searchTerm, genre, AuthorId, pageNo, itemsPerPage);
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while searching books. {ex.Message}");
+            }
         }
 
         [HttpGet]
         [Route("{id:int}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(
+            int id,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var query = new GetBookByIdQuery(id);
+                var result = await _mediator.Send(query, cancellationToken);
+
+                if (result == null)
+                    return NotFound($"Book with ID {id} not found");
+
+                return Ok(result);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving book with ID {id}. {ex.Message}");
+            }
         }
 
         [HttpGet]
         [Route("{isbn:string}")]
-        public IActionResult GetByISBN(string isbn)
+        public async Task<IActionResult> GetByISBN(
+            string isbn,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var query = new GetBookByIsbnQuery(isbn);
+                var result = await _mediator.Send(query, cancellationToken);
+
+                if (result == null)
+                    return NotFound($"Book with ISBN {isbn} not found");
+
+                return Ok(result);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, $"An error occurred while retrieving book with ISBN {isbn}");
+            }
         }
 
         [HttpPost("{id}/borrow")]
-        public IActionResult BorrowBook(int id)
+        public async Task<IActionResult> BorrowBook(
+            int id,
+            [FromBody] int userId,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = new BorrowBookCommand(id, userId);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (BookNotAvailableException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, $"An error occurred while borrowing book with ID {id}");
+            }
         }
 
         [HttpPost("{id}/return")]
-        public IActionResult ReturnBook(int id)
+        public async Task<IActionResult> ReturnBook(
+            int id,
+            [FromBody] int userId,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = new ReturnBookCommand(id, userId);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while returning book with ID {id}. {ex.Message}");
+            }
         }
 
         [HttpPost]
-        public IActionResult Create(CreateBookDTO createBookDTO)
+        public async  Task<IActionResult> Create(
+            [FromBody] CreateBookDTO createBookDTO,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = createBookDTO.Adapt<CreateBookCommand>();
+                var result = await _mediator.Send(command, cancellationToken);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
+            }
+            catch (DuplicateIsbnException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while creating the book. {ex}");
+            }
         }
 
         [HttpPut]
-        public IActionResult Update(UpdateBookDTO updateBookDTO)
+        public async Task<IActionResult> Update(
+            [FromBody] UpdateBookDTO updateBookDTO,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = updateBookDTO.Adapt<UpdateBookCommand>();
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (DuplicateIsbnException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while updating the book {ex.Message}");
+            }
         }
 
         [HttpDelete]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(
+            int id,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                var command = new DeleteBookCommand(id);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (BookInUseException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while deleting book with ID {id}. {ex.Message}");
+            }
         }
 
         [HttpPost("{id}/image")]
-        public IActionResult UploadImage(int id, IFormFile image)
+        public async Task<IActionResult> UploadImage(
+            int id,
+            IFormFile image,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            try
+            {
+                string url = _imageService.SaveImage(image);
+                var command = new UpdateBookImageCommand(id, url);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while uploading image for book with ID {id}. {ex.Message}");
+            }
         }
     }
 }
