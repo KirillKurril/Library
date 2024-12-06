@@ -27,7 +27,7 @@ public class UpdateAuthorHandler : IRequestHandler<UpdateAuthorCommand, Author>
             throw new NotFoundException($"Author with ID {request.Id} not found");
 
         var updatedAuthor = _mapper.Map(request, existingAuthor);
-        await _unitOfWork.AuthorRepository.UpdateAsync(updatedAuthor, cancellationToken);
+        _unitOfWork.AuthorRepository.Update(updatedAuthor);
         await _unitOfWork.SaveChangesAsync();
         
         return updatedAuthor;

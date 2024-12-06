@@ -15,7 +15,7 @@ public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand, Author>
         if (author == null)
             throw new NotFoundException($"Author with ID {request.Id} not found");
 
-        await _unitOfWork.AuthorRepository.DeleteAsync(author, cancellationToken);
+        _unitOfWork.AuthorRepository.Delete(author);
         await _unitOfWork.SaveChangesAsync();
         
         return author;

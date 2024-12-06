@@ -1,6 +1,8 @@
 ﻿using Library.Application.AuthorUseCases.Commands;
 using Library.Application.AuthorUseCases.Queries;
+using Library.Application.BookUseCases.Commands;
 using Library.Application.Common.Exceptions;
+using Library.Application.DTOs;
 using Library.Domain.Entities;
 using Mapster;
 using MediatR;
@@ -78,9 +80,9 @@ namespace Library.Presentation.Controllers
             try
             {
                 var command = createAuthorDTO.Adapt<CreateAuthorCommand>();
-                await _mediator.Send(command, cancellationToken);
-
-                return NoContent();
+                var response = await _mediator.Send(command, cancellationToken);
+                response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id });
+                return Ok(response);
             }
             catch (ValidationException ex)
             {

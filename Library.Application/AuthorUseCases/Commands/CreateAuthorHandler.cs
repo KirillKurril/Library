@@ -1,6 +1,8 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.AuthorUseCases.Commands;
 
-public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, Author>
+public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, CreateEntityResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateAuthorCommand> _validator;
@@ -16,16 +18,20 @@ public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, Author>
         _mapper = mapper;
     }
 
-    public async Task<Author> Handle(CreateAuthorCommand request, CancellationToken cancellationToken)
+    public async Task<CreateEntityResponse> Handle(CreateAuthorCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
 
         var author = _mapper.Map<Author>(request);
-        await _unitOfWork.AuthorRepository.AddAsync(author, cancellationToken);
+        var createdAuthor = _unitOfWork.AuthorRepository.Add(author);
         await _unitOfWork.SaveChangesAsync();
-        
-        return author;
+
+        return new CreateEntityResponse()
+        {
+            Id = createdAuthor.Id
+        };
+
     }
 }

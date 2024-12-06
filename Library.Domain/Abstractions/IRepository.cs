@@ -23,7 +23,7 @@ namespace Library.Domain.Abstractions
             params Expression<Func<T, object>>[]? includesProperties);
 
         T Add(T entity);
-        T Update(T entity);
+        void Update(T entity);
         void Delete(T entity);
 
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>>

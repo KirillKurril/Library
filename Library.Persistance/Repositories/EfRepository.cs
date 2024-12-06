@@ -83,12 +83,11 @@ namespace Library.Persistance.Repositories
             return entry.Entity;
         }
 
-        public T Update(T entity)
+        public void Update(T entity)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
             var entry = _context.Entry(entity);
             entry.State = EntityState.Modified;
-            return entry.Entity;
         }
 
         public void Delete(T entity)

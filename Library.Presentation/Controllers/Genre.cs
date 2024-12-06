@@ -1,8 +1,11 @@
-﻿using Library.Application.Common.Exceptions;
+﻿using Library.Application.AuthorUseCases.Commands;
+using Library.Application.Common.Exceptions;
+using Library.Application.DTOs;
 using Library.Application.GenreUseCases.Commands;
 using Library.Application.GenreUseCases.Queries;
 using Library.Domain.Entities;
 using MediatR;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Presentation.Controllers
@@ -34,17 +37,40 @@ namespace Library.Presentation.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("{id:int}")]
+        public async Task<ActionResult<Genre>> GetById(
+           int id,
+           CancellationToken cancellationToken)
+        {
+            try
+            {
+                var command = new GetGenreByIdQuery(id);
+                var genre = await _mediator.Send(command, cancellationToken);
+                return Ok(genre);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving genre with ID {id}. {ex.Message}");
+            }
+        }
+
 
         [HttpPost]
-        public async Task<IActionResult> Create(
+        public async Task<ActionResult<CreateEntityResponse>> Create(
             string genreName,
             CancellationToken cancellationToken)
         {
             try
             {
-                var command = new CreateGenreCommand(genreName);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
+                var command = genreName.Adapt<CreateGenreCommand>();
+                var response = await _mediator.Send(command, cancellationToken);
+                response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id });
+                return Ok(response);
             }
             catch (ValidationException ex)
             {

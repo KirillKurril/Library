@@ -1,6 +1,8 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.GenreUseCases.Commands
 {
-    public class CreateGenreHandler : IRequestHandler<CreateGenreCommand, Genre>
+    public class CreateGenreHandler : IRequestHandler<CreateGenreCommand, CreateEntityResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateGenreCommand> _validator;
@@ -16,17 +18,20 @@ namespace Library.Application.GenreUseCases.Commands
             _mapper = mapper;
         }
 
-        public async Task<Genre> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
+        public async Task<CreateEntityResponse> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
             var genre = _mapper.Map<Genre>(request);
-            await _unitOfWork.GenreRepository.AddAsync(genre, cancellationToken);
+            var createdGenre = _unitOfWork.GenreRepository.Add(genre);
             await _unitOfWork.SaveChangesAsync();
             
-            return genre;
+            return new CreateEntityResponse()
+            {
+                Id = createdGenre.Id,
+            };
         }
     }
 }

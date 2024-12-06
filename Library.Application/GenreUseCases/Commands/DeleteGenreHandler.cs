@@ -1,6 +1,6 @@
 namespace Library.Application.GenreUseCases.Commands
 {
-    public class DeleteGenreHandler : IRequestHandler<DeleteGenreCommand, Genre>
+    public class DeleteGenreHandler : IRequestHandler<DeleteGenreCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -9,16 +9,14 @@ namespace Library.Application.GenreUseCases.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Genre> Handle(DeleteGenreCommand request, CancellationToken cancellationToken)
+        public async Task Handle(DeleteGenreCommand request, CancellationToken cancellationToken)
         {
             var genre = await _unitOfWork.GenreRepository.GetByIdAsync(request.Id, cancellationToken);
             if (genre == null)
                 throw new NotFoundException($"Genre with ID {request.Id} not found");
 
-            await _unitOfWork.GenreRepository.DeleteAsync(genre, cancellationToken);
+            _unitOfWork.GenreRepository.Delete(genre);
             await _unitOfWork.SaveChangesAsync();
-            
-            return genre;
         }
     }
 }
