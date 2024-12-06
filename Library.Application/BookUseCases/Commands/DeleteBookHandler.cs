@@ -1,6 +1,6 @@
 namespace Library.Application.BookUseCases.Commands
 {
-    public class DeleteBookHandler : IRequestHandler<DeleteBookCommand, Book>
+    public class DeleteBookHandler : IRequestHandler<DeleteBookCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -9,7 +9,7 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Book> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
+        public async Task Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
             
@@ -20,13 +20,11 @@ namespace Library.Application.BookUseCases.Commands
 
             if (!book.IsAvailable)
             {
-                throw new ValidationException("Cannot delete a book that is currently borrowed");
+                throw new ValidationException($"Cannot delete a book ({book.Id}) that is currently borrowed");
             }
 
-            await _unitOfWork.BookRepository.DeleteAsync(book);
+            _unitOfWork.BookRepository.Delete(book);
             await _unitOfWork.SaveChangesAsync();
-
-            return book;
         }
     }
 }

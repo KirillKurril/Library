@@ -10,5 +10,5 @@ namespace Library.Application.BookUseCases.Commands
         int? Quantity,
         int? GenreId,
         int? AuthorId,
-        string? ImageUrl) : IRequest<CreateOrEditEntityResponse>;
+        string? ImageUrl) : IRequest;
 }

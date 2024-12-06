@@ -8,7 +8,7 @@ namespace Library.Application.BookUseCases.Validators
 {
     public class BorrowBookCommandValidator : AbstractValidator<BorrowBookCommand>
     {
-        public BorrowBookCommandValidator()
+        public BorrowBookCommandValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(x => x.BookId)
                 .NotEmpty().WithMessage("Book ID is required");

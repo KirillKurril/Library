@@ -7,11 +7,14 @@ namespace Library.Application.BookUseCases.Validators
         public UpdateBookImageCommandValidator()
         {
             RuleFor(x => x.BookId)
-                .GreaterThan(0);
+                .GreaterThan(0)
+                .WithMessage("Book ID must be greater than 0");
 
             RuleFor(x => x.ImageUrl)
                 .NotEmpty()
-                .Must(BeAValidUrl).WithMessage("A valid URL must be provided");
+                .WithMessage("Image URL cannot be empty")
+                .Must(BeAValidUrl)
+                .WithMessage("A valid URL must be provided");
         }
 
         private bool BeAValidUrl(string url)

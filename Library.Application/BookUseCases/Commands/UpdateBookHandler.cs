@@ -2,7 +2,7 @@ using Library.Application.DTOs;
 
 namespace Library.Application.BookUseCases.Commands
 {
-    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, CreateOrEditEntityResponse>
+    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateBookCommand> _validator;
@@ -18,7 +18,7 @@ namespace Library.Application.BookUseCases.Commands
             _mapper = mapper;
         }
 
-        public async Task<CreateOrEditEntityResponse> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+        public async Task Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
@@ -34,18 +34,22 @@ namespace Library.Application.BookUseCases.Commands
 
             if (book.ISBN != request.ISBN)
             {
-                var existingBook = await _unitOfWork.BookRepository.FirstOrDefault(b => b.ISBN == request.ISBN);
+                var existingBook = await _unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == request.ISBN);
                 if (existingBook != null)
                 {
-                    throw new ValidationException($"Book with ISBN {request.ISBN} already exists");
+                    throw new DuplicateIsbnException($"Book with ISBN {request.ISBN} already exists");
                 }
             }
 
-            _mapper.Map(request, book);
-            var updatedBook = _unitOfWork.BookRepository.Update(book);
-            await _unitOfWork.SaveChangesAsync();
+            book.ISBN = request.ISBN ?? book.ISBN;
+            book.Title = request.Title ?? book.Title;
+            book.Description = request.Description ?? book.Description;
+            book.AuthorId = request.AuthorId ?? book.AuthorId;
+            book.GenreId = request.GenreId ?? book.GenreId;
+            book.ImageUrl = request.ImageUrl ?? book.ImageUrl;
+            book.Quantity = request.Quantity ?? book.Quantity;
 
-            return book;
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

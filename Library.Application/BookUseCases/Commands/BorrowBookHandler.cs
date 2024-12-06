@@ -58,7 +58,11 @@ namespace Library.Application.BookUseCases.Commands
             };
 
             _unitOfWork.BookLendingRepository.Add(lending);
+            book.Quantity -= 1;
+
             await _unitOfWork.SaveChangesAsync();
+
+
         }
     }
 }

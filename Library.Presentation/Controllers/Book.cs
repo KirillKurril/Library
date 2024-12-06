@@ -169,7 +169,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost]
-        public async  Task<ActionResult<CreateOrEditEntityResponse>> Create(
+        public async  Task<ActionResult<CreateEntityResponse>> Create(
             [FromBody] CreateBookDTO createBookDTO,
             CancellationToken cancellationToken)
         {
@@ -195,7 +195,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
-        public Task<ActionResult<CreateOrEditEntityResponse>> Update(
+        public async Task<IActionResult> Update(
             [FromBody] UpdateBookDTO updateBookDTO,
             CancellationToken cancellationToken)
         {
