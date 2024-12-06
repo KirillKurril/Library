@@ -24,7 +24,7 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("my-books")]
-        public async Task<ActionResult<ResponseData<BookLendingDTO>>> GetBorrowedList(
+        public async Task<ActionResult<PaginationListModel<IEnumerable<BookLendingDTO>>>> GetBorrowedList(
             [FromQuery] int userId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
@@ -128,7 +128,7 @@ namespace Library.Presentation.Controllers
                 await _mediator.Send(command, cancellationToken);
                 return NoContent();
             }
-            catch (BookNotAvailableException ex)
+            catch (BookInUseException ex)
             {
                 return Conflict(ex.Message);
             }
@@ -248,7 +248,7 @@ namespace Library.Presentation.Controllers
             }
         }
 
-        [HttpPost("{id}/image")]
+        [HttpPost("{id}/upload-image")]
         public async Task<IActionResult> UploadImage(
             int id,
             IFormFile image,

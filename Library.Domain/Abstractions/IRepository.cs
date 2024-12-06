@@ -18,6 +18,10 @@ namespace Library.Domain.Abstractions
         params Expression<Func<T, object>>[]?
         includesProperties);
 
+        IQueryable<T> GetQueryable(
+            Expression<Func<T, bool>>? filter = null,
+            params Expression<Func<T, object>>[]? includesProperties);
+
         T Add(T entity);
         T Update(T entity);
         void Delete(T entity);

@@ -43,7 +43,7 @@ namespace Library.Application.BookUseCases.Commands
 
             if (!book.IsAvailable)
             {
-                throw new ValidationException($"Book ({request.BookId}) is not available for borrowing");
+                throw new BookInUseException(request.BookId);
             }
 
             var dateNow = DateTime.UtcNow;

@@ -1,6 +1,8 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.BookUseCases.Queries
 {
-    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, Book>
+    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, BookDetailsDTO>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -9,7 +11,7 @@ namespace Library.Application.BookUseCases.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Book> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
+        public async Task<BookDetailsDTO> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
             
@@ -18,7 +20,9 @@ namespace Library.Application.BookUseCases.Queries
                 throw new NotFoundException(nameof(Book), request.Id);
             }
 
-            return book;
+            BookDetailsDTO response = book.Adapt<BookDetailsDTO>();
+
+            return response;
         }
     }
 }

@@ -54,6 +54,28 @@ namespace Library.Persistance.Repositories
             return await query.ToListAsync(cancellationToken);
         }
 
+        public IQueryable<T> GetQueryable(
+            Expression<Func<T, bool>>? filter = null,
+            params Expression<Func<T, object>>[]? includesProperties)
+        {
+            IQueryable<T> query = _entities.AsQueryable();
+
+            if (includesProperties?.Any() == true)
+            {
+                foreach (var included in includesProperties)
+                {
+                    query = query.Include(included);
+                }
+            }
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            return query;
+        }
+
         public T Add(T entity)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
