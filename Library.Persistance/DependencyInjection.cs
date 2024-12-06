@@ -1,6 +1,8 @@
-﻿using Library.Domain.Entities;
+﻿using Library.Application.Common.Interfaces;
+using Library.Domain.Entities;
 using Library.Persistance.Contexts;
 using Library.Persistance.Repositories;
+using Library.Persistance.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,17 +13,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPersistence(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        string connStr)
     {
         services.AddSingleton<IUnitOfWork, EfUnitOfWork>();
+        services.AddSingleton<ILibrarySettings, LibrarySettingsService>();
         services.AddTransient<IRepository<Book>, EfRepository<Book>>();
         services.AddTransient<IRepository<Author>, EfRepository<Author>>();
         services.AddTransient<IRepository<Genre>, EfRepository<Genre>>();
+        services.AddTransient<IRepository<BookLending>, EfRepository<BookLending>>();
         services.AddScoped<AppDbContext>();
         services.AddDbContext<AppDbContext>(opts =>
         {
-            var connectionString = configuration.GetConnectionString("MicrosoftSQLServer");
-            opts.UseSqlServer(connectionString);
+            opts.UseSqlServer(connStr);
         });
         return services;
     }

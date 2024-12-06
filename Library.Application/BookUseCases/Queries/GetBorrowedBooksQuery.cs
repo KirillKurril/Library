@@ -4,5 +4,5 @@ namespace Library.Application.BookUseCases.Queries
         int UserId,
         int? pageNo,
         int? itemsPerPage
-        ) : IRequest<IEnumerable<Book>>;
+        ) : IRequest<IEnumerable<BookLending>>;
 }

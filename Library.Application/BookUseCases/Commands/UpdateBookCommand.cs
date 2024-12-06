@@ -1,3 +1,5 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.BookUseCases.Commands
 {
     public sealed record UpdateBookCommand(
@@ -8,5 +10,5 @@ namespace Library.Application.BookUseCases.Commands
         int? Quantity,
         int? GenreId,
         int? AuthorId,
-        string? ImageUrl) : IRequest<Book>;
+        string? ImageUrl) : IRequest<CreateOrEditEntityResponse>;
 }

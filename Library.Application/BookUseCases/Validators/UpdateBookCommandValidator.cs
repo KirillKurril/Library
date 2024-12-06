@@ -12,26 +12,25 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Book ID is required");
 
             RuleFor(x => x.ISBN)
-                .NotEmpty().WithMessage("ISBN is required")
-                .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters");
+                .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
+                .When(x => x.ISBN != null);
 
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Title is required")
-                .MaximumLength(200).WithMessage("Title must not exceed 200 characters");
+                .MaximumLength(200).WithMessage("Title must not exceed 200 characters")
+                .When(x => x.Title != null);
 
             RuleFor(x => x.Description)
-                .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters");
-
-            RuleFor(x => x.Genre)
-                .NotEmpty().WithMessage("Genre is required");
+                .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters")
+                .When(x => x.Description != null); ;
 
             RuleFor(x => x.AuthorId)
                 .NotEmpty().WithMessage("Author ID is required")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
+                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId.Value);
                     return author != null;
-                }).WithMessage("Author with specified ID does not exist");
+                }).WithMessage("Author with specified ID does not exist")
+                .When(x => x.AuthorId != null);
 
             RuleFor(x => x.ImageUrl)
                 .MaximumLength(500).WithMessage("Image URL must not exceed 500 characters")

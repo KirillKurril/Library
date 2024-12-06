@@ -1,19 +1,20 @@
 using FluentValidation;
 using Library.Application.BookUseCases.Commands;
+using Library.Application.Common.Interfaces;
 using Library.Domain.Abstractions;
 
 namespace Library.Application.BookUseCases.Validators
 {
     public class CreateBookCommandValidator : AbstractValidator<CreateBookCommand>
     {
-        public CreateBookCommandValidator(IUnitOfWork unitOfWork)
+        public CreateBookCommandValidator(IUnitOfWork unitOfWork, ILibrarySettings librarySettings)
         {
             RuleFor(x => x.ISBN)
                 .NotEmpty().WithMessage("ISBN is required")
-                .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
+                .MaximumLength(librarySettings.IsbnLength).WithMessage("ISBN must not exceed 13 characters")
                 .MustAsync(async (isbn, ct) =>
                 {
-                    var existingBook = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn);
+                    var existingBook = await unitOfWork.BookRepository.FirstOrDefault(b => b.ISBN == isbn);
                     return existingBook == null;
                 }).WithMessage("A book with this ISBN already exists");
 
@@ -24,7 +25,7 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x.Description)
                 .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters");
 
-            RuleFor(x => x.Genre)
+            RuleFor(x => x.GenreId)
                 .NotEmpty().WithMessage("Genre is required");
 
 

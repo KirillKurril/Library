@@ -1,6 +1,8 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.BookUseCases.Commands
 {
-    public class CreateBookHandler : IRequestHandler<CreateBookCommand, Book>
+    public class CreateBookHandler : IRequestHandler<CreateBookCommand, CreateOrEditEntityResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateBookCommand> _validator;
@@ -16,7 +18,7 @@ namespace Library.Application.BookUseCases.Commands
             _mapper = mapper;
         }
 
-        public async Task<Book> Handle(CreateBookCommand request, CancellationToken cancellationToken)
+        public async Task<CreateOrEditEntityResponse> Handle(CreateBookCommand request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
@@ -24,12 +26,17 @@ namespace Library.Application.BookUseCases.Commands
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var book = _mapper.Map<Book>(request);
+            var bookToCreate = _mapper.Map<Book>(request);
 
-            await _unitOfWork.BookRepository.AddAsync(book, cancellationToken);
+            var createdBook = _unitOfWork.BookRepository.Add(bookToCreate);
             await _unitOfWork.SaveChangesAsync();
 
-            return book;
+            var response = new CreateOrEditEntityResponse()
+            {
+                Id = createdBook.Id,
+            };
+
+            return response;
         }
     }
 }

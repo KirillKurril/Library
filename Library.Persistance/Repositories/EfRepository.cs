@@ -26,15 +26,16 @@ namespace Library.Persistance.Repositories
                     query = query.Include(included);
                 }
             }
-            return query.SingleAsync(i => i.Id == id).Result;
+            return await query.SingleOrDefaultAsync(i => i.Id == id, cancellationToken);
         }
         public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
         {
             IQueryable<T>? query = _entities.AsQueryable();
 
-            return await query.ToListAsync();
+            return await query.ToListAsync(cancellationToken);
         }
-        public async Task<IReadOnlyList<T>> ListAsync(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default,
+        public async Task<IReadOnlyList<T>> ListAsync(Expression<Func<T, bool>> filter,
+            CancellationToken cancellationToken = default,
             params Expression<Func<T, object>>[]? includesProperties)
         {
             IQueryable<T>? query = _entities.AsQueryable();
@@ -50,32 +51,35 @@ namespace Library.Persistance.Repositories
             {
                 query = query.Where(filter);
             }
-            return await query.ToListAsync();
+            return await query.ToListAsync(cancellationToken);
         }
 
-        public Task Add(T entity, CancellationToken cancellationToken = default)
+        public T Add(T entity)
         {
-            _entities.AddAsync(entity, cancellationToken);
-            return Task.CompletedTask;
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            var entry = _entities.Add(entity);
+            return entry.Entity;
         }
 
-        public Task Update(T entity, CancellationToken cancellationToken = default)
+        public T Update(T entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            return Task.CompletedTask;
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            var entry = _context.Entry(entity);
+            entry.State = EntityState.Modified;
+            return entry.Entity;
         }
 
-        public Task Delete(T entity, CancellationToken cancellationToken = default)
+        public void Delete(T entity)
         {
             _context.Remove(entity);
-            return Task.CompletedTask;
         }
 
-        public Task<T?> FirstOrDefault(Expression<Func<T, bool>> filter, CancellationToken cancellationToken = default)
+        public Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> filter,
+            CancellationToken cancellationToken = default)
         {
             IQueryable<T>? query = _entities.AsQueryable();
 
-            return query.FirstOrDefaultAsync(filter);
+            return query.FirstOrDefaultAsync(filter,cancellationToken);
         }
 
     }

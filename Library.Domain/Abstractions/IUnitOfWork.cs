@@ -7,6 +7,7 @@ namespace Library.Domain.Abstractions
         IRepository<Author> AuthorRepository { get; }
         IRepository<Book> BookRepository { get; }
         IRepository<Genre> GenreRepository { get; }
+        IRepository<BookLending> BookLendingRepository { get; }
         Task SaveChangesAsync();
         Task DeleteDataBaseAsync();
         Task CreateDataBaseAsync();

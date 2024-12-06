@@ -1,4 +1,5 @@
 using Library.Application.AuthorUseCases.Commands;
+using Library.Application.DTOs;
 
 namespace Library.Application.Common.Mappings;
 
@@ -18,5 +19,9 @@ public class AuthorMappingConfig : IRegister
             .Map(dest => dest.Surname, src => src.Surname)
             .Map(dest => dest.BirthDate, src => src.BirthDate)
             .Map(dest => dest.Country, src => src.Country);
+
+        config.NewConfig<Author, AuthorBriefDTO>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.Name, src => src.Name);
     }
 }

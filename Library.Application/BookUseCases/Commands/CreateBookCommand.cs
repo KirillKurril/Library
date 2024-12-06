@@ -1,3 +1,5 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.BookUseCases.Commands
 {
     public sealed record CreateBookCommand(
@@ -6,7 +8,7 @@ namespace Library.Application.BookUseCases.Commands
         string? Description,
         int Quantity,
         int GenreId,
-        int AuthorId) : IRequest<Book>
+        int AuthorId) : IRequest<CreateOrEditEntityResponse>
     {
         public string? ImageUrl { get; set; }
     }

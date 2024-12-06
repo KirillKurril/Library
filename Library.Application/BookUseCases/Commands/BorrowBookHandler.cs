@@ -1,28 +1,27 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation;
-using Library.Application.Common.Exceptions;
-using Library.Domain.Abstractions;
-using Library.Domain.Entities;
-using MediatR;
+using Library.Application.Common.Interfaces;
 
 namespace Library.Application.BookUseCases.Commands
 {
-    public class BorrowBookHandler : IRequestHandler<BorrowBookCommand, Book>
+    public class BorrowBookHandler : IRequestHandler<BorrowBookCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<BorrowBookCommand> _validator;
+        private readonly IUserService _userService;
+        private readonly ILibrarySettings _librarySettings;
 
         public BorrowBookHandler(
             IUnitOfWork unitOfWork,
-            IValidator<BorrowBookCommand> validator)
+            IValidator<BorrowBookCommand> validator,
+            IUserService userService,
+            ILibrarySettings librarySettings)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
+            _userService = userService;
+            _librarySettings = librarySettings;
         }
 
-        public async Task<Book> Handle(BorrowBookCommand request, CancellationToken cancellationToken)
+        public async Task Handle(BorrowBookCommand request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
@@ -36,27 +35,30 @@ namespace Library.Application.BookUseCases.Commands
                 throw new NotFoundException(nameof(Book), request.BookId);
             }
 
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(request.UserId, cancellationToken);
-            if (user == null)
+            var userExists = await _userService.UserExistsAsync(request.UserId);
+            if (!userExists)
             {
-                throw new NotFoundException(nameof(User), request.UserId);
+                throw new NotFoundException($"User with id {request.UserId} doesn' exist");
             }
 
             if (!book.IsAvailable)
             {
-                throw new ValidationException("Book is not available for borrowing");
+                throw new ValidationException($"Book ({request.BookId}) is not available for borrowing");
             }
 
-            book.IsAvailable = false;
-            book.UserId = request.UserId;
-            book.BorrowedAt = DateTime.UtcNow;
-            book.ReturnDate = request.ReturnDate;
-            book.ActualReturnDate = null;
+            var dateNow = DateTime.UtcNow;
+            var loanPeriod = _librarySettings.DefaultLoanPeriodInDays;
+            var returnDate = dateNow.AddDays(loanPeriod);
+            var lending = new BookLending()
+            {
+                BookId = request.BookId,
+                UserId = request.UserId,
+                BorrowedAt = dateNow,
+                ReturnDate = returnDate
+            };
 
-            await _unitOfWork.BookRepository.UpdateAsync(book, cancellationToken);
+            _unitOfWork.BookLendingRepository.Add(lending);
             await _unitOfWork.SaveChangesAsync();
-
-            return book;
         }
     }
 }

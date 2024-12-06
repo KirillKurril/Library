@@ -1,6 +1,8 @@
+using Library.Application.DTOs;
+
 namespace Library.Application.BookUseCases.Commands
 {
-    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, Book>
+    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, CreateOrEditEntityResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateBookCommand> _validator;
@@ -16,7 +18,7 @@ namespace Library.Application.BookUseCases.Commands
             _mapper = mapper;
         }
 
-        public async Task<Book> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+        public async Task<CreateOrEditEntityResponse> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
@@ -32,7 +34,7 @@ namespace Library.Application.BookUseCases.Commands
 
             if (book.ISBN != request.ISBN)
             {
-                var existingBook = await _unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == request.ISBN);
+                var existingBook = await _unitOfWork.BookRepository.FirstOrDefault(b => b.ISBN == request.ISBN);
                 if (existingBook != null)
                 {
                     throw new ValidationException($"Book with ISBN {request.ISBN} already exists");
@@ -40,6 +42,7 @@ namespace Library.Application.BookUseCases.Commands
             }
 
             _mapper.Map(request, book);
+            var updatedBook = _unitOfWork.BookRepository.Update(book);
             await _unitOfWork.SaveChangesAsync();
 
             return book;

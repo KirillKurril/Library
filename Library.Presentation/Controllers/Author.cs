@@ -1,6 +1,7 @@
 ﻿using Library.Application.AuthorUseCases.Commands;
 using Library.Application.AuthorUseCases.Queries;
 using Library.Application.Common.Exceptions;
+using Library.Domain.Entities;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,23 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<IEnumerable<AuthorDTO>>> GetAllList(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<Author>>> GetAllList(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var query = new GetAllAuthorsQuery();
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving all authors list. {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        [Route("for-filtration")]
+        public async Task<ActionResult<IEnumerable<AuthorBriefDTO>>> GetForFiltrationList(CancellationToken cancellationToken)
         {
             try
             {
@@ -35,7 +52,7 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
-        public async Task<ActionResult<AuthorDTO>> GetById(int id,
+        public async Task<ActionResult<Author>> GetById(int id,
             CancellationToken cancellationToken)
         {
             try

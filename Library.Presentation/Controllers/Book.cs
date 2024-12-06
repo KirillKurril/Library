@@ -1,8 +1,9 @@
 ﻿using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Queries;
 using Library.Application.Common.Exceptions;
+using Library.Application.Common.Models;
+using Library.Domain.Entities;
 using Library.Presentation.Services.BookImage;
-using Library.Presentation.Services.DebtorNotifier;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("my-books")]
-        public async Task<ActionResult<IEnumerable<BookDTO>>> GetBorrowedList(
+        public async Task<ActionResult<ResponseData<BookLendingDTO>>> GetBorrowedList(
             [FromQuery] int userId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
@@ -43,7 +44,7 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("catalog")]
-        public async Task<ActionResult<IEnumerable<BookDTO>>> GetFiltredList(
+        public async Task<ActionResult<ResponseData<BookCatalogDTO>>> GetFiltredList(
             [FromQuery] string? searchTerm,
             [FromQuery] string? genre,
             [FromQuery] int? AuthorId,
@@ -65,7 +66,7 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
-        public async Task<IActionResult> GetById(
+        public async Task<ActionResult<BookDetailsDTO>> GetById(
             int id,
             CancellationToken cancellationToken)
         {
@@ -91,7 +92,7 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("{isbn:string}")]
-        public async Task<IActionResult> GetByISBN(
+        public async Task<ActionResult<BookDetailsDTO>> GetByISBN(
             string isbn,
             CancellationToken cancellationToken)
         {
@@ -135,6 +136,10 @@ namespace Library.Presentation.Controllers
             {
                 return NotFound(ex.Message);
             }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception)
             {
                 return StatusCode(500, $"An error occurred while borrowing book with ID {id}");
@@ -164,15 +169,16 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost]
-        public async  Task<IActionResult> Create(
+        public async  Task<ActionResult<CreateOrEditEntityResponse>> Create(
             [FromBody] CreateBookDTO createBookDTO,
             CancellationToken cancellationToken)
         {
             try
             {
                 var command = createBookDTO.Adapt<CreateBookCommand>();
-                var result = await _mediator.Send(command, cancellationToken);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+                var response = await _mediator.Send(command, cancellationToken);
+                response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id});
+                return Ok(response);
             }
             catch (ValidationException ex)
             {
@@ -189,7 +195,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(
+        public Task<ActionResult<CreateOrEditEntityResponse>> Update(
             [FromBody] UpdateBookDTO updateBookDTO,
             CancellationToken cancellationToken)
         {

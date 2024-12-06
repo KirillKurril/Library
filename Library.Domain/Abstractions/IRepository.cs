@@ -18,16 +18,11 @@ namespace Library.Domain.Abstractions
         params Expression<Func<T, object>>[]?
         includesProperties);
 
-        Task Add(T entity, CancellationToken cancellationToken
-        = default);
+        T Add(T entity);
+        T Update(T entity);
+        void Delete(T entity);
 
-        Task Update(T entity, CancellationToken
-        cancellationToken = default);
-
-        Task Delete(T entity, CancellationToken
-        cancellationToken = default);
-
-        Task<T> FirstOrDefault(Expression<Func<T, bool>>
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>>
         filter, CancellationToken cancellationToken = default);
     }
 }
