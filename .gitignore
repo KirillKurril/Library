@@ -25,6 +25,7 @@ x86/
 [Aa][Rr][Mm]64/
 bld/
 [Bb]in/
+!keycloak-26.0.1/bin/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
@@ -156,5 +157,5 @@ Desktop.ini
 .DS_Store
 
 # Исключение для папки keycloak - отслеживать все файлы
-!keycloak/
-!keycloak/**
+!keycloak-26.0.1/
+!keycloak-26.0.1/**
