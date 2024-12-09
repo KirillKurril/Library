@@ -20,7 +20,7 @@ public class UserEmailAccessor : IUserEmailAccessor
     {
         await _tokenAccessor.SetAuthorizationHeaderAsync(_httpClient);
 
-        var response = await _httpClient.GetAsync($"protocol/openid-connect/userinfo");
+        var response = await _httpClient.GetAsync($"users/{userId}");
         if (!response.IsSuccessStatusCode)
             return null;
 
