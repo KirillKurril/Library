@@ -7,11 +7,11 @@ namespace Library.Application.BookUseCases.Validators
 {
     public class CreateBookCommandValidator : AbstractValidator<CreateBookCommand>
     {
-        public CreateBookCommandValidator(IUnitOfWork unitOfWork, ILibrarySettings librarySettings)
+        public CreateBookCommandValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(x => x.ISBN)
                 .NotEmpty().WithMessage("ISBN is required")
-                .MaximumLength(librarySettings.IsbnLength).WithMessage("ISBN must not exceed 13 characters")
+                .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
                 .MustAsync(async (isbn, ct) =>
                 {
                     var existingBook = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn);

@@ -1,4 +1,3 @@
-using Library.Application.DTOs;
 
 namespace Library.Application.BookUseCases.Commands
 {
@@ -34,20 +33,16 @@ namespace Library.Application.BookUseCases.Commands
 
             if (book.ISBN != request.ISBN)
             {
-                var existingBook = await _unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == request.ISBN);
+                var existingBook = await _unitOfWork.BookRepository
+                    .FirstOrDefaultAsync(b => b.ISBN == request.ISBN && b.Id != request.Id);
                 if (existingBook != null)
                 {
                     throw new DuplicateIsbnException($"Book with ISBN {request.ISBN} already exists");
                 }
             }
 
-            book.ISBN = request.ISBN ?? book.ISBN;
-            book.Title = request.Title ?? book.Title;
-            book.Description = request.Description ?? book.Description;
-            book.AuthorId = request.AuthorId ?? book.AuthorId;
-            book.GenreId = request.GenreId ?? book.GenreId;
-            book.ImageUrl = request.ImageUrl ?? book.ImageUrl;
-            book.Quantity = request.Quantity ?? book.Quantity;
+            var updatedBook = request.Adapt<Book>();
+            _unitOfWork.BookRepository.Update(updatedBook);
 
             await _unitOfWork.SaveChangesAsync();
         }

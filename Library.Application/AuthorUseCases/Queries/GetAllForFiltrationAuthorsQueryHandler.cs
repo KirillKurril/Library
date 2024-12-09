@@ -1,10 +1,5 @@
-﻿using Library.Application.BookUseCases.Commands;
-using Library.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Library.Application.DTOs;
+
 
 namespace Library.Application.AuthorUseCases.Queries
 {
@@ -18,10 +13,11 @@ namespace Library.Application.AuthorUseCases.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<AuthorBriefDTO>> Handle(GetAllForFiltrationAuthorsQuery request, CancellationToken cancellationToken)
         {
-            var authos = await _unitOfWork.AuthorRepository.ListAllAsync(cancellationToken);
-            foreach
+            var authors = await _unitOfWork.AuthorRepository.ListAllAsync(cancellationToken);
+            var authorBriefDTOs = authors.Adapt<IEnumerable<AuthorBriefDTO>>();
+            return authorBriefDTOs;
         }
     }
 }

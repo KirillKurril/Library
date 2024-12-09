@@ -27,7 +27,7 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Author ID is required")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId.Value);
+                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
                     return author != null;
                 }).WithMessage("Author with specified ID does not exist")
                 .When(x => x.AuthorId != null);

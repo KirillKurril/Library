@@ -13,8 +13,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPersistence(
         this IServiceCollection services,
-        IConfiguration configuration,
-        string connStr)
+        IConfiguration configuration)
     {
         services.AddSingleton<IUnitOfWork, EfUnitOfWork>();
         services.AddSingleton<ILibrarySettings, LibrarySettingsService>();
@@ -25,7 +24,7 @@ public static class DependencyInjection
         services.AddScoped<AppDbContext>();
         services.AddDbContext<AppDbContext>(opts =>
         {
-            opts.UseSqlServer(connStr);
+            opts.UseSqlServer(configuration.GetConnectionString("MicrosoftSQLServer"));
         });
         return services;
     }

@@ -20,6 +20,6 @@ public class CreateAuthorCommandValidator : AbstractValidator<CreateAuthorComman
 
         RuleFor(x => x.Country)
             .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(100);
     }
 }

@@ -2,5 +2,5 @@
 
 namespace Library.Application.AuthorUseCases.Queries
 {
-    public sealed record GetAllForFiltrationAuthorsQuery() : IRequest<AuthorBriefDTO>;
+    public sealed record GetAllForFiltrationAuthorsQuery() : IRequest<IEnumerable<AuthorBriefDTO>>;
 }

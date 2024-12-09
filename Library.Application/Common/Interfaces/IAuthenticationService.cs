@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Library.Application.Common.Interfaces
 {
-    internal interface IAuthenticationService
+    public interface IAuthenticationService
     {
+        Task<string> GetAccessTokenAsync();
+        Task<bool> ValidateTokenAsync(string token);
     }
 }
