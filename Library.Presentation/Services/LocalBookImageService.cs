@@ -1,5 +1,6 @@
-﻿
-namespace Library.Presentation.Services.BookImage
+﻿using Library.Presentation.Services.BookImage;
+
+namespace Library.Presentation.Services
 {
     public class LocalBookImageService : IBookImageService
     {

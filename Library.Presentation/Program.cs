@@ -5,6 +5,7 @@ using Library.Application;
 using Library.Presentation.Services;
 using Library.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Library.Application.Common.Interfaces;
 
 namespace Library.Presentation
 {
@@ -33,21 +34,45 @@ namespace Library.Presentation
                 .GetSection("Keycloak")
                 .Get<KeycloakSettings>();
 
+            builder.Services.AddSingleton(keycloakSettings);
+
+            builder.Services.AddHttpClient<ITokenAccessor, TokenAccesor>(opt =>
+            {
+                opt.BaseAddress = new Uri($"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/");
+            });
+
+            builder.Services.AddHttpClient<IUserEmailAccessor, UserEmailAccessor>(opt =>
+            {
+                opt.BaseAddress = new Uri($"{keycloakSettings.Host}/admin/realms/{keycloakSettings.Realm}/");
+            });
+
             builder.Services.AddApplication();
             builder.Services.AddPersistence(builder.Configuration);
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
-                {
-                    o.MetadataAddress = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/.well-known/openid-configuration";
-                    o.Authority = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}";
-                    o.Audience = "account";
-                    o.RequireHttpsMetadata = false;
-                });
-
-            builder.Services.AddAuthorization(opt =>
+            builder.Services.AddAuthentication(options =>
             {
-                opt.AddPolicy("admin", p => p.RequireRole("admin"));
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.Authority = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}";
+                options.MetadataAddress = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/.well-known/openid-configuration";
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidIssuer = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}",
+                    ValidateLifetime = true
+                };
+            });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("admin", p => p.RequireRole("admin"));
+                options.AddPolicy("user", policy => 
+                policy.RequireRole("user"));
             });
 
             builder.Services.AddStackExchangeRedisCache(options =>
@@ -57,11 +82,7 @@ namespace Library.Presentation
                 options.InstanceName = redisConfig["InstanceName"];
             });
 
-            builder.Services.AddHostedService<OverdueBooksNotificationService>();
 
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddScoped<IKeycloakService, KeycloakService>();
 
             builder.Services.AddCors(options =>
             {

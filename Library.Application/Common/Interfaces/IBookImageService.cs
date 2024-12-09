@@ -1,4 +1,6 @@
-﻿namespace Library.Presentation.Services.BookImage
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Library.Presentation.Services.BookImage
 {
     public interface IBookImageService
     {
