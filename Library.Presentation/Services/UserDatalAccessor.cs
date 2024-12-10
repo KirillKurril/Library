@@ -12,14 +12,17 @@ public class UserDatalAccessor : IUserDataAccessor
     private readonly HttpClient _httpClient;
     private readonly ITokenAccessor _tokenAccessor;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<UserDatalAccessor> _logger;
     public UserDatalAccessor(
         ITokenAccessor tokenAccessor,
         HttpClient httpClient,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<UserDatalAccessor> logger)
     {
         _httpClient = httpClient;
         _tokenAccessor = tokenAccessor;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<ResponseData<JsonElement>> GetUserDataAsJson(Guid userId)
@@ -69,7 +72,7 @@ public class UserDatalAccessor : IUserDataAccessor
                     var usersInfoResponse = await _httpClient.GetAsync($"users?first={i}&max={step}");
                     if (!usersInfoResponse.IsSuccessStatusCode)
                     {
-                        Console.WriteLine($"Unable to fetch users info id({i} - {i + step}) from keycloak");
+                        _logger.LogError($"Unable to fetch users info id({i} - {i + step}) from keycloak");
                         return;
                     }
                     var usersData = await usersInfoResponse.Content.ReadAsStringAsync();

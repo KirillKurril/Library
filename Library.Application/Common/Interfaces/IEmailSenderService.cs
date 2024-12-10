@@ -1,7 +1,9 @@
-﻿namespace Library.Application.Common.Interfaces
+﻿using Library.Application.Common.Models;
+
+namespace Library.Application.Common.Interfaces
 {
     public interface IEmailSenderService
     {
-        Task<Dictionary<string, string>> GetUsersEmailsByIds(IEnumerable<string> userIds);
+        Task<ResponseData<bool>> SendNotifications(IReadOnlyList<DebtorNotification> notifications);
     }
 }
