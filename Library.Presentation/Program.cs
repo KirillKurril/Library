@@ -41,7 +41,7 @@ namespace Library.Presentation
                 opt.BaseAddress = new Uri($"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/");
             });
 
-            builder.Services.AddHttpClient<IUserEmailAccessor, UserEmailAccessor>(opt =>
+            builder.Services.AddHttpClient<IUserDataAccessor, UserDatalAccessor>(opt =>
             {
                 opt.BaseAddress = new Uri($"{keycloakSettings.Host}/admin/realms/{keycloakSettings.Realm}/");
             });

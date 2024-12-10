@@ -6,18 +6,18 @@ namespace Library.Application.BookUseCases.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<BorrowBookCommand> _validator;
-        private readonly IUserService _userService;
+        private readonly IUserDataAccessor _userDataAccessor;
         private readonly ILibrarySettings _librarySettings;
 
         public BorrowBookHandler(
             IUnitOfWork unitOfWork,
             IValidator<BorrowBookCommand> validator,
-            IUserService userService,
+            IUserDataAccessor userDataAccessor,
             ILibrarySettings librarySettings)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
-            _userService = userService;
+            _userDataAccessor = userDataAccessor;
             _librarySettings = librarySettings;
         }
 
@@ -35,7 +35,7 @@ namespace Library.Application.BookUseCases.Commands
                 throw new NotFoundException(nameof(Book), request.BookId);
             }
 
-            var userExists = await _userService.UserExistsAsync(request.UserId);
+            var userExists = await _userDataAccessor.UserExist(request.UserId);
             if (!userExists)
             {
                 throw new NotFoundException($"User with id {request.UserId} doesn' exist");

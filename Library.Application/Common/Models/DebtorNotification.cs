@@ -2,7 +2,7 @@
 {
     public class DebtorNotification
     {
-        public int UserID { get; set; }
+        public Guid UserID { get; set; }
         public IReadOnlyList<BookBrief> ExpiredBooks { get; set; }
     }
 }

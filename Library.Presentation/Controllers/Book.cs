@@ -25,7 +25,7 @@ namespace Library.Presentation.Controllers
         [HttpGet]
         [Route("my-books")]
         public async Task<ActionResult<PaginationListModel<IEnumerable<BookLendingDTO>>>> GetBorrowedList(
-            [FromQuery] int userId,
+            [FromQuery] Guid userId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
@@ -119,7 +119,7 @@ namespace Library.Presentation.Controllers
         [HttpPost("{id}/borrow")]
         public async Task<IActionResult> BorrowBook(
             int id,
-            [FromBody] int userId,
+            [FromBody] Guid userId,
             CancellationToken cancellationToken)
         {
             try

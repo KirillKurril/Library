@@ -4,7 +4,7 @@ using Library.Application.DTOs;
 namespace Library.Application.BookUseCases.Queries
 {
     public sealed record GetBorrowedBooksQuery(
-        int UserId,
+        Guid UserId,
         int? PageNo,
         int? ItemsPerPage
         ) : IRequest<PaginationListModel<BookLendingDTO>>;
