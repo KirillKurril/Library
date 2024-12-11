@@ -43,21 +43,21 @@ namespace Library.Presentation.Services
             Task.Run(async () =>
             {
                 var notifications = await _mediator.Send(new GetExpiredBooksQuery());
-                var debtorIds = notifications.Select(n => n.UserID).ToList();
-                var emailsDictionaryResponse = await _userDataAccessor.GetUsersEmailsByIds(debtorIds);
-                
-                if(!emailsDictionaryResponse.Success)
+                var notificationsEnrichResponse = await _userDataAccessor.EnrichNotifications(notifications);
+
+                if (!notificationsEnrichResponse.Success)
                 {
-                    _logger.LogError(emailsDictionaryResponse.ErrorMessage);
+                    _logger.LogError(notificationsEnrichResponse.ErrorMessage);
                     return;
                 }
 
-                foreach (var notification in notifications)
-                {
-                    notification.Email = emailsDictionaryResponse.Data[notification.UserID];
-                }
+                var sendNotificationsResponse = await _emailSender.SendNotifications(notifications);
 
-                _emailSender.
+                if (!sendNotificationsResponse.Success)
+                {
+                    _logger.LogError(sendNotificationsResponse.ErrorMessage);
+                    return;
+                }
             });
         }
 

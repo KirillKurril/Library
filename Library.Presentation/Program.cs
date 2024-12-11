@@ -6,6 +6,7 @@ using Library.Presentation.Services;
 using Library.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Library.Application.Common.Interfaces;
+using Library.Presentation.Services.BookImage;
 
 namespace Library.Presentation
 {
@@ -41,7 +42,8 @@ namespace Library.Presentation
                 opt.BaseAddress = new Uri($"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/");
             });
 
-            builder.Services.AddHttpClient<IUserDataAccessor, UserDatalAccessor>(opt =>
+            builder.Services.AddSingleton<IUserDataAccessor, UserDataAccessor>();
+            builder.Services.AddHttpClient<IUserDataAccessor, UserDataAccessor>(opt =>
             {
                 opt.BaseAddress = new Uri($"{keycloakSettings.Host}/admin/realms/{keycloakSettings.Realm}/");
             });
@@ -82,8 +84,6 @@ namespace Library.Presentation
                 options.InstanceName = redisConfig["InstanceName"];
             });
 
-
-
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -93,6 +93,11 @@ namespace Library.Presentation
                           .AllowAnyHeader();
                 });
             });
+
+            builder.Services.AddSingleton<IEmailSenderService, EmailSenderService>();
+            builder.Services.AddHostedService<DebtorNotifierService>();
+
+            builder.Services.AddScoped<IBookImageService, LocalBookImageService>();
         }
 
         private static async Task InitializeDatabase(WebApplication app)
@@ -112,6 +117,7 @@ namespace Library.Presentation
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
 
             app.UseCors("AllowAll");

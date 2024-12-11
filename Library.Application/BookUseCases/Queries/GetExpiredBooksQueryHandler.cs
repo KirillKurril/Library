@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Library.Application.BookUseCases.Queries
 {
-    public class GetExpiredBooksQueryHandler : IRequestHandler<GetExpiredBooksQuery, IReadOnlyList<DebtorNotification>>
+    public class GetExpiredBooksQueryHandler : IRequestHandler<GetExpiredBooksQuery, IEnumerable<DebtorNotification>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -12,7 +12,7 @@ namespace Library.Application.BookUseCases.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IReadOnlyList<DebtorNotification>> Handle(GetExpiredBooksQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<DebtorNotification>> Handle(GetExpiredBooksQuery request, CancellationToken cancellationToken)
         {
 
             var response = _unitOfWork.BookLendingRepository.GetQueryable()
@@ -38,7 +38,7 @@ namespace Library.Application.BookUseCases.Queries
                         BookName = exb.Book.Title,
                         AuthorName = exb.AuthorName
                     }).ToList()
-                }).ToList().AsReadOnly();
+                }).AsEnumerable();
 
             return response;
         }

@@ -1,23 +1,20 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Library.Application.Common.Interfaces;
 using Library.Application.Common.Models;
-using Microsoft.Extensions.Configuration;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Library.Presentation.Services;
 
-public class UserDatalAccessor : IUserDataAccessor
+public class UserDataAccessor : IUserDataAccessor
 {
     private readonly HttpClient _httpClient;
     private readonly ITokenAccessor _tokenAccessor;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<UserDatalAccessor> _logger;
-    public UserDatalAccessor(
+    private readonly ILogger<UserDataAccessor> _logger;
+    public UserDataAccessor(
         ITokenAccessor tokenAccessor,
         HttpClient httpClient,
         IConfiguration configuration,
-        ILogger<UserDatalAccessor> logger)
+        ILogger<UserDataAccessor> logger)
     {
         _httpClient = httpClient;
         _tokenAccessor = tokenAccessor;
@@ -45,7 +42,7 @@ public class UserDatalAccessor : IUserDataAccessor
         return userDataResponse.Success
                 && !userDataResponse.Data.TryGetProperty("error", out var notFoundString);
     }
-    public async Task<ResponseData<Dictionary<Guid, string>>> GetUsersEmailsByIds(IEnumerable<Guid> userIds)
+    public async Task<ResponseData<bool>> EnrichNotifications(IEnumerable<DebtorNotification> notifications)
     {
         await _tokenAccessor.SetAuthorizationHeaderAsync(_httpClient);
 
@@ -53,7 +50,7 @@ public class UserDatalAccessor : IUserDataAccessor
 
         if(!countResponse.IsSuccessStatusCode)
         {
-            return new ResponseData<Dictionary<Guid, string>>(false, "Unable to fetch users count from keycloak");
+            return new ResponseData<bool>(false, "Unable to fetch users count from keycloak");
         }
 
         var content = await countResponse.Content.ReadAsStringAsync();
@@ -61,7 +58,7 @@ public class UserDatalAccessor : IUserDataAccessor
 
         var step = _configuration.GetValue<int>("UserSFetchingStep");
 
-        var result = new Dictionary<Guid, string>();
+        var userIds = notifications.Select(n => n.UserID);
         var tasks = new List<Task>();
         try
         {
@@ -83,15 +80,27 @@ public class UserDatalAccessor : IUserDataAccessor
 
                     foreach (var userElement in usersArray)
                     {
-                        if (userElement.TryGetProperty("id", out var idProperty) &&
-                            userElement.TryGetProperty("email", out var emailProperty))
+                        if (userElement.TryGetProperty("id", out var idProperty))
                         {
                             var userId = idProperty.GetGuid();
-                            var email = emailProperty.GetString();
 
                             if (userIds.Contains(userId))
                             {
-                                result[userId] = email;
+                                userElement.TryGetProperty("email", out var emailProperty);
+                                userElement.TryGetProperty("firstName", out var firstNameProperty);
+                                userElement.TryGetProperty("lastName", out var lastNameProperty);
+
+                                var email = emailProperty.GetString();
+                                var firstName = firstNameProperty.GetString();
+                                var lastName = lastNameProperty.GetString();
+
+                                var notification = notifications.FirstOrDefault(n => n.UserID == userId);
+                                if (notification != null)
+                                {
+                                    notification.Email = email;
+                                    notification.FirstName = firstName;
+                                    notification.LastName = lastName;
+                                }
                             }
                         }
                     }
@@ -100,13 +109,13 @@ public class UserDatalAccessor : IUserDataAccessor
         }
         catch(Exception ex)
         {
-            return new ResponseData<Dictionary<Guid, string>>(false,
+            return new ResponseData<bool>(false,
                 $"Could not parse user data for element: {ex.Message}");
         }
 
         await Task.WhenAll(tasks);
 
-        return new ResponseData<Dictionary<Guid, string>>(result);
+        return new ResponseData<bool>(true);
     }
 
    

@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Library.Application.Common.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Library.Presentation.Services.BookImage
 {
     public interface IBookImageService
     {
-        public string SaveImage(IFormFile image);
+        public Task<ResponseData<string>> SaveImage(IFormFile image, HostString host, string scheme);
     }
 }

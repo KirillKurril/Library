@@ -16,10 +16,15 @@ namespace Library.Presentation.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IBookImageService _imageService;
-        public BookController(IMediator mediator, IBookImageService bookImageService)
+        private readonly ILogger<BookController> _logger;
+        public BookController(
+            IMediator mediator,
+            IBookImageService bookImageService,
+            ILogger<BookController> logger)
         {
             _mediator = mediator;
             _imageService = bookImageService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -256,8 +261,16 @@ namespace Library.Presentation.Controllers
         {
             try
             {
-                string url = _imageService.SaveImage(image);
-                var command = new UpdateBookImageCommand(id, url);
+                var urlResponse = await _imageService.SaveImage(image, Request.Host, Request.Scheme);
+                if(!urlResponse.Success)
+                {
+                    _logger.LogError(urlResponse.ErrorMessage);
+                    if (urlResponse.ErrorMessage.Contains("is not an image"))
+                        return BadRequest(urlResponse.ErrorMessage);
+                    else
+                        return StatusCode(500, urlResponse.ErrorMessage);
+                }
+                var command = new UpdateBookImageCommand(id, urlResponse.Data);
                 await _mediator.Send(command, cancellationToken);
                 return NoContent();
             }
