@@ -4,15 +4,24 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using System.IO;
 using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Library.Presentation.Services
 {
     public class LocalBookImageService : IBookImageService
     {
         private readonly IWebHostEnvironment _env;
-        public LocalBookImageService(IWebHostEnvironment webHostEnvironment)
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<LocalBookImageService> _logger;
+        public LocalBookImageService(
+            IWebHostEnvironment webHostEnvironment,
+            IConfiguration configuration,
+            ILogger<LocalBookImageService> logger)
         {
             _env = webHostEnvironment;
+            _configuration = configuration;
+            _logger = logger;   
         }
         public async Task<ResponseData<string>> SaveImage(IFormFile image, HostString host, string scheme)
         {
@@ -32,14 +41,34 @@ namespace Library.Presentation.Services
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError($"Error saving book cover: {ex.Message}");
                     return new ResponseData<string>(false, $"Error saving book cover: {ex.Message}");
                 }
 
                 var baseUrl = $"{scheme}://{host}";
                 var url = Path.Combine(baseUrl, "images", "covers", filePath);
+
+                _logger.LogInformation($"Saved image to url {url} and to path {filePath}");
+
                 return new ResponseData<string>(url);
             }
             return new ResponseData<string>(false, $"Transfered file {image.FileName} is not an image");
+        }
+        public ResponseData<string> GetDefaultCoverImage(HostString host, string scheme)
+        {
+            string defaulCoverFileName = "";
+            defaulCoverFileName = _configuration.GetValue<string>("LibrarySettings:LibrarySettings");
+
+            if(defaulCoverFileName == null)
+            {
+                _logger.LogError("Error receiving default book cover file name from configuration");
+                return new ResponseData<string>(false, "Error receiving default book cover file name from configuration");
+            }
+            
+            var baseUrl = $"{scheme}://{host}";
+            var url = Path.Combine(baseUrl, "images", "covers", defaulCoverFileName);
+
+            return new ResponseData<string>(url);
         }
         private async Task<bool> IsImageFile(IFormFile image)
         {
@@ -64,5 +93,6 @@ namespace Library.Presentation.Services
                  return false; 
             }
         }
+    
     }
 }

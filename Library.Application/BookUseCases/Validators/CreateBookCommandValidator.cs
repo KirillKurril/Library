@@ -14,7 +14,7 @@ namespace Library.Application.BookUseCases.Validators
                 .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
                 .MustAsync(async (isbn, ct) =>
                 {
-                    var existingBook = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn);
+                    var existingBook = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn, ct);
                     return existingBook == null;
                 }).WithMessage("A book with this ISBN already exists");
 

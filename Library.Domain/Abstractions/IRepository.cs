@@ -26,7 +26,8 @@ namespace Library.Domain.Abstractions
         void Update(T entity);
         void Delete(T entity);
 
-        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>>
-        filter, CancellationToken cancellationToken = default);
+        public Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> filter,
+            CancellationToken cancellationToken = default,
+            params Expression<Func<T, object>>[]? includesProperties);
     }
 }

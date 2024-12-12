@@ -11,10 +11,13 @@ namespace Library.Application.BookUseCases.Validators
         public BorrowBookCommandValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(x => x.BookId)
-                .NotEmpty().WithMessage("Book ID is required");
-
-            RuleFor(x => x.UserId)
-                .NotEmpty().WithMessage("User ID is required");
+                .NotEmpty().WithMessage("Book ID is required")
+                .MustAsync(async (bookId, ct) =>
+                {
+                    var bookExist = await unitOfWork.BookLendingRepository
+                    .FirstOrDefaultAsync(bl => bl.BookId == bookId, ct);
+                    return bookExist != null;
+                }).WithMessage($"Current book hasn't been boeeowed by this user");
         }
     }
 }

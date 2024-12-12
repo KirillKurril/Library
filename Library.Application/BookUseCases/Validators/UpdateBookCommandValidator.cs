@@ -1,6 +1,4 @@
-using FluentValidation;
 using Library.Application.BookUseCases.Commands;
-using Library.Domain.Abstractions;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -9,7 +7,12 @@ namespace Library.Application.BookUseCases.Validators
         public UpdateBookCommandValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Book ID is required");
+                .NotEmpty().WithMessage("Book ID is required")
+                .MustAsync(async (bookId, ct) =>
+                {
+                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(bookId);
+                    return author != null;
+                }).WithMessage($"Book being updated doesn't exist");
 
             RuleFor(x => x.ISBN)
                 .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")

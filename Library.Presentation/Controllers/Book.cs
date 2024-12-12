@@ -5,6 +5,7 @@ using Library.Application.Common.Models;
 using Library.Presentation.Services.BookImage;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Presentation.Controllers
@@ -28,14 +29,15 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("my-books")]
+        [Authorize]
         public async Task<ActionResult<PaginationListModel<IEnumerable<BookLendingDTO>>>> GetBorrowedList(
-            [FromQuery] Guid userId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
             try
             {
+                var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
                 var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
                 var result = await _mediator.Send(query, cancellationToken);
                 return Ok(result);
@@ -121,13 +123,14 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost("{id}/borrow")]
+        [Authorize]
         public async Task<IActionResult> BorrowBook(
             Guid id,
-            [FromBody] Guid userId,
             CancellationToken cancellationToken)
         {
             try
             {
+                var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
                 var command = new BorrowBookCommand(id, userId);
                 await _mediator.Send(command, cancellationToken);
                 return NoContent();
@@ -151,13 +154,14 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost("{id}/return")]
+        [Authorize]
         public async Task<IActionResult> ReturnBook(
             Guid id,
-            [FromBody] Guid userId,
             CancellationToken cancellationToken)
         {
             try
             {
+                var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
                 var command = new ReturnBookCommand(id, userId);
                 await _mediator.Send(command, cancellationToken);
                 return NoContent();
@@ -173,6 +177,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async  Task<ActionResult<CreateEntityResponse>> Create(
             [FromBody] CreateBookDTO createBookDTO,
             CancellationToken cancellationToken)
@@ -180,9 +185,15 @@ namespace Library.Presentation.Controllers
             try
             {
                 var command = createBookDTO.Adapt<CreateBookCommand>();
-                var response = await _mediator.Send(command, cancellationToken);
-                response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id});
-                return Ok(response);
+                var createBookResult = await _mediator.Send(command, cancellationToken);
+                createBookResult.RedirectUrl = Url.Action(nameof(GetById), new { id = createBookResult.Id});
+
+                var result = await SetDefaultCover(createBookResult.Id, cancellationToken);
+                if (result is OkResult)
+                    return Ok(createBookResult);
+
+                else
+                    return StatusCode(500, $"Error setting default image to {createBookDTO.Title}");
             }
             catch (ValidationException ex)
             {
@@ -199,6 +210,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(
             [FromBody] UpdateBookDTO updateBookDTO,
             CancellationToken cancellationToken)
@@ -228,6 +240,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
             Guid id,
             CancellationToken cancellationToken)
@@ -253,6 +266,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost("{id}/upload-image")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UploadImage(
             Guid id,
             IFormFile image,
@@ -268,6 +282,33 @@ namespace Library.Presentation.Controllers
                         return BadRequest(urlResponse.ErrorMessage);
                     else
                         return StatusCode(500, urlResponse.ErrorMessage);
+                }
+                var command = new UpdateBookImageCommand(id, urlResponse.Data);
+                await _mediator.Send(command, cancellationToken);
+                return NoContent();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while uploading image for book with ID {id}. {ex.Message}");
+            }
+        }
+
+        [HttpPost("{id}/delete-cover")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> SetDefaultCover(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var urlResponse = _imageService.GetDefaultCoverImage(Request.Host, Request.Scheme);
+                if (!urlResponse.Success)
+                {
+                    return StatusCode(500, urlResponse.ErrorMessage);
                 }
                 var command = new UpdateBookImageCommand(id, urlResponse.Data);
                 await _mediator.Send(command, cancellationToken);

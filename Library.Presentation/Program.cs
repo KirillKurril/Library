@@ -73,8 +73,6 @@ namespace Library.Presentation
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("admin", p => p.RequireRole("admin"));
-                options.AddPolicy("user", policy => 
-                policy.RequireRole("user"));
             });
 
             builder.Services.AddStackExchangeRedisCache(options =>

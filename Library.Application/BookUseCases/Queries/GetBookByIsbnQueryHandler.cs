@@ -15,7 +15,9 @@ namespace Library.Application.BookUseCases.Queries
         {
             var book = await _unitOfWork.BookRepository.FirstOrDefaultAsync(
                 b => b.ISBN == request.ISBN,
-                cancellationToken);
+                cancellationToken,
+                b => b.Author,
+                b => b.Genre);
 
             if (book == null)
             {

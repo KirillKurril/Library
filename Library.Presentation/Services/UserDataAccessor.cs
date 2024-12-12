@@ -56,7 +56,7 @@ public class UserDataAccessor : IUserDataAccessor
         var content = await countResponse.Content.ReadAsStringAsync();
         var userCount = JsonSerializer.Deserialize<int>(content);
 
-        var step = _configuration.GetValue<int>("UserSFetchingStep");
+        var step = _configuration.GetValue<int>("UsersFetchingStep");
 
         var userIds = notifications.Select(n => n.UserID);
         var tasks = new List<Task>();

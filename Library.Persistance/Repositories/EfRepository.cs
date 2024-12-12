@@ -18,7 +18,7 @@ namespace Library.Persistance.Repositories
             params Expression<Func<T, object>>[]? includesProperties)
         {
             IQueryable<T>? query = _entities.AsQueryable();
-            if (includesProperties.Any())
+            if (includesProperties?.Any() == true)
             {
                 foreach (Expression<Func<T, object>>? included in
                includesProperties)
@@ -39,7 +39,7 @@ namespace Library.Persistance.Repositories
             params Expression<Func<T, object>>[]? includesProperties)
         {
             IQueryable<T>? query = _entities.AsQueryable();
-            if (includesProperties.Any())
+            if (includesProperties?.Any() == true)
             {
                 foreach (Expression<Func<T, object>>? included in
                includesProperties)
@@ -59,7 +59,6 @@ namespace Library.Persistance.Repositories
             params Expression<Func<T, object>>[]? includesProperties)
         {
             IQueryable<T> query = _entities.AsQueryable();
-
             if (includesProperties?.Any() == true)
             {
                 foreach (var included in includesProperties)
@@ -95,12 +94,21 @@ namespace Library.Persistance.Repositories
             _context.Remove(entity);
         }
 
-        public Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> filter,
-            CancellationToken cancellationToken = default)
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> filter,
+            CancellationToken cancellationToken = default,
+            params Expression<Func<T, object>>[]? includesProperties)
         {
             IQueryable<T>? query = _entities.AsQueryable();
+            if (includesProperties?.Any() == true)
+            {
+                foreach (Expression<Func<T, object>>? included in
+               includesProperties)
+                {
+                    query = query.Include(included);
+                }
+            }
 
-            return query.FirstOrDefaultAsync(filter,cancellationToken);
+            return await query.FirstOrDefaultAsync(filter,cancellationToken);
         }
 
     }

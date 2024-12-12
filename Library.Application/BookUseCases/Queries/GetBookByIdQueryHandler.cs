@@ -13,7 +13,11 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<BookDetailsDTO> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
+            var book = await _unitOfWork.BookRepository.GetByIdAsync(
+                request.Id,
+                cancellationToken,
+                b => b.Author,
+                b => b.Genre);
             
             if (book == null)
             {

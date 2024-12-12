@@ -6,6 +6,7 @@ using Library.Application.DTOs;
 using Library.Domain.Entities;
 using Mapster;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Presentation.Controllers
@@ -74,6 +75,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create(CreateAuthorDTO createAuthorDTO,
             CancellationToken cancellationToken)
         {
@@ -95,6 +97,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(UpdateBookDTO updateAuthorDTO,
             CancellationToken cancellationToken)
         {
@@ -119,6 +122,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(Guid id,
             CancellationToken cancellationToken)
         {

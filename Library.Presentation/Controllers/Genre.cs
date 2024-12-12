@@ -7,6 +7,7 @@ using Library.Domain.Entities;
 using MediatR;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Library.Presentation.Controllers
 {
@@ -61,6 +62,7 @@ namespace Library.Presentation.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<CreateEntityResponse>> Create(
             string genreName,
             CancellationToken cancellationToken)
@@ -84,6 +86,7 @@ namespace Library.Presentation.Controllers
 
         [HttpDelete]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
                    Guid id,
                    CancellationToken cancellationToken)
