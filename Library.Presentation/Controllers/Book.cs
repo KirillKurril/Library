@@ -1,4 +1,4 @@
-﻿using Library.Application.BookUseCases.Commands;
+using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Queries;
 using Library.Application.Common.Exceptions;
 using Library.Application.Common.Models;
@@ -178,35 +178,20 @@ namespace Library.Presentation.Controllers
 
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public async  Task<ActionResult<CreateEntityResponse>> Create(
+        public async Task<ActionResult<CreateEntityResponse>> Create(
             [FromBody] CreateBookDTO createBookDTO,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var command = createBookDTO.Adapt<CreateBookCommand>();
-                var createBookResult = await _mediator.Send(command, cancellationToken);
-                createBookResult.RedirectUrl = Url.Action(nameof(GetById), new { id = createBookResult.Id});
+            var command = createBookDTO.Adapt<CreateBookCommand>();
+            var createBookResult = await _mediator.Send(command, cancellationToken);
+            createBookResult.RedirectUrl = Url.Action(nameof(GetById), new { id = createBookResult.Id});
 
-                var result = await SetDefaultCover(createBookResult.Id, cancellationToken);
-                if (result is OkResult)
-                    return Ok(createBookResult);
+            var result = await SetDefaultCover(createBookResult.Id, cancellationToken);
+            if (result is OkResult)
+                return Ok(createBookResult);
 
-                else
-                    return StatusCode(500, $"Error setting default image to {createBookDTO.Title}");
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Errors);
-            }
-            catch (DuplicateIsbnException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while creating the book. {ex}");
-            }
+            else
+                return StatusCode(500, $"Error setting default image to {createBookDTO.Title}");
         }
 
         [HttpPut]

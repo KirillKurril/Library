@@ -7,6 +7,7 @@ using Library.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Library.Application.Common.Interfaces;
 using Library.Presentation.Services.BookImage;
+using Library.Presentation.Middleware;
 
 namespace Library.Presentation
 {
@@ -122,6 +123,8 @@ namespace Library.Presentation
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseGlobalExceptionHandling();
         }
 
         private static void ConfigureEndpoints(WebApplication app)
