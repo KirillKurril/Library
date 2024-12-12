@@ -40,7 +40,7 @@ namespace Library.Presentation.Controllers
         [HttpGet]
         [Route("{id:int}")]
         public async Task<ActionResult<Genre>> GetById(
-           int id,
+           Guid id,
            CancellationToken cancellationToken)
         {
             try
@@ -83,9 +83,9 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("{id:Guid}")]
         public async Task<IActionResult> Delete(
-                   int id,
+                   Guid id,
                    CancellationToken cancellationToken)
         {
             try

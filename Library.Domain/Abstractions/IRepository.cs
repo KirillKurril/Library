@@ -4,7 +4,7 @@ namespace Library.Domain.Abstractions
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        Task<T> GetByIdAsync(int id, CancellationToken
+        Task<T> GetByIdAsync(Guid id, CancellationToken
         cancellationToken = default,
         params Expression<Func<T, object>>[]?
         includesProperties);

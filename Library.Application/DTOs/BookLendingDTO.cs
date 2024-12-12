@@ -2,6 +2,6 @@
 {
     public class BookLendingDTO : BookCatalogDTO
     {
-        public DateTime? ReturnDate { get; set; }
+        public DateTime ReturnDate { get; set; }
     }
 }

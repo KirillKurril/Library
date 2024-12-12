@@ -34,28 +34,37 @@ namespace Library.Presentation.Services
             {
                 await client.ConnectAsync(_smtpServer, _port, MailKit.Security.SecureSocketOptions.StartTls);
                 await client.AuthenticateAsync(_senderEmail, _senderPassword);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error trying connect smpt server {_smtpServer}:\n{ex.Message}");
+                await client.DisconnectAsync(true);
+                client.Dispose();
+                return new ResponseData<bool>(false, ex.Message);
+            }
+            var tasks = new List<Task>();
 
-                var tasks = new List<Task>();
-
-                foreach (var notification in notificaions)
+            foreach (var notification in notificaions)
+            {
+                try
                 {
                     tasks.Add(Task.Run(async () => {
                         var letter = CreateEmailMessage(notification);
                         await client.SendAsync(letter);
                     }));
 
-                    _logger.LogInformation($"Email semnt to {notification.Email}");
+                    _logger.LogInformation($"Email sent to {notification.Email}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error sent email to {notification.Email}:\n{ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending email: {ex.Message}");
-            }
-            finally
-            {
-                await client.DisconnectAsync(true);
-                client.Dispose();
-            }
+
+            await client.DisconnectAsync(true);
+            client.Dispose();
+
+            return new ResponseData<bool>(true);
         }
 
         private MimeMessage CreateEmailMessage(DebtorNotification notification)

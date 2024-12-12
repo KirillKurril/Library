@@ -2,7 +2,6 @@
 using Library.Application.BookUseCases.Queries;
 using Library.Application.Common.Exceptions;
 using Library.Application.Common.Models;
-using Library.Domain.Entities;
 using Library.Presentation.Services.BookImage;
 using Mapster;
 using MediatR;
@@ -51,15 +50,15 @@ namespace Library.Presentation.Controllers
         [Route("catalog")]
         public async Task<ActionResult<ResponseData<BookCatalogDTO>>> GetFiltredList(
             [FromQuery] string? searchTerm,
-            [FromQuery] string? genre,
-            [FromQuery] int? AuthorId,
+            [FromQuery] Guid? genreId,
+            [FromQuery] Guid? AuthorId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
             try
             {
-                var query = new SearchBooksQuery(searchTerm, genre, AuthorId, pageNo, itemsPerPage);
+                var query = new SearchBooksQuery(searchTerm, genreId, AuthorId, pageNo, itemsPerPage);
                 var result = await _mediator.Send(query, cancellationToken);
                 return Ok(result);
             }
@@ -70,9 +69,9 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("{id:Guid}")]
         public async Task<ActionResult<BookDetailsDTO>> GetById(
-            int id,
+            Guid id,
             CancellationToken cancellationToken)
         {
             try
@@ -123,7 +122,7 @@ namespace Library.Presentation.Controllers
 
         [HttpPost("{id}/borrow")]
         public async Task<IActionResult> BorrowBook(
-            int id,
+            Guid id,
             [FromBody] Guid userId,
             CancellationToken cancellationToken)
         {
@@ -153,8 +152,8 @@ namespace Library.Presentation.Controllers
 
         [HttpPost("{id}/return")]
         public async Task<IActionResult> ReturnBook(
-            int id,
-            [FromBody] int userId,
+            Guid id,
+            [FromBody] Guid userId,
             CancellationToken cancellationToken)
         {
             try
@@ -230,7 +229,7 @@ namespace Library.Presentation.Controllers
 
         [HttpDelete]
         public async Task<IActionResult> Delete(
-            int id,
+            Guid id,
             CancellationToken cancellationToken)
         {
             try
@@ -255,7 +254,7 @@ namespace Library.Presentation.Controllers
 
         [HttpPost("{id}/upload-image")]
         public async Task<IActionResult> UploadImage(
-            int id,
+            Guid id,
             IFormFile image,
             CancellationToken cancellationToken)
         {

@@ -14,7 +14,7 @@ namespace Library.Persistance.Repositories
             _entities = context.Set<T>();
         }
 
-        public async Task<T> GetByIdAsync(int id, CancellationToken cancellationToken = default,
+        public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default,
             params Expression<Func<T, object>>[]? includesProperties)
         {
             IQueryable<T>? query = _entities.AsQueryable();

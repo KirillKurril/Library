@@ -24,8 +24,8 @@ namespace Library.Application.BookUseCases.Queries
             var query = _unitOfWork.BookRepository.GetQueryable()
                 .Where(b => string.IsNullOrEmpty(searchTerm) ||
                         b.Title.ToLower().Contains(searchTerm)
-                        && (request.Genre == null || b.Genre.Name == request.Genre)
-                        && (request.AuthorId == null || b.Genre.Name == request.Genre))
+                        && (request.GenreId == null || b.GenreId == request.GenreId)
+                        && (request.AuthorId == null || b.GenreId == request.GenreId))
                 .Select(cb => new BookCatalogDTO()
                 {
                     Id = cb.Id,

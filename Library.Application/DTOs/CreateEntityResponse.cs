@@ -2,7 +2,7 @@
 {
     public class CreateEntityResponse
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string RedirectUrl { get; set; }
     }
 }

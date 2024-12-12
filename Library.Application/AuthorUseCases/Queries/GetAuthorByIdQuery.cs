@@ -1,4 +1,4 @@
 namespace Library.Application.AuthorUseCases.Queries
 {
-    public sealed record GetAuthorByIdQuery(int Id) : IRequest<Author>;
+    public sealed record GetAuthorByIdQuery(Guid Id) : IRequest<Author>;
 }

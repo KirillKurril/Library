@@ -7,7 +7,7 @@ public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorComman
     public UpdateAuthorCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
+            .NotEmpty();
 
         RuleFor(x => x.Name)
             .NotEmpty()

@@ -3,12 +3,12 @@ using Library.Application.DTOs;
 namespace Library.Application.BookUseCases.Commands
 {
     public sealed record UpdateBookCommand(
-        int Id,
+        Guid Id,
         string ISBN,
         string Title,
         string? Description,
         int Quantity,
-        int GenreId,
-        int AuthorId,
+        Guid GenreId,
+        Guid AuthorId,
         string? ImageUrl) : IRequest;
 }

@@ -5,6 +5,6 @@ using Library.Application.DTOs;
 namespace Library.Application.BookUseCases.Commands
 {
     public sealed record UpdateBookImageCommand(
-        int BookId,
+        Guid BookId,
         string ImageUrl) : IRequest;
 }

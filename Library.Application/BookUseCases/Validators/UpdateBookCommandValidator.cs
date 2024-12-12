@@ -29,8 +29,7 @@ namespace Library.Application.BookUseCases.Validators
                 {
                     var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
                     return author != null;
-                }).WithMessage("Author with specified ID does not exist")
-                .When(x => x.AuthorId != null);
+                }).WithMessage("Author with specified ID does not exist");
 
             RuleFor(x => x.ImageUrl)
                 .MaximumLength(500).WithMessage("Image URL must not exceed 500 characters")

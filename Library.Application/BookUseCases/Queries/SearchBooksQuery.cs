@@ -5,8 +5,8 @@ namespace Library.Application.BookUseCases.Queries
 {
     public sealed record SearchBooksQuery(
         string? SearchTerm,
-        string? Genre,
-        int? AuthorId,
+        Guid? GenreId,
+        Guid? AuthorId,
         int? PageNo,
         int? ItemsPerPage) : IRequest<PaginationListModel<BookCatalogDTO>>;
 }

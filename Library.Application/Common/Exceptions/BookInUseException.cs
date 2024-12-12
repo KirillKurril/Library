@@ -2,7 +2,7 @@
 
 public class BookInUseException : Exception
 {
-    public BookInUseException(int id)
+    public BookInUseException(Guid id)
         : base($"Cannot delete book ({id}) that is currently borrowed")
     {
     }
