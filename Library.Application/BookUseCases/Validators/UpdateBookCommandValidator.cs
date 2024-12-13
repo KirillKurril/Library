@@ -1,4 +1,5 @@
 using Library.Application.BookUseCases.Commands;
+using MediatR;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -10,12 +11,22 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Book ID is required")
                 .MustAsync(async (bookId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(bookId);
-                    return author != null;
+                    var book = await unitOfWork.BookRepository.GetByIdAsync(bookId);
+                    return book != null;
                 }).WithMessage($"Book being updated doesn't exist");
 
             RuleFor(x => x.ISBN)
                 .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
+                .When(x => x.ISBN != null);
+
+            RuleFor(x => x)
+                .MustAsync(async (br, ct) =>
+                {
+                    var book = unitOfWork.BookRepository
+                    .FirstOrDefaultAsync(b => b.ISBN == br.ISBN  && b.Id != br.Id);
+                    return book == null;
+                })
+                .WithMessage($"Book with such ISBN already exists")
                 .When(x => x.ISBN != null);
 
             RuleFor(x => x.Title)

@@ -20,12 +20,6 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task<CreateEntityResponse> Handle(CreateBookCommand request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var bookToCreate = _mapper.Map<Book>(request);
 
             var createdBook = _unitOfWork.BookRepository.Add(bookToCreate);

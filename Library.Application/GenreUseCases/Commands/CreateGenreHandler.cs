@@ -20,10 +20,6 @@ namespace Library.Application.GenreUseCases.Commands
 
         public async Task<CreateEntityResponse> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-                throw new ValidationException(validationResult.Errors);
-
             var genre = _mapper.Map<Genre>(request);
             var createdGenre = _unitOfWork.GenreRepository.Add(genre);
             await _unitOfWork.SaveChangesAsync();

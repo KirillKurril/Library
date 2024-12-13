@@ -13,16 +13,6 @@ namespace Library.Application.BookUseCases.Commands
         {
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
             
-            if (book == null)
-            {
-                throw new NotFoundException(nameof(Book), request.Id);
-            }
-
-            if (!book.IsAvailable)
-            {
-                throw new ValidationException($"Cannot delete a book ({book.Id}) that is currently borrowed");
-            }
-
             _unitOfWork.BookRepository.Delete(book);
             await _unitOfWork.SaveChangesAsync();
         }

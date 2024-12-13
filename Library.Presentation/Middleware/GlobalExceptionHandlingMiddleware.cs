@@ -9,6 +9,7 @@ public class GlobalExceptionHandlingMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
     private readonly IHostEnvironment _environment;
+    private readonly JsonSerializerOptions _serializerOptions;
 
     public GlobalExceptionHandlingMiddleware(
         RequestDelegate next,
@@ -18,6 +19,10 @@ public class GlobalExceptionHandlingMiddleware
         _next = next;
         _logger = logger;
         _environment = environment;
+        _serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -69,10 +74,7 @@ public class GlobalExceptionHandlingMiddleware
             Instance = context.Request.Path
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }));
+        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, _serializerOptions));
     }
 
     private Task HandleNotFoundExceptionAsync(HttpContext context, NotFoundException ex)
@@ -91,10 +93,7 @@ public class GlobalExceptionHandlingMiddleware
             Instance = context.Request.Path
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }));
+        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, _serializerOptions));
     }
 
     private Task HandleConflictExceptionAsync(HttpContext context, Exception ex)
@@ -113,10 +112,7 @@ public class GlobalExceptionHandlingMiddleware
             Instance = context.Request.Path
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }));
+        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, _serializerOptions));
     }
 
     private Task HandleUnhandledExceptionAsync(HttpContext context, Exception ex)
@@ -137,10 +133,7 @@ public class GlobalExceptionHandlingMiddleware
             Instance = context.Request.Path
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }));
+        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, _serializerOptions));
     }
 }
 

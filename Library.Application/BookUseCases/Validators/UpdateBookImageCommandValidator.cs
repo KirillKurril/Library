@@ -11,8 +11,8 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Book ID is required")
                 .MustAsync(async (bookId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(bookId);
-                    return author != null;
+                    var book = await unitOfWork.BookRepository.GetByIdAsync(bookId);
+                    return book != null;
                 }).WithMessage("Author with specified ID does not exist");
 
             RuleFor(x => x.ImageUrl)

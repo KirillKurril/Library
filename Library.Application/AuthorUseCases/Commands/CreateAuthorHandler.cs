@@ -20,10 +20,6 @@ public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, CreateEn
 
     public async Task<CreateEntityResponse> Handle(CreateAuthorCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
-
         var author = _mapper.Map<Author>(request);
         var createdAuthor = _unitOfWork.AuthorRepository.Add(author);
         await _unitOfWork.SaveChangesAsync();

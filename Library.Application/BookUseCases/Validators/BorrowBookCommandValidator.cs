@@ -14,10 +14,11 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Book ID is required")
                 .MustAsync(async (bookId, ct) =>
                 {
-                    var bookExist = await unitOfWork.BookLendingRepository
-                    .FirstOrDefaultAsync(bl => bl.BookId == bookId, ct);
-                    return bookExist != null;
-                }).WithMessage($"Current book hasn't been boeeowed by this user");
+                    var book = await unitOfWork.BookRepository
+                    .FirstOrDefaultAsync(b => b.Id == bookId, ct);
+
+                    return book != null && book.IsAvailable;
+                }).WithMessage("Book is not available for borrowing or does not exist.");
         }
     }
 }

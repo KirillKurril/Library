@@ -18,10 +18,6 @@ public class UpdateAuthorHandler : IRequestHandler<UpdateAuthorCommand, Author>
 
     public async Task<Author> Handle(UpdateAuthorCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
-
         var existingAuthor = await _unitOfWork.AuthorRepository.GetByIdAsync(request.Id, cancellationToken);
         if (existingAuthor == null)
             throw new NotFoundException($"Author with ID {request.Id} not found");

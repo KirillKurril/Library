@@ -1,7 +1,4 @@
-using FluentValidation;
 using Library.Application.BookUseCases.Commands;
-using Library.Application.Common.Interfaces;
-using Library.Domain.Abstractions;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -14,8 +11,8 @@ namespace Library.Application.BookUseCases.Validators
                 .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
                 .MustAsync(async (isbn, ct) =>
                 {
-                    var existingBook = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn, ct);
-                    return existingBook == null;
+                    var book = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn, ct);
+                    return book == null;
                 }).WithMessage("A book with this ISBN already exists");
 
             RuleFor(x => x.Title)

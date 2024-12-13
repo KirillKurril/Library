@@ -12,8 +12,6 @@ namespace Library.Application.GenreUseCases.Commands
         public async Task Handle(DeleteGenreCommand request, CancellationToken cancellationToken)
         {
             var genre = await _unitOfWork.GenreRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (genre == null)
-                throw new NotFoundException($"Genre with ID {request.Id} not found");
 
             _unitOfWork.GenreRepository.Delete(genre);
             await _unitOfWork.SaveChangesAsync();

@@ -7,14 +7,14 @@ namespace Library.Application.BookUseCases.Validators
     {
         public ReturnBookCommandValidator(IUnitOfWork unitOfWork)
         {
-            RuleFor(x => x.BookId)
-                .NotEmpty().WithMessage("Book ID is required")
-                .MustAsync(async (bookId, ct) =>
-                {
-                    var bookExist = await unitOfWork.BookLendingRepository
-                    .FirstOrDefaultAsync(bl=> bl.BookId == bookId, ct);
-                    return bookExist != null;
-                }).WithMessage($"Current book hasn't been boeeowed by this user"); 
+            RuleFor(x => x)
+               .MustAsync(async (command, ct) =>
+               {
+                   var lending = await unitOfWork.BookLendingRepository
+                       .FirstOrDefaultAsync(
+                           bl => bl.UserId == command.UserId && bl.BookId == command.BookId, ct);
+                   return lending != null;
+               }).WithMessage("Book has not been borrowed by this user.");
         }
     }
 }

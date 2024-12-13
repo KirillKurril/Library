@@ -23,36 +23,15 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task Handle(ReturnBookCommand request, CancellationToken cancellationToken)
         {
-              var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId, cancellationToken);
-            if (book == null)
-            {
-                throw new NotFoundException(nameof(Book), request.BookId);
-            }
-
-            var userExists = await _userDataService.UserExist(request.UserId);
-            if (!userExists)
-            {
-                throw new NotFoundException($"User with id {request.UserId} doesn' exist");
-            }
-
             var lending = await _unitOfWork.BookLendingRepository.FirstOrDefaultAsync(
                 bl => bl.UserId == request.UserId &&
-                bl.BookId == request.BookId
-                );
-
-            if (lending == null)
-            {
-                throw new NotFoundException($"Book ({book.Id}) has not been borrowed");
-            }
+                bl.BookId == request.BookId);
 
             _unitOfWork.BookLendingRepository.Delete(lending);
+
+            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.UserId);
             book.Quantity += 1;
+            _unitOfWork.BookRepository.Update(book);
 
             await _unitOfWork.SaveChangesAsync();
         }

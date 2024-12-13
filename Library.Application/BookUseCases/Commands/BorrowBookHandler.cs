@@ -23,29 +23,6 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task Handle(BorrowBookCommand request, CancellationToken cancellationToken)
         {
-            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId, cancellationToken);
-            if (book == null)
-            {
-                throw new NotFoundException(nameof(Book), request.BookId);
-            }
-
-            var userExists = await _userDataAccessor.UserExist(request.UserId);
-            if (!userExists)
-            {
-                throw new NotFoundException($"User with id {request.UserId} doesn' exist");
-            }
-
-            if (!book.IsAvailable)
-            {
-                throw new BookInUseException(request.BookId);
-            }
-
             var dateNow = DateTime.UtcNow;
             var loanPeriod = _librarySettings.DefaultLoanPeriodInDays;
             var returnDate = dateNow.AddDays(loanPeriod);
@@ -58,7 +35,10 @@ namespace Library.Application.BookUseCases.Commands
             };
 
             _unitOfWork.BookLendingRepository.Add(lending);
+
+            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.UserId);
             book.Quantity -= 1;
+            _unitOfWork.BookRepository.Update(book);
 
             await _unitOfWork.SaveChangesAsync();
 

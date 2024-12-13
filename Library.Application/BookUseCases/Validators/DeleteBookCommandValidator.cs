@@ -15,8 +15,8 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Book ID is required")
                 .MustAsync(async (bookId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(bookId, ct);
-                    return author != null;
+                    var book = await unitOfWork.BookRepository.GetByIdAsync(bookId, ct);
+                    return book != null && book.IsAvailable;
                 }).WithMessage($"Book being deleted doesn't exist");
         }
     }
