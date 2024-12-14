@@ -42,31 +42,5 @@ namespace Library.UnitTests.BookUseCases.Commands
             _mockBookRepository.Verify(r => r.Delete(book), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
-
-        [Fact]
-        public async Task Handle_BookWithZeroQuantity_ShouldNotDeleteBook()
-        {
-            var bookId = Guid.NewGuid();
-            var command = new DeleteBookCommand(bookId);
-            var book = new Book()
-            {
-                Id = bookId,
-                ISBN = "978-3-16-148410-0",
-                Title = "Test Book",
-                Description = "Test Description",
-                Quantity = 0,
-                GenreId = Guid.NewGuid(),
-                AuthorId = Guid.NewGuid()
-            };
-
-            _mockBookRepository.Setup(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(book);
-
-            await Assert.ThrowsAsync<BookInUseException>(() =>
-                _handler.Handle(command, CancellationToken.None));
-
-            _mockBookRepository.Verify(r => r.Delete(It.IsAny<Book>()), Times.Never);
-            _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
-        }
     }
 }

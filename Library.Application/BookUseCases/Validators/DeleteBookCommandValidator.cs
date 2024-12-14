@@ -1,9 +1,4 @@
 ﻿using Library.Application.BookUseCases.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -17,7 +12,15 @@ namespace Library.Application.BookUseCases.Validators
                 {
                     var book = await unitOfWork.BookRepository.GetByIdAsync(bookId, ct);
                     return book != null;
-                }).WithMessage($"Book being deleted doesn't exist");
+                }).WithMessage($"Book with specified ID does not exist");
+
+            RuleFor(x => x.Id)
+                .MustAsync(async (bookId, ct) =>
+                {
+                    var isBorrowed = await unitOfWork.BookLendingRepository
+                    .FirstOrDefaultAsync(bl => bl.BookId == bookId);
+                    return isBorrowed == null;
+                }).WithMessage($"Cannot delete book that is currently lent");
         }
     }
 }

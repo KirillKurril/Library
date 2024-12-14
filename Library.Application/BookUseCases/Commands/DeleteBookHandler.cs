@@ -13,9 +13,6 @@ namespace Library.Application.BookUseCases.Commands
         {
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
 
-            if (!book.IsAvailable)
-                throw new BookInUseException(book.Id);
-
             _unitOfWork.BookRepository.Delete(book);
             await _unitOfWork.SaveChangesAsync();
         }

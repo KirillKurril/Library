@@ -9,7 +9,7 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x.ISBN)
                 .NotEmpty().WithMessage("ISBN is required")
                 .MaximumLength(17).WithMessage("ISBN must not exceed 17 characters")
-                .Matches(@"^(?:ISBN-13:? )?(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
+                .Matches(@"^(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
                 .WithMessage("Invalid ISBN format");
 
             RuleFor(x => x.ISBN)
@@ -33,7 +33,12 @@ namespace Library.Application.BookUseCases.Validators
                 .When(x => !string.IsNullOrEmpty(x.Description));
 
             RuleFor(x => x.GenreId)
-                .NotEmpty().WithMessage("Genre is required");
+                .NotEmpty().WithMessage("Genre is required")
+                .MustAsync(async (genreId, ct) =>
+                {
+                    var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+                    return genre != null;
+                }).WithMessage("Genre with specified ID does not exist");
 
 
             RuleFor(x => x.AuthorId)

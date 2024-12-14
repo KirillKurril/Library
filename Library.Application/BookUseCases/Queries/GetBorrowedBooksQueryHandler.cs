@@ -29,11 +29,11 @@ namespace Library.Application.BookUseCases.Queries
                     _unitOfWork.BookRepository.GetQueryable(),
                     bl => bl.BookId,
                     b => b.Id,
-                    (bl, b) => new { Book = b, BookLending = bl }
+                    (bl, b) => new JoinLendingDTO(){ Book = b, BookLending = bl }
                 )
-                .Select(x => _mapper.Map<BookLendingDTO>(new {x.Book, x.BookLending }));
+                .ProjectToType<BookLendingDTO>();
 
-            var totalItems = query.Count(); 
+            var totalItems = query.Count();
             var pageSize = request.ItemsPerPage
                 ?? int.Parse(_config.GetSection("ItemsPerPage").Value);
 
@@ -43,12 +43,13 @@ namespace Library.Application.BookUseCases.Queries
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize).ToList();
 
-            return new PaginationListModel<BookLendingDTO>()
+            var result = new PaginationListModel<BookLendingDTO>()
             {
                 Items = items,
                 CurrentPage = pageNumber,
-                TotalPages = totalItems
+                TotalPages = totalItems / pageSize + ((totalItems % pageSize) > 0 ? 1 : 0)
             };
+            return result;
         }
     }
 }

@@ -1,5 +1,6 @@
 using Library.Application.BookUseCases.Commands;
 using MediatR;
+using System.Text.RegularExpressions;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -18,19 +19,19 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x.ISBN)
                 .NotEmpty().WithMessage("ISBN is required")
                 .MaximumLength(17).WithMessage("ISBN must not exceed 17 characters")
-                .Matches(@"^(?:ISBN-13:? )?(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
+                .Matches(@"^(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
                 .WithMessage("Invalid ISBN format")
                 .When(x => x.ISBN != null);
 
             RuleFor(x => x)
                 .MustAsync(async (br, ct) =>
                 {
-                    var book = unitOfWork.BookRepository
-                    .FirstOrDefaultAsync(b => b.ISBN == br.ISBN  && b.Id != br.Id);
+                    var book = await unitOfWork.BookRepository
+                        .FirstOrDefaultAsync(b => b.ISBN == br.ISBN && b.Id != br.Id, ct);
                     return book == null;
                 })
-                .WithMessage($"Book with such ISBN already exists")
-                .When(x => x.ISBN != null);
+                .WithMessage("Book with such ISBN already exists")
+                .When(x => !string.IsNullOrEmpty(x.ISBN));
 
             RuleFor(x => x.Title)
                 .MaximumLength(200).WithMessage("Title must not exceed 200 characters")
@@ -58,12 +59,18 @@ namespace Library.Application.BookUseCases.Validators
                 {
                     var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId.Value);
                     return genre != null;
-                }).WithMessage("Author with specified ID does not exist")
+                }).WithMessage("Genre with specified ID does not exist")
                 .When(x => x.GenreId != null);
 
             RuleFor(x => x.ImageUrl)
-                .MaximumLength(500).WithMessage("Image URL must not exceed 500 characters")
-                .When(x => !string.IsNullOrEmpty(x.ImageUrl));
+                .Must(BeAValidUrl)
+                .WithMessage("A valid URL must be provided")
+                .When(x => ! string.IsNullOrEmpty(x.ImageUrl));
+        }
+        private bool BeAValidUrl(string url)
+        {
+            string pattern = @"^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$";
+            return Regex.IsMatch(url, pattern, RegexOptions.IgnoreCase);
         }
     }
 }
