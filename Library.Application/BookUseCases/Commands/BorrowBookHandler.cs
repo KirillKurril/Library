@@ -5,19 +5,13 @@ namespace Library.Application.BookUseCases.Commands
     public class BorrowBookHandler : IRequestHandler<BorrowBookCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<BorrowBookCommand> _validator;
-        private readonly IUserDataAccessor _userDataAccessor;
         private readonly ILibrarySettings _librarySettings;
 
         public BorrowBookHandler(
             IUnitOfWork unitOfWork,
-            IValidator<BorrowBookCommand> validator,
-            IUserDataAccessor userDataAccessor,
             ILibrarySettings librarySettings)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
-            _userDataAccessor = userDataAccessor;
             _librarySettings = librarySettings;
         }
 
@@ -36,7 +30,7 @@ namespace Library.Application.BookUseCases.Commands
 
             _unitOfWork.BookLendingRepository.Add(lending);
 
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.UserId);
+            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId);
             book.Quantity -= 1;
             _unitOfWork.BookRepository.Update(book);
 

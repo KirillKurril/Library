@@ -1,5 +1,4 @@
 using Library.Application.AuthorUseCases.Commands;
-using Library.Domain.Abstractions;
 
 namespace Library.Application.AuthorUseCases.Validators;
 
@@ -13,22 +12,22 @@ public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorComman
                 {
                     var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
                     return author != null;
-                }).WithMessage($"Book being updated doesn't exist");
+                }).WithMessage($"Author being updated doesn't exist");
 
         RuleFor(x => x.Name)
-            .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrEmpty(x.Name)); ;
 
         RuleFor(x => x.Surname)
-            .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrEmpty(x.Surname));
 
         RuleFor(x => x.BirthDate)
-            .NotEmpty()
-            .LessThan(DateTime.UtcNow);
+            .LessThan(DateTime.UtcNow)
+            .When(x => x.BirthDate != null);
 
         RuleFor(x => x.Country)
-            .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrEmpty(x.Country));
     }
 }

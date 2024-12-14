@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Library.UnitTests.AuthorUseCases.Queries
+namespace Library.UnitTests.BookUseCases.Validators
 {
-    internal class GetAllAuthorsHandlerTests
+    internal class UpdateBookCommandValidation
     {
     }
 }

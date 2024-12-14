@@ -16,7 +16,10 @@ namespace Library.Application.BookUseCases.Validators
                 }).WithMessage($"Book being updated doesn't exist");
 
             RuleFor(x => x.ISBN)
-                .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
+                .NotEmpty().WithMessage("ISBN is required")
+                .MaximumLength(17).WithMessage("ISBN must not exceed 17 characters")
+                .Matches(@"^(?:ISBN-13:? )?(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
+                .WithMessage("Invalid ISBN format")
                 .When(x => x.ISBN != null);
 
             RuleFor(x => x)
@@ -33,17 +36,30 @@ namespace Library.Application.BookUseCases.Validators
                 .MaximumLength(200).WithMessage("Title must not exceed 200 characters")
                 .When(x => x.Title != null);
 
+            RuleFor(x => x.Quantity)
+                .GreaterThan(0)
+                .WithMessage("Quantity is required")
+                .When(x => x.Quantity != null);
+
             RuleFor(x => x.Description)
                 .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters")
                 .When(x => x.Description != null); ;
 
             RuleFor(x => x.AuthorId)
-                .NotEmpty().WithMessage("Author ID is required")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
+                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId.Value);
                     return author != null;
-                }).WithMessage("Author with specified ID does not exist");
+                }).WithMessage("Author with specified ID does not exist")
+                .When(x => x.AuthorId != null);
+
+            RuleFor(x => x.GenreId)
+                .MustAsync(async (genreId, ct) =>
+                {
+                    var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId.Value);
+                    return genre != null;
+                }).WithMessage("Author with specified ID does not exist")
+                .When(x => x.GenreId != null);
 
             RuleFor(x => x.ImageUrl)
                 .MaximumLength(500).WithMessage("Image URL must not exceed 500 characters")

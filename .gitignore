@@ -159,3 +159,5 @@ Desktop.ini
 # Исключение для папки keycloak - отслеживать все файлы
 !keycloak-26.0.1/
 !keycloak-26.0.1/**
+
+stat.py

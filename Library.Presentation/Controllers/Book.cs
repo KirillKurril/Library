@@ -184,7 +184,7 @@ namespace Library.Presentation.Controllers
         {
             var command = createBookDTO.Adapt<CreateBookCommand>();
             var createBookResult = await _mediator.Send(command, cancellationToken);
-            createBookResult.RedirectUrl = Url.Action(nameof(GetById), new { id = createBookResult.Id});
+            createBookResult.RedirectUrl = Url.Action(nameof(GetById), new { id = createBookResult.Id });
 
             var result = await SetDefaultCover(createBookResult.Id, cancellationToken);
             if (result is OkResult)
@@ -260,7 +260,7 @@ namespace Library.Presentation.Controllers
             try
             {
                 var urlResponse = await _imageService.SaveImage(image, Request.Host, Request.Scheme);
-                if(!urlResponse.Success)
+                if (!urlResponse.Success)
                 {
                     _logger.LogError(urlResponse.ErrorMessage);
                     if (urlResponse.ErrorMessage.Contains("is not an image"))

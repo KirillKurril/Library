@@ -1,18 +1,12 @@
-using Library.Application.DTOs;
-
 namespace Library.Application.BookUseCases.Commands
 {
     public class UpdateBookImageHandler : IRequestHandler<UpdateBookImageCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<UpdateBookImageCommand> _validator;
 
-        public UpdateBookImageHandler(
-            IUnitOfWork unitOfWork,
-            IValidator<UpdateBookImageCommand> validator)
+        public UpdateBookImageHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
         }
 
         public async Task Handle(UpdateBookImageCommand request, CancellationToken cancellationToken)

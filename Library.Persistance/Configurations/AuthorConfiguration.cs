@@ -22,7 +22,10 @@ namespace Library.Persistance.Configurations
 
             builder
                 .Property(a => a.Surname)
-                .IsRequired()
+                .HasMaxLength(100);
+
+            builder
+                .Property(a => a.Country)
                 .HasMaxLength(100);
         }
     }

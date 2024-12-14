@@ -11,15 +11,16 @@ public class CreateAuthorCommandValidator : AbstractValidator<CreateAuthorComman
             .MaximumLength(100);
 
         RuleFor(x => x.Surname)
-            .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrEmpty(x.Surname));
 
         RuleFor(x => x.BirthDate)
-            .NotEmpty()
-            .LessThan(DateTime.UtcNow);
+            .LessThan(DateTime.UtcNow)
+            .When(x => x.BirthDate != null);
 
         RuleFor(x => x.Country)
             .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(100)
+            .When(x => !string.IsNullOrEmpty(x.Surname));
     }
 }

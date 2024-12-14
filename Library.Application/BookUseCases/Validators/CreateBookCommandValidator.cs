@@ -8,7 +8,12 @@ namespace Library.Application.BookUseCases.Validators
         {
             RuleFor(x => x.ISBN)
                 .NotEmpty().WithMessage("ISBN is required")
-                .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters")
+                .MaximumLength(17).WithMessage("ISBN must not exceed 17 characters")
+                .Matches(@"^(?:ISBN-13:? )?(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
+                .WithMessage("Invalid ISBN format");
+
+            RuleFor(x => x.ISBN)
+                .NotEmpty().WithMessage("ISBN is required")
                 .MustAsync(async (isbn, ct) =>
                 {
                     var book = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn, ct);
@@ -19,8 +24,13 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Title is required")
                 .MaximumLength(200).WithMessage("Title must not exceed 200 characters");
 
+            RuleFor(x => x.Quantity)
+                .NotEmpty().WithMessage("Quantity is required")
+                .GreaterThan(0);
+
             RuleFor(x => x.Description)
-                .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters");
+                .MaximumLength(2000).WithMessage("Description must not exceed 2000 characters")
+                .When(x => !string.IsNullOrEmpty(x.Description));
 
             RuleFor(x => x.GenreId)
                 .NotEmpty().WithMessage("Genre is required");

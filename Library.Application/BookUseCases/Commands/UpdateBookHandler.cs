@@ -4,17 +4,10 @@ namespace Library.Application.BookUseCases.Commands
     public class UpdateBookHandler : IRequestHandler<UpdateBookCommand>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<UpdateBookCommand> _validator;
-        private readonly IMapper _mapper;
 
-        public UpdateBookHandler(
-            IUnitOfWork unitOfWork,
-            IValidator<UpdateBookCommand> validator,
-            IMapper mapper)
+        public UpdateBookHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
-            _mapper = mapper;
         }
 
         public async Task Handle(UpdateBookCommand request, CancellationToken cancellationToken)
