@@ -68,14 +68,14 @@ namespace Library.UnitTests.BookUseCases.Validators
             var command = new UpdateBookImageCommand(bookId, imageUrl);
 
             _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
             var result = await _validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.ImageUrl)
-                .WithErrorMessage("Image URL cannot be empty");
+                .WithErrorMessage("Image url is required");
         }
 
         [Theory]

@@ -16,14 +16,16 @@ namespace Library.Application.BookUseCases.Validators
                     return book != null;
                 }).WithMessage("Book with specified ID does not exist");
 
+
             RuleFor(x => x.ImageUrl)
-                .NotEmpty()
-                .WithMessage("Image URL cannot be empty");
-            
+                .NotEmpty().WithMessage("Image url is required")
+                .MaximumLength(200).WithMessage("Image URL must not exceed 500 characters");
+
+
             RuleFor(x => x.ImageUrl)
                 .Must(BeAValidUrl)
                 .WithMessage("A valid URL must be provided")
-                .When(x => !string.IsNullOrEmpty(x.ImageUrl));
+                .When(x => x.ImageUrl != null);
         }
 
         private bool BeAValidUrl(string url)

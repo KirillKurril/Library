@@ -63,9 +63,10 @@ namespace Library.Application.BookUseCases.Validators
                 .When(x => x.GenreId != null);
 
             RuleFor(x => x.ImageUrl)
+                .MaximumLength(200).WithMessage("Image URL must not exceed 500 characters")
                 .Must(BeAValidUrl)
                 .WithMessage("A valid URL must be provided")
-                .When(x => ! string.IsNullOrEmpty(x.ImageUrl));
+                .When(x => x.ImageUrl != null); 
         }
         private bool BeAValidUrl(string url)
         {
