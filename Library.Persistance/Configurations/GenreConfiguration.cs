@@ -1,4 +1,4 @@
-﻿using Library.Domain.Entities;
+using Library.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -19,6 +19,10 @@ namespace Library.Persistance.Configurations
                 .Property(g => g.Name)
                 .IsRequired()
                 .HasMaxLength(100);
+
+            builder
+                .HasIndex(g => g.Name)
+                .IsUnique();
         }
     }
 }
