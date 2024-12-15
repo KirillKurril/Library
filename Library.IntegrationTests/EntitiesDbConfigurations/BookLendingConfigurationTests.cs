@@ -6,22 +6,12 @@ using Xunit;
 
 namespace Library.IntegrationTests.EntitiesBdConfigurations
 {
-    public class BookLendingConfigurationTests
+    public class BookLendingConfigurationTests : TestBase
     {
-        private readonly DbContextOptions<AppDbContext> _options;
-
-        public BookLendingConfigurationTests()
-        {
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-        }
-
         [Fact]
         public void BookLendingConfiguration_PrimaryKey_ShouldBeConfiguredCorrectly()
         {
-
-            using var context = new AppDbContext(_options);
+            using var context = CreateContext();
             var entityType = context.Model.FindEntityType(typeof(BookLending));
 
 
@@ -34,7 +24,7 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         public void BookLendingConfiguration_RequiredProperties_ShouldBeConfiguredCorrectly()
         {
 
-            using var context = new AppDbContext(_options);
+            using var context = CreateContext();
             var entityType = context.Model.FindEntityType(typeof(BookLending));
 
 
@@ -59,14 +49,15 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         public async Task BookLendingConfiguration_DateConstraints_ShouldBeValid()
         {
 
-            using var context = new AppDbContext(_options);
-            var book = new Book 
-            { 
+            using var context = CreateContext();
+            (var author, var genre) = CreateTestEntities(context);
+            var book = new Book
+            {
                 Title = "Test Book",
                 ISBN = "1234567890123",
                 Quantity = 1,
-                Author = new Author { Name = "Test Author" },
-                Genre = new Genre { Name = "Test Genre" }
+                AuthorId = author.Id,
+                GenreId = genre.Id
             };
 
             await context.Books.AddAsync(book);
@@ -91,7 +82,7 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         public async Task BookLendingConfiguration_ForeignKeyConstraint_ShouldWorkCorrectly()
         {
 
-            using var context = new AppDbContext(_options);
+            using var context = CreateContext();
             var bookLending = new BookLending
             {
                 BookId = Guid.NewGuid(),
@@ -111,7 +102,7 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         public async Task BookLendingConfiguration_ValidLending_ShouldBeCreated()
         {
 
-            using var context = new AppDbContext(_options);
+            using var context = CreateContext();
             var book = new Book 
             { 
                 Title = "Test Book",

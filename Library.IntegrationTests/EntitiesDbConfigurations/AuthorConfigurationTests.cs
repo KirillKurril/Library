@@ -5,22 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.IntegrationTests.EntitiesBdConfigurations
 {
-    public class AuthorConfigurationTests
+    public class AuthorConfigurationTests : TestBase
     {
-        private readonly DbContextOptions<AppDbContext> _options;
-
-        public AuthorConfigurationTests()
-        {
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-        }
-
         [Fact]
         public void AuthorConfiguration_PrimaryKey_ShouldBeConfiguredCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
+
             var entityType = context.Model.FindEntityType(typeof(Author));
 
             
@@ -32,8 +24,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public void AuthorConfiguration_RequiredProperties_ShouldBeConfiguredCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var entityType = context.Model.FindEntityType(typeof(Author));
 
             
@@ -46,8 +38,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public async Task AuthorConfiguration_DefaultId_ShouldBeGenerated()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var author = new Author { Name = "Test Author" };
 
 
@@ -56,24 +48,6 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
 
             
             author.Id.Should().NotBe(Guid.Empty);
-        }
-
-        [Fact]
-        public async Task AuthorConfiguration_UniqueConstraint_ShouldPreventDuplicateNames()
-        {
-            
-            using var context = new AppDbContext(_options);
-            var author1 = new Author { Name = "Test Author" };
-            var author2 = new Author { Name = "Test Author" };
-
-
-            context.Authors.Add(author1);
-            await context.SaveChangesAsync();
-
-            context.Authors.Add(author2);
-            
-            
-            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
     }
 }

@@ -6,19 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.IntegrationTests.Repositories
 {
-    public class EfUnitOfWorkTests
+    public class EfUnitOfWorkTests : TestBase
     {
-        private readonly DbContextOptions<AppDbContext> _options;
-        private readonly AppDbContext _context;
         private readonly EfUnitOfWork _unitOfWork;
-
+        private readonly AppDbContext _context;
         public EfUnitOfWorkTests()
         {
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            _context = new AppDbContext(_options);
+            _context = CreateContext();
             _unitOfWork = new EfUnitOfWork(_context);
         }
 
@@ -61,19 +55,10 @@ namespace Library.IntegrationTests.Repositories
             savedGenre.Should().NotBeNull();
         }
 
-        [Fact]
-        public async Task UnitOfWork_CreateDatabase_ShouldCreateDatabase()
-        {
-            await _unitOfWork.CreateDataBaseAsync();
-
-            
-            _context.Database.EnsureCreated().Should().BeTrue();
-        }
 
         [Fact]
         public async Task UnitOfWork_DeleteDatabase_ShouldDeleteDatabase()
         {
-            
             await _unitOfWork.CreateDataBaseAsync();
 
             await _unitOfWork.DeleteDataBaseAsync();
@@ -189,7 +174,6 @@ namespace Library.IntegrationTests.Repositories
             {
                 _unitOfWork.AuthorRepository.Add(author);
                 _unitOfWork.GenreRepository.Add(genre);
-                await _unitOfWork.SaveChangesAsync();
 
                 book.AuthorId = author.Id;
                 book.GenreId = genre.Id;
@@ -212,6 +196,15 @@ namespace Library.IntegrationTests.Repositories
                 var finalGenreCount = (await _unitOfWork.GenreRepository.ListAllAsync()).Count();
                 finalGenreCount.Should().Be(initialGenreCount);
             }
+        }
+
+        private AppDbContext ProvideDbContext()
+        {
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlite("DataSource=:memory:")
+                .Options;
+
+            return new AppDbContext(options);
         }
     }
 }

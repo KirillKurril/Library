@@ -6,30 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.IntegrationTests.Repositories
 {
-    public class EfRepositoryTests
+    public class EfRepositoryTests : TestBase
     {
-        private readonly DbContextOptions<AppDbContext> _options;
-        private readonly AppDbContext _context;
-        private readonly EfRepository<Book> _repository;
-
-        public EfRepositoryTests()
-        {
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            _context = new AppDbContext(_options);
-            _repository = new EfRepository<Book>(_context);
-        }
-
         [Fact]
         public async Task GetByIdAsync_ExistingEntity_ReturnsEntity()
         {
-            var book = new Book { Title = "Test Book", ISBN = "1234567890123" };
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
 
-            var result = await _repository.GetByIdAsync(book.Id);
+            var book = new Book { Title = "Test Book", ISBN = "1234567890123" };
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+
+            var result = await repository.GetByIdAsync(book.Id);
 
             result.Should().NotBeNull();
             result.Id.Should().Be(book.Id);
@@ -39,9 +28,12 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task GetByIdAsync_NonExistingEntity_ReturnsNull()
         {
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var nonExistingId = Guid.NewGuid();
 
-            var result = await _repository.GetByIdAsync(nonExistingId);
+            var result = await repository.GetByIdAsync(nonExistingId);
 
             result.Should().BeNull();
         }
@@ -49,13 +41,16 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task GetByIdAsync_WithIncludes_ReturnsEntityWithIncludedProperties()
         {
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var author = new Author { Name = "Test Author" };
             var book = new Book { Title = "Test Book", ISBN = "1234567890123", Author = author };
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
 
             
-            var result = await _repository.GetByIdAsync(book.Id, default, b => b.Author);
+            var result = await repository.GetByIdAsync(book.Id, default, b => b.Author);
 
             
             result.Should().NotBeNull();
@@ -66,17 +61,19 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task ListAllAsync_ReturnsAllEntities()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var books = new List<Book>
             {
                 new Book { Title = "Book 1", ISBN = "1234567890123" },
                 new Book { Title = "Book 2", ISBN = "1234567890124" }
             };
-            _context.Books.AddRange(books);
-            await _context.SaveChangesAsync();
+            context.Books.AddRange(books);
+            await context.SaveChangesAsync();
 
             
-            var result = await _repository.ListAllAsync();
+            var result = await repository.ListAllAsync();
 
             
             result.Should().HaveCount(2);
@@ -87,17 +84,19 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task ListAsync_WithFilter_ReturnsFilteredEntities()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var books = new List<Book>
             {
                 new Book { Title = "Fiction Book", ISBN = "1234567890123" },
                 new Book { Title = "Non-Fiction Book", ISBN = "1234567890124" }
             };
-            _context.Books.AddRange(books);
-            await _context.SaveChangesAsync();
+            context.Books.AddRange(books);
+            await context.SaveChangesAsync();
 
             
-            var result = await _repository.ListAsync(b => b.Title.Contains("Non-Fiction"));
+            var result = await repository.ListAsync(b => b.Title.Contains("Non-Fiction"));
 
             result.Should().HaveCount(1);
         }
@@ -105,18 +104,20 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task ListAsync_WithFilterAndIncludes_ReturnsFilteredEntitiesWithIncludes()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var author = new Author { Name = "Test Author" };
             var books = new List<Book>
             {
                 new Book { Title = "Fiction Book", ISBN = "1234567890123", Author = author },
                 new Book { Title = "Non-Fiction Book", ISBN = "1234567890124", Author = author }
             };
-            _context.Books.AddRange(books);
-            await _context.SaveChangesAsync();
+            context.Books.AddRange(books);
+            await context.SaveChangesAsync();
 
             
-            var result = await _repository.ListAsync(
+            var result = await repository.ListAsync(
                 b => b.ISBN.Contains("1234567890123"),
                 default,
                 b => b.Author
@@ -131,17 +132,19 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public void GetQueryable_ReturnsQueryable()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var books = new List<Book>
             {
                 new Book { Title = "Book 1", ISBN = "1234567890123" },
                 new Book { Title = "Book 2", ISBN = "1234567890124" }
             };
-            _context.Books.AddRange(books);
-            _context.SaveChanges();
+            context.Books.AddRange(books);
+            context.SaveChanges();
 
             
-            var query = _repository.GetQueryable();
+            var query = repository.GetQueryable();
 
             
             query.Should().NotBeNull();
@@ -152,18 +155,20 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public void GetQueryable_WithFilterAndIncludes_ReturnsFilteredQueryableWithIncludes()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var author = new Author { Name = "Test Author" };
             var books = new List<Book>
             {
                 new Book { Title = "Book 1", ISBN = "1234567890123", Author = author },
                 new Book { Title = "Book 2", ISBN = "1234567890124", Author = author }
             };
-            _context.Books.AddRange(books);
-            _context.SaveChanges();
+            context.Books.AddRange(books);
+            context.SaveChanges();
 
             
-            var query = _repository.GetQueryable(
+            var query = repository.GetQueryable(
                 b => b.Title.Contains("1"),
                 b => b.Author
             );
@@ -178,110 +183,121 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public void Add_ValidEntity_AddsToContext()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var book = new Book { Title = "New Book", ISBN = "1234567890123" };
 
             
-            var result = _repository.Add(book);
+            var result = repository.Add(book);
 
             
             result.Should().NotBeNull();
             result.Title.Should().Be(book.Title);
-            _context.Entry(result).State.Should().Be(EntityState.Added);
+            context.Entry(result).State.Should().Be(EntityState.Added);
         }
 
         [Fact]
         public void Add_NullEntity_ThrowsArgumentNullException()
         {
-            var action = () => _repository.Add(null);
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
+            var action = () => repository.Add(null);
             action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
         public void Update_ValidEntity_UpdatesInContext()
         {
-            
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
             var book = new Book { Title = "Original Title", ISBN = "1234567890123" };
-            _context.Books.Add(book);
-            _context.SaveChanges();
+            context.Books.Add(book);
+            context.SaveChanges();
 
             book.Title = "Updated Title";
 
             
-            _repository.Update(book);
+            repository.Update(book);
 
             
-            _context.Entry(book).State.Should().Be(EntityState.Modified);
+            context.Entry(book).State.Should().Be(EntityState.Modified);
         }
 
         [Fact]
         public void Update_NullEntity_ThrowsArgumentNullException()
         {
-            var action = () => _repository.Update(null);
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
+
+            var action = () => repository.Update(null);
             action.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
         public void Delete_ValidEntity_RemovesFromContext()
         {
-            
-            var book = new Book { Title = "Book to Delete", ISBN = "1234567890123" };
-            _context.Books.Add(book);
-            _context.SaveChanges();
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
 
-            
-            _repository.Delete(book);
+            var (author, genre) = CreateTestEntities(context);
+            var book = CreateTestBook(context, author, genre);
 
-            
-            _context.Entry(book).State.Should().Be(EntityState.Deleted);
+            repository.Delete(book);
+            context.SaveChanges();
+
+            context.Books.Should().NotContain(book);
         }
 
         [Fact]
         public async Task FirstOrDefaultAsync_ExistingEntity_ReturnsEntity()
         {
-            
-            var book = new Book { Title = "Test Book", ISBN = "1234567890123" };
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
 
-            
-            var result = await _repository.FirstOrDefaultAsync(b => b.Title == "Test Book");
+            var (author, genre) = CreateTestEntities(context);
+            var book = CreateTestBook(context, author, genre);
 
-            
+            var result = await repository.FirstOrDefaultAsync(b => b.Id == book.Id);
+
             result.Should().NotBeNull();
-            result.Title.Should().Be(book.Title);
+            result.Should().BeEquivalentTo(book);
         }
 
         [Fact]
         public async Task FirstOrDefaultAsync_NonExistingEntity_ReturnsNull()
         {
-            
-            var result = await _repository.FirstOrDefaultAsync(b => b.Title == "Non-existing Book");
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
 
-            
+            var result = await repository.FirstOrDefaultAsync(b => b.Id == Guid.NewGuid());
+
             result.Should().BeNull();
         }
 
         [Fact]
         public async Task FirstOrDefaultAsync_WithIncludes_ReturnsEntityWithIncludedProperties()
         {
-            
-            var author = new Author { Name = "Test Author" };
-            var book = new Book { Title = "Test Book", ISBN = "1234567890123", Author = author };
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            using var context = CreateContext();
+            var repository = new EfRepository<Book>(context);
 
-            
-            var result = await _repository.FirstOrDefaultAsync(
-                b => b.Title == "Test Book",
+            var (author, genre) = CreateTestEntities(context);
+            var book = CreateTestBook(context, author, genre);
+
+            var result = await repository.FirstOrDefaultAsync(
+                b => b.Id == book.Id,
                 default,
-                b => b.Author
-            );
+                b => b.Author,
+                b => b.Genre);
+    
 
-            
             result.Should().NotBeNull();
             result.Author.Should().NotBeNull();
+            result.Genre.Should().NotBeNull();
             result.Author.Name.Should().Be(author.Name);
+            result.Genre.Name.Should().Be(genre.Name);
         }
     }
 }

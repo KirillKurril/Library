@@ -1,11 +1,10 @@
-﻿using Library.Domain.Entities;
+using Library.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
 
 namespace Library.Persistance.Configurations
 {
-    internal class BookLendingConguration : IEntityTypeConfiguration<BookLending>
+    internal class BookLendingConfiguration : IEntityTypeConfiguration<BookLending>
     {
         public void Configure(EntityTypeBuilder<BookLending> builder)
         {
@@ -33,6 +32,15 @@ namespace Library.Persistance.Configurations
             builder
                 .Property(bl => bl.BorrowedAt)
                 .IsRequired();
+
+            builder
+                .Property(bl => bl.ReturnDate)
+                .IsRequired();
+
+            // Добавляем ограничение на уровне БД
+            builder.ToTable(t => t.HasCheckConstraint(
+                "CK_BookLending_ReturnDate_After_BorrowedAt",
+                "ReturnDate > BorrowedAt"));
         }
     }
 }

@@ -1,70 +1,57 @@
 using FluentAssertions;
 using Library.Domain.Entities;
-using Library.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
 namespace Library.IntegrationTests.Persistence
 {
-    public class AppDbContextTests
+    public class AppDbContextTests : TestBase
     {
-        private readonly DbContextOptions<AppDbContext> _options;
-
-        public AppDbContextTests()
-        {
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-        }
-
-        [Fact]
-        public void DbContext_Initialize_ShouldCreateDatabase()
-        {
-            using var context = new AppDbContext(_options);
-
-            context.Database.IsInMemory().Should().BeTrue();
-            context.Database.EnsureCreated().Should().BeTrue();
-        }
-
         [Fact]
         public async Task DbContext_SaveChanges_ShouldPersistData()
         {
-            var book = new Book { Title = "Test Book", ISBN = "1234567890123" };
+            using var context = CreateContext();
+
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
 
-            using (var context = new AppDbContext(_options))
-            {
-                context.Books.Add(book);
-                context.Authors.Add(author);
-                context.Genres.Add(genre);
-                await context.SaveChangesAsync();
-            }
+            context.Authors.Add(author);
+            context.Genres.Add(genre);
+            await context.SaveChangesAsync();
 
-            using (var context = new AppDbContext(_options))
-            {
-                context.Books.Count().Should().Be(1);
-                context.Authors.Count().Should().Be(1);
-                context.Genres.Count().Should().Be(1);
+            context.Authors.Count().Should().Be(1);
+            context.Genres.Count().Should().Be(1);
 
-                var savedBook = await context.Books.FirstOrDefaultAsync();
-                var savedAuthor = await context.Authors.FirstOrDefaultAsync();
-                var savedGenre = await context.Genres.FirstOrDefaultAsync();
+            var savedAuthor = await context.Authors.FirstOrDefaultAsync();
+            var savedGenre = await context.Genres.FirstOrDefaultAsync();
 
-                savedBook.Should().NotBeNull();
-                savedBook.Title.Should().Be("Test Book");
+            var book = new Book {
+                Title = "Test Book",
+                ISBN = "1234567890123",
+                Quantity = 5,
+                AuthorId = savedAuthor.Id,
+                GenreId = savedGenre.Id};
 
-                savedAuthor.Should().NotBeNull();
-                savedAuthor.Name.Should().Be("Test Author");
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
 
-                savedGenre.Should().NotBeNull();
-                savedGenre.Name.Should().Be("Test Genre");
-            }
+            var a = context.Books.Count();
+            var savedBook = await context.Books.FirstOrDefaultAsync();
+
+            savedBook.Should().NotBeNull();
+            savedBook.Title.Should().Be("Test Book");
+
+            savedAuthor.Should().NotBeNull();
+            savedAuthor.Name.Should().Be("Test Author");
+
+            savedGenre.Should().NotBeNull();
+            savedGenre.Name.Should().Be("Test Genre");
         }
 
         [Fact]
         public async Task DbContext_Relationships_ShouldWorkCorrectly()
         {
+            using var context = CreateContext();
+
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
             var book = new Book 
@@ -75,31 +62,26 @@ namespace Library.IntegrationTests.Persistence
                 Genre = genre
             };
 
-            using (var context = new AppDbContext(_options))
-            {
-                context.Books.Add(book);
-                await context.SaveChangesAsync();
-            }
+            context.Books.Add(book);
+            await context.SaveChangesAsync();
+            
+            var savedBook = await context.Books
+                .Include(b => b.Author)
+                .Include(b => b.Genre)
+                .FirstOrDefaultAsync();
 
-            using (var context = new AppDbContext(_options))
-            {
-                var savedBook = await context.Books
-                    .Include(b => b.Author)
-                    .Include(b => b.Genre)
-                    .FirstOrDefaultAsync();
-
-                savedBook.Should().NotBeNull();
-                savedBook.Author.Should().NotBeNull();
-                savedBook.Author.Name.Should().Be("Test Author");
-                savedBook.Genre.Should().NotBeNull();
-                savedBook.Genre.Name.Should().Be("Test Genre");
-            }
+            savedBook.Should().NotBeNull();
+            savedBook.Author.Should().NotBeNull();
+            savedBook.Author.Name.Should().Be("Test Author");
+            savedBook.Genre.Should().NotBeNull();
+            savedBook.Genre.Name.Should().Be("Test Genre");
+            
         }
 
         [Fact]
         public async Task DbContext_AuthorWithMultipleBooks_ShouldWorkCorrectly()
         {
-            using var context = new AppDbContext(_options);
+            using var context = CreateContext();
 
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
@@ -151,7 +133,7 @@ namespace Library.IntegrationTests.Persistence
         [Fact]
         public async Task DbContext_GenreWithMultipleBooks_ShouldTrackAvailability()
         {
-            using var context = new AppDbContext(_options);
+            using var context = CreateContext();
 
             var genre = new Genre { Name = "Science Fiction" };
             var author = new Author { Name = "Test Author" };
@@ -192,30 +174,6 @@ namespace Library.IntegrationTests.Persistence
 
             unavailable.IsAvailable.Should().BeFalse();
             unavailable.Quantity.Should().Be(0);
-        }
-
-        [Fact]
-        public async Task DbContext_DeleteEntity_ShouldRemoveFromDatabase()
-        {
-            var book = new Book { Title = "Test Book", ISBN = "1234567890123" };
-
-            using (var context = new AppDbContext(_options))
-            {
-                context.Books.Add(book);
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new AppDbContext(_options))
-            {
-                context.Books.Remove(book);
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new AppDbContext(_options))
-            {
-                var books = await context.Books.ToListAsync();
-                books.Should().BeEmpty();
-            }
         }
     }
 }

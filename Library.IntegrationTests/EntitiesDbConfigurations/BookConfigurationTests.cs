@@ -6,22 +6,13 @@ using Xunit;
 
 namespace Library.IntegrationTests.EntitiesBdConfigurations
 {
-    public class BookConfigurationTests
+    public class BookConfigurationTests : TestBase
     {
-        private readonly DbContextOptions<AppDbContext> _options;
-
-        public BookConfigurationTests()
-        {
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-        }
-
         [Fact]
         public void BookConfiguration_PrimaryKey_ShouldBeConfiguredCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var entityType = context.Model.FindEntityType(typeof(Book));
 
             
@@ -33,8 +24,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public void BookConfiguration_RequiredProperties_ShouldBeConfiguredCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var entityType = context.Model.FindEntityType(typeof(Book));
 
             
@@ -56,8 +47,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public void BookConfiguration_ForeignKeys_ShouldBeConfiguredCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var entityType = context.Model.FindEntityType(typeof(Book));
 
             
@@ -75,8 +66,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public async Task BookConfiguration_QuantityConstraint_ShouldPreventNegativeValues()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
             var book = new Book
@@ -98,8 +89,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public async Task BookConfiguration_NavigationProperties_ShouldLoadCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
             var book = new Book
@@ -131,8 +122,8 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
         [Fact]
         public async Task BookConfiguration_IsAvailable_ShouldWorkCorrectly()
         {
-            
-            using var context = new AppDbContext(_options);
+
+            using var context = CreateContext();
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
             
@@ -154,7 +145,6 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
                 Genre = genre
             };
 
-            // Act
             context.Books.AddRange(availableBook, unavailableBook);
             await context.SaveChangesAsync();
 
