@@ -1,10 +1,10 @@
-﻿namespace Library.Application.Common.Settings
+namespace Library.Application.Common.Settings
 {
     public class KeycloakSettings
     {
-        public string Host { get; } = null!;
-        public string Realm { get; } = null!;
-        public string ClientId { get; } = null!;
-        public string ClientSecret { get; } = null!;
+        public string Host { get; set; } = null!;
+        public string Realm { get; set; } = null!;
+        public string ClientId { get; set; } = null!;
+        public string ClientSecret { get; set; } = null!;
     }
 }

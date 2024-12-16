@@ -19,4 +19,3 @@
 
     }
 }
-//Background tasks with hosted services in ASP.NET Core

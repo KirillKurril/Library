@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Library.Application.Common.Interfaces;
 using Library.Application.Common.Models;
+using MediatR;
 
 namespace Library.Presentation.Services;
 
@@ -42,15 +43,16 @@ public class UserDataAccessor : IUserDataAccessor
         return userDataResponse.Success
                 && !userDataResponse.Data.TryGetProperty("error", out var notFoundString);
     }
-    public async Task<ResponseData<bool>> EnrichNotifications(IEnumerable<DebtorNotification> notifications)
+    public async Task<ResponseData<IEnumerable<DebtorNotification>>> EnrichNotifications(IEnumerable<DebtorNotification> notifications)
     {
         await _tokenAccessor.SetAuthorizationHeaderAsync(_httpClient);
+        var result = new List<DebtorNotification>();
 
         var countResponse = await _httpClient.GetAsync($"users/count");
 
         if(!countResponse.IsSuccessStatusCode)
         {
-            return new ResponseData<bool>(false, "Unable to fetch users count from keycloak");
+            return new ResponseData<IEnumerable<DebtorNotification>>(false, "Unable to fetch users count from keycloak");
         }
 
         var content = await countResponse.Content.ReadAsStringAsync();
@@ -100,6 +102,7 @@ public class UserDataAccessor : IUserDataAccessor
                                     notification.Email = email;
                                     notification.FirstName = firstName;
                                     notification.LastName = lastName;
+                                    result.Add(notification);
                                 }
                             }
                         }
@@ -109,13 +112,13 @@ public class UserDataAccessor : IUserDataAccessor
         }
         catch(Exception ex)
         {
-            return new ResponseData<bool>(false,
+            return new ResponseData<IEnumerable<DebtorNotification>>(false,
                 $"Could not parse user data for element: {ex.Message}");
         }
 
         await Task.WhenAll(tasks);
 
-        return new ResponseData<bool>(true);
+        return new ResponseData<IEnumerable<DebtorNotification>>(result.AsEnumerable());
     }
 
    

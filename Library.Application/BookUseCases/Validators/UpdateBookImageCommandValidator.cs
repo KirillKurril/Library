@@ -1,5 +1,4 @@
 using Library.Application.BookUseCases.Commands;
-using Library.Domain.Abstractions;
 using System.Text.RegularExpressions;
 
 namespace Library.Application.BookUseCases.Validators

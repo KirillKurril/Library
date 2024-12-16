@@ -1,8 +1,6 @@
 using Library.Application.Common.Models;
 using Library.Application.DTOs;
-using Library.Domain.Entities;
 using Microsoft.Extensions.Configuration;
-using System.Linq.Expressions;
 
 namespace Library.Application.BookUseCases.Queries
 {

@@ -7,16 +7,13 @@ namespace Library.Application.BookUseCases.Queries
     public class GetBorrowedBooksQueryHandler : IRequestHandler<GetBorrowedBooksQuery,PaginationListModel<BookLendingDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly IConfiguration _config;
 
         public GetBorrowedBooksQueryHandler(
             IUnitOfWork unitOfWork,
-            IMapper mapper,
             IConfiguration config)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _config = config;
         }
 

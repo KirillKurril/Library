@@ -1,4 +1,4 @@
-﻿using Library.Domain.Entities;
+using Library.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library.Persistance.Contexts
@@ -12,7 +12,6 @@ namespace Library.Persistance.Contexts
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

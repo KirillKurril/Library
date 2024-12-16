@@ -37,7 +37,6 @@ namespace Library.Persistance.Configurations
                 .Property(bl => bl.ReturnDate)
                 .IsRequired();
 
-            // Добавляем ограничение на уровне БД
             builder.ToTable(t => t.HasCheckConstraint(
                 "CK_BookLending_ReturnDate_After_BorrowedAt",
                 "ReturnDate > BorrowedAt"));

@@ -2,12 +2,17 @@ using Library.Application.Common.Settings;
 using Library.Persistense;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Library.Application;
+using Library.Domain.Abstractions;
 using Library.Presentation.Services;
 using Library.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Library.Application.Common.Interfaces;
 using Library.Presentation.Services.BookImage;
 using Library.Presentation.Middleware;
+using Library.Persistance.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace Library.Presentation
 {
@@ -29,8 +34,49 @@ namespace Library.Presentation
         private static void ConfigureServices(WebApplicationBuilder builder)
         {
             builder.Services.AddControllers();
+            builder.Services.AddRouting(options =>
+            {
+                options.ConstraintMap.Add("string", typeof(string));
+            });
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Library API",
+                    Version = "v1",
+                    Description = "API для управления библиотекой"
+                });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
+            builder.Services.AddHttpContextAccessor();
 
             var keycloakSettings = builder.Configuration
                 .GetSection("Keycloak")
@@ -43,7 +89,7 @@ namespace Library.Presentation
                 opt.BaseAddress = new Uri($"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/");
             });
 
-            builder.Services.AddSingleton<IUserDataAccessor, UserDataAccessor>();
+            builder.Services.AddScoped<IUserDataAccessor, UserDataAccessor>();
             builder.Services.AddHttpClient<IUserDataAccessor, UserDataAccessor>(opt =>
             {
                 opt.BaseAddress = new Uri($"{keycloakSettings.Host}/admin/realms/{keycloakSettings.Realm}/");
@@ -76,12 +122,19 @@ namespace Library.Presentation
                 options.AddPolicy("admin", p => p.RequireRole("admin"));
             });
 
-            builder.Services.AddStackExchangeRedisCache(options =>
+            builder.Services.AddDistributedSqlServerCache(options =>
             {
-                var redisConfig = builder.Configuration.GetSection("Redis");
-                options.Configuration = redisConfig["Configuration"];
-                options.InstanceName = redisConfig["InstanceName"];
+                options.ConnectionString = builder.Configuration.GetConnectionString("MicrosoftSQLServer");
+                options.SchemaName = "dbo";
+                options.TableName = "Cache";
             });
+
+            //builder.Services.AddStackExchangeRedisCache(options =>
+            //{
+            //    var redisConfig = builder.Configuration.GetSection("Redis");
+            //    options.Configuration = redisConfig["Configuration"];
+            //    options.InstanceName = redisConfig["InstanceName"];
+            //});
 
             builder.Services.AddCors(options =>
             {
@@ -93,10 +146,12 @@ namespace Library.Presentation
                 });
             });
 
+            builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+            builder.Services.AddScoped<ITokenAccessor, TokenAccesor>();
+            builder.Services.AddScoped<IBookImageService, LocalBookImageService>();
+            builder.Services.AddScoped<IUserDataAccessor, UserDataAccessor>();
             builder.Services.AddSingleton<IEmailSenderService, EmailSenderService>();
             builder.Services.AddHostedService<DebtorNotifierService>();
-
-            builder.Services.AddScoped<IBookImageService, LocalBookImageService>();
         }
 
         private static async Task InitializeDatabase(WebApplication app)

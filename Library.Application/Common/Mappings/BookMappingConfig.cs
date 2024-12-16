@@ -62,13 +62,6 @@ namespace Library.Application.Common.Mappings
                 .Map(dest => dest.Author, src => src.Author)
                 .Map(dest => dest.Genre, src => src.Genre)
                 .Map(dest => dest.IsAvailable, src => src.IsAvailable);
-
-
-
-            //DTOs => маппится в комманду;
-            //по ID в хандлере получается исходная книга;
-            //ненулевые свойства обновляются 
-            //передается в репозиторий на обновление
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Library.Application.Common.Interfaces;
+using Library.Application.Common.Interfaces;
 using Library.Domain.Entities;
 using Library.Persistance.Contexts;
 using Library.Persistance.Repositories;
@@ -15,17 +15,18 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddSingleton<IUnitOfWork, EfUnitOfWork>();
+        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddSingleton<ILibrarySettings, LibrarySettingsService>();
         services.AddTransient<IRepository<Book>, EfRepository<Book>>();
         services.AddTransient<IRepository<Author>, EfRepository<Author>>();
         services.AddTransient<IRepository<Genre>, EfRepository<Genre>>();
         services.AddTransient<IRepository<BookLending>, EfRepository<BookLending>>();
-        services.AddScoped<AppDbContext>();
+
         services.AddDbContext<AppDbContext>(opts =>
         {
             opts.UseSqlServer(configuration.GetConnectionString("MicrosoftSQLServer"));
         });
+        
         return services;
     }
 }

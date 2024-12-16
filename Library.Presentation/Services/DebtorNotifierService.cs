@@ -1,49 +1,71 @@
-﻿using Library.Application.BookUseCases.Queries;
+using Library.Application.BookUseCases.Queries;
 using Library.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Library.Presentation.Services
 {
     public class DebtorNotifierService : IDebtorNotifierService, IHostedService, IDisposable
     {
         private Timer? _timer;
-        private readonly IMediator _mediator;
         private readonly TimeSpan _taskInterval;
         private readonly IEmailSenderService _emailSender;
-        private readonly IUserDataAccessor _userDataAccessor;
         private readonly ILogger<DebtorNotifierService> _logger;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+
         public DebtorNotifierService(
             IConfiguration configuration,
             IEmailSenderService emailSender,
-            IMediator mediator,
             ILogger<DebtorNotifierService> logger,
-            IUserDataAccessor userDataAccessor)
+            IServiceScopeFactory serviceScopeFactory)
         {
             var reviewIntervalSettings = configuration
                 .GetValue<int>("LibrarySettings:DebtorReviewIntervalInDays");
             _taskInterval = TimeSpan.FromDays(reviewIntervalSettings);
-            _userDataAccessor = userDataAccessor;
             _emailSender = emailSender;
-            _mediator = mediator;
             _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            TimeSpan initialDelay = TimeSpan.FromSeconds(10);
-            TimeSpan interval = TimeSpan.FromDays(7);
-
-            _timer = new Timer(DoWork, null, initialDelay, _taskInterval);
-            return Task.CompletedTask;
+            await DoWorkAsync(null);
+            _timer = new Timer(DoWork, null, _taskInterval, _taskInterval);
+            await Task.CompletedTask;
         }
 
-        private void DoWork(object state)
+        private void DoWork(object? state)
         {
-            Task.Run(async () =>
+            _ = DoWorkAsync(state).ContinueWith(task =>
             {
-                var notifications = await _mediator.Send(new GetExpiredBooksQuery());
-                var notificationsEnrichResponse = await _userDataAccessor.EnrichNotifications(notifications);
+                if (task.IsFaulted && task.Exception != null)
+                {
+                    _logger.LogError(task.Exception, "An error occurred while processing debtor notifications");
+                }
+            });
+        }
+
+        private async Task DoWorkAsync(object? state)
+        {
+            if (!await _semaphore.WaitAsync(TimeSpan.Zero))
+                return;
+
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var userDataAccessor = scope.ServiceProvider.GetRequiredService<IUserDataAccessor>();
+
+                var notifications = await mediator.Send(new GetExpiredBooksQuery());
+                if(notifications.Count() == 0)
+                {
+                    _logger.LogInformation("No debtors were found");
+                    return;
+                }
+                var notificationsEnrichResponse = await userDataAccessor.EnrichNotifications(notifications);
 
                 if (!notificationsEnrichResponse.Success)
                 {
@@ -51,14 +73,25 @@ namespace Library.Presentation.Services
                     return;
                 }
 
-                var sendNotificationsResponse = await _emailSender.SendNotifications(notifications);
+                var sendNotificationsResponse = await _emailSender.SendNotifications(notificationsEnrichResponse.Data);
 
                 if (!sendNotificationsResponse.Success)
                 {
                     _logger.LogError(sendNotificationsResponse.ErrorMessage);
                     return;
                 }
-            });
+
+                _logger.LogInformation($"Successfully sent {notifications.Count()} debtor notifications");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing debtor notifications");
+                throw;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -70,6 +103,7 @@ namespace Library.Presentation.Services
         public void Dispose()
         {
             _timer?.Dispose();
+            _semaphore.Dispose();
         }
     }
 }
