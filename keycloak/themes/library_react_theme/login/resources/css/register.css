@@ -1,0 +1,54 @@
+.register-page .form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.register-page .form-control {
+    padding: 14px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.register-page .form-control:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.1);
+}
+
+header > div > div.col-md-10
+{
+    width: 100%;
+}
+
+.register-page #kc-form-buttons input[type="submit"] {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1.1rem ;
+}
+
+.register-page #kc-registration {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.register-page #kc-registration a {
+    color: #0056b3;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-page #kc-registration a:hover {
+    text-decoration: underline;
+}
+
+/* Скрываем звездочки и subtitle */
+.register-page .subtitle,
+.register-page .required,
+.register-page label + *:not(div) {
+    display: none !important;
+}
