@@ -3,7 +3,7 @@ using Library.Persistance.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Library.Infrastructure.Persistance
+namespace Library.Infrastructure.Startup.Persistance
 {
     public static class DbSetup
     {

@@ -1,9 +1,10 @@
 using Library.Application.BookUseCases.Queries;
 using Library.Application.Common.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace Library.Presentation.Services
 {
@@ -32,14 +33,14 @@ namespace Library.Presentation.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await DoWorkAsync(null);
-            _timer = new Timer(DoWork, null, _taskInterval, _taskInterval);
+            await SendDebtorNotificationsAsync(null);
+            _timer = new Timer(SendDebtorNotifications, null, _taskInterval, _taskInterval);
             await Task.CompletedTask;
         }
 
-        private void DoWork(object? state)
+        private void SendDebtorNotifications(object? state)
         {
-            _ = DoWorkAsync(state).ContinueWith(task =>
+            _ = SendDebtorNotificationsAsync(state).ContinueWith(task =>
             {
                 if (task.IsFaulted && task.Exception != null)
                 {
@@ -48,7 +49,7 @@ namespace Library.Presentation.Services
             });
         }
 
-        private async Task DoWorkAsync(object? state)
+        private async Task SendDebtorNotificationsAsync(object? state)
         {
             if (!await _semaphore.WaitAsync(TimeSpan.Zero))
                 return;

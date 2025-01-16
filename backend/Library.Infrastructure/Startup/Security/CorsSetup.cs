@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Library.Infrastructure.Security
+namespace Library.Infrastructure.Startup.Security
 {
     public static class CorsSetup
     {

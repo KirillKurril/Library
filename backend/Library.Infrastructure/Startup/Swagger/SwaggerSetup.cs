@@ -2,7 +2,7 @@
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
-namespace Library.Infrastructure.Swagger
+namespace Library.Infrastructure.Startup.Swagger
 {
     public static class SwaggerSetup
     {

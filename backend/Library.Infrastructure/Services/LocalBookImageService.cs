@@ -1,11 +1,9 @@
 ﻿using Library.Presentation.Services.BookImage;
 using Library.Application.Common.Models;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System.IO;
-using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace Library.Presentation.Services
 {

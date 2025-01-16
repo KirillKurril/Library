@@ -1,6 +1,8 @@
 ﻿using Library.Application.Common.Interfaces;
 using Library.Application.Common.Models;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 
 namespace Library.Presentation.Services

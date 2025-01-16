@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 
-namespace Library.Infrastructure.Caching
+namespace Library.Infrastructure.Startup.Caching
 {
     public static class RedisCacheSetup
     {

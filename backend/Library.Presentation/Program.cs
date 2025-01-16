@@ -1,16 +1,5 @@
-using Library.Application.Common.Settings;
-using Library.Persistense;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Library.Application;
-using Library.Domain.Abstractions;
-using Library.Presentation.Services;
-using Library.Persistance.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Library.Application.Common.Interfaces;
-using Library.Presentation.Services.BookImage;
 using Library.Presentation.Middleware;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
+using Library.Infrastructure;
 
 namespace Library.Presentation
 {
@@ -19,21 +8,13 @@ namespace Library.Presentation
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            ConfigureServices(builder);
-            
+            builder.Services.AddInfrastructure(builder.Configuration);
             var app = builder.Build();
             ConfigureMiddleware(app);
             ConfigureEndpoints(app);
 
             app.Run();
         }
-
-        private static void ConfigureServices(WebApplicationBuilder builder)
-        {
-
-        }
-
-
         private static void ConfigureMiddleware(WebApplication app)
         {
             if (app.Environment.IsDevelopment())
