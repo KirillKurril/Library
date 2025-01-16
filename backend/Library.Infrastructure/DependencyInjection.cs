@@ -6,7 +6,6 @@ using Library.Infrastructure.Startup.InfrastructureSe;
 using Library.Infrastructure.Startup.Persistance;
 using Library.Infrastructure.Startup.Routing;
 using Library.Infrastructure.Startup.Security;
-using Library.Infrastructure.Startup.Swagger;
 using Library.Persistense;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +34,6 @@ namespace Library.Infrastructure
                 .AddKeycloakAuthentication(configuration)
                 .AddRedisCache(configuration)
                 .AddCorsPolicy()
-                .AddSwaggerConfiguration()
                 .InitializeDatabase();
 
             return services;

@@ -1,8 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using System.Reflection;
 
-namespace Library.Infrastructure.Startup.Swagger
+namespace Library.Presentation
 {
     public static class SwaggerSetup
     {

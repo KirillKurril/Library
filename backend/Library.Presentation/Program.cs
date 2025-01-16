@@ -9,7 +9,10 @@ namespace Library.Presentation
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddSwaggerConfiguration();
+
             var app = builder.Build();
+
             ConfigureMiddleware(app);
             ConfigureEndpoints(app);
 
@@ -36,5 +39,6 @@ namespace Library.Presentation
         {
             app.MapControllers();
         }
+
     }
 }
