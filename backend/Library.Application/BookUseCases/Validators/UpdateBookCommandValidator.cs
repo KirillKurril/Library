@@ -19,7 +19,7 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x.ISBN)
                 .NotEmpty().WithMessage("ISBN is required")
                 .MaximumLength(17).WithMessage("ISBN must not exceed 17 characters")
-                .Matches(@"^(?=[\d-]{17}$)(?:\d{3}-?)?\d{1,5}-\d{1,7}-\d{1,7}-[\dX]$")
+                .Matches(@"^(?=(?:\d[-\s]?){9}[\dX]$|(?:\d[-\s]?){13}$)(?:97[89][-\s]?\d{1,5}[-\s]?\d+[-\s]?\d+[-\s]?\d$|\d{1,5}[-\s]?\d+[-\s]?\d+[-\s]?[\dX]$)")
                 .WithMessage("Invalid ISBN format")
                 .When(x => x.ISBN != null);
 
