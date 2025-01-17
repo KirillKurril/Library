@@ -22,7 +22,7 @@ namespace Library.Persistance.Configurations
             builder
                 .Property(b => b.ISBN)
                 .IsRequired()
-                .HasMaxLength(13);
+                .HasMaxLength(17);
 
             builder
                 .Property(b => b.Description)

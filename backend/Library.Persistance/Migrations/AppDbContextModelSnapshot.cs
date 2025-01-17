@@ -69,8 +69,8 @@ namespace Library.Persistance.Migrations
 
                     b.Property<string>("ISBN")
                         .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
+                        .HasMaxLength(17)
+                        .HasColumnType("nvarchar(17)");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
