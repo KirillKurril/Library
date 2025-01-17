@@ -1,98 +1,93 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ReactKeycloakProvider } from '@react-keycloak/web';
-import keycloak from './utils/keycloak';
-
-const Navbar = lazy(() => import('./components/Navbar'));
-const AdminNavbar = lazy(() => import('./components/AdminNavbar'));
-
-const Catalog = lazy(() => import('./pages/Catalog'));
-const BookDetails = lazy(() => import('./pages/BookDetails'));
-const MyBooks = lazy(() => import('./pages/MyBooks'));
-
-const BookList = lazy(() => import('./pages/admin/BookList'));
-const CreateBook = lazy(() => import('./pages/admin/CreateBook'));
-const EditBook = lazy(() => import('./pages/admin/EditBook'));
-const AuthorList = lazy(() => import('./pages/admin/AuthorList'));
-const CreateAuthor = lazy(() => import('./pages/admin/CreateAuthor'));
-const EditAuthor = lazy(() => import('./pages/admin/EditAuthor'));
-const GenreList = lazy(() => import('./pages/admin/GenreList'));
-const CreateGenre = lazy(() => import('./pages/admin/CreateGenre'));
-const EditGenre = lazy(() => import('./pages/admin/EditGenre'));
-const UserList = lazy(() => import('./pages/admin/UserList'));
-const CreateUser = lazy(() => import('./pages/admin/CreateUser'));
-const EditUser = lazy(() => import('./pages/admin/EditUser'));
-
+import { AuthProvider, useAuth } from './hooks/useAuth';
 import './App.css';
 
+import Navbar from './components/Navbar';
+import AdminNavbar from './components/AdminNavbar';
+
+import Catalog from './pages/Catalog';
+import BookDetails from './pages/BookDetails';
+import MyBooks from './pages/MyBooks';
+
+import BookList from './pages/admin/BookList';
+import CreateBook from './pages/admin/CreateBook';
+import EditBook from './pages/admin/EditBook';
+import AuthorList from './pages/admin/AuthorList';
+import CreateAuthor from './pages/admin/CreateAuthor';
+import EditAuthor from './pages/admin/EditAuthor';
+import GenreList from './pages/admin/GenreList';
+import CreateGenre from './pages/admin/CreateGenre';
+import EditGenre from './pages/admin/EditGenre';
+import UserList from './pages/admin/UserList';
+import CreateUser from './pages/admin/CreateUser';
+import EditUser from './pages/admin/EditUser';
+
 const PrivateRoute = ({ children }) => {
-    if (!keycloak.authenticated) {
-        keycloak.login();
-        return null;
-    }
-    return children;
+    const { user } = useAuth();
+    return user ? children : <Navigate to="/" />;
 };
 
 const AdminRoute = ({ children }) => {
-    if (!keycloak.authenticated) {
-        keycloak.login();
-        return null;
-    }
-
-    if (!keycloak.hasRealmRole('admin')) {
-        return <Navigate to="/" />;
-    }
-
-    return children;
+    const { user } = useAuth();
+    return user?.isAdmin ? children : <Navigate to="/" />;
 };
 
-function App() {
-    return (
-        <ReactKeycloakProvider authClient={keycloak}>
-            <Router>
-                <div className="app">
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <Navbar />
-                    </Suspense>
-                    <main>
-                        <Suspense fallback={<div>Loading...</div>}>
-                            <Routes>
-                                <Route path="/" element={<Catalog />} />
-                                <Route path="/books/:id" element={<BookDetails />} />
-                                <Route path="/my-books" element={
-                                    <PrivateRoute>
-                                        <MyBooks />
-                                    </PrivateRoute>
-                                } />
-                                <Route path="/admin/*" element={
-                                    <AdminRoute>
-                                        <Suspense fallback={<div>Loading...</div>}>
-                                            <AdminNavbar />
-                                        </Suspense>
-                                        <Routes>
-                                            <Route index element={<Navigate to="books" />} />
-                                            <Route path="books" element={<BookList />} />
-                                            <Route path="books/create" element={<CreateBook />} />
-                                            <Route path="books/edit/:id" element={<EditBook />} />
-                                            <Route path="authors" element={<AuthorList />} />
-                                            <Route path="authors/create" element={<CreateAuthor />} />
-                                            <Route path="authors/edit/:id" element={<EditAuthor />} />
-                                            <Route path="genres" element={<GenreList />} />
-                                            <Route path="genres/create" element={<CreateGenre />} />
-                                            <Route path="genres/edit/:id" element={<EditGenre />} />
-                                            <Route path="users" element={<UserList />} />
-                                            <Route path="users/create" element={<CreateUser />} />
-                                            <Route path="users/edit/:id" element={<EditUser />} />
-                                        </Routes>
-                                    </AdminRoute>
-                                } />
-                            </Routes>
-                        </Suspense>
-                    </main>
-                </div>
-            </Router>
-        </ReactKeycloakProvider>
-    );
-}
+const App = () => {
+    const isLogin = useAuth();
 
-export default App;
+
+    return (
+        <Router>
+            <div className="app">
+                <Navbar />
+                <main>
+                    <Routes>
+                        <Route path="/" element={<Catalog />} />
+                        <Route path="/books/:id" element={<BookDetails />} />
+                        <Route 
+                            path="/my-books" 
+                            element={
+                                <PrivateRoute>
+                                    <MyBooks />
+                                </PrivateRoute>
+                            } 
+                        />
+                        <Route path="/admin/*" element={
+                            <AdminRoute>
+                                <>
+                                    <AdminNavbar />
+                                    <Routes>
+                                        <Route index element={<Navigate to="books" />} />
+                                        <Route path="books" element={<BookList />} />
+                                        <Route path="books/create" element={<CreateBook />} />
+                                        <Route path="books/edit/:id" element={<EditBook />} />
+                                        <Route path="authors" element={<AuthorList />} />
+                                        <Route path="authors/create" element={<CreateAuthor />} />
+                                        <Route path="authors/edit/:id" element={<EditAuthor />} />
+                                        <Route path="genres" element={<GenreList />} />
+                                        <Route path="genres/create" element={<CreateGenre />} />
+                                        <Route path="genres/edit/:id" element={<EditGenre />} />
+                                        <Route path="users" element={<UserList />} />
+                                        <Route path="users/create" element={<CreateUser />} />
+                                        <Route path="users/edit/:id" element={<EditUser />} />
+                                    </Routes>
+                                </>
+                            </AdminRoute>
+                        } />
+                    </Routes>
+                </main>
+            </div>
+        </Router>
+    );
+};
+
+const AppWithAuth = () => {
+    return (
+        <AuthProvider>
+            <App />
+        </AuthProvider>
+    );
+};
+
+export default AppWithAuth;

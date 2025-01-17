@@ -6,15 +6,6 @@ export const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
-
-
-export const keycloakApi = axios.create({
-    baseURL: `${process.env.KEYCLOAK_HOST}/realms/${KEYCLOAK_REALM}/`,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
-
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');

@@ -25,7 +25,6 @@ namespace Library.Infrastructure.Startup.Persistance
 #if DEBUG
                     try
                     {
-                        // Удаляем все внешние ключи
                         await context.Database.ExecuteSqlRawAsync(@"
                             DECLARE @sql NVARCHAR(MAX) = N'';
                             SELECT @sql += N'
