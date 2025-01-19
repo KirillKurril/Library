@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Library.Application.BookUseCases.Commands
 {
-    public class LendBookHandler : IRequestHandler<LendBookCommand>
+    public class LendBookHandler : IRequestHandler<LendBookCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILibrarySettings _librarySettings;
@@ -17,7 +17,7 @@ namespace Library.Application.BookUseCases.Commands
             _librarySettings = librarySettings;
         }
 
-        public async Task Handle(LendBookCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(LendBookCommand request, CancellationToken cancellationToken)
         {
             var dateNow = DateTime.UtcNow;
             var loanPeriod = _librarySettings.DefaultLoanPeriodInDays;
@@ -32,14 +32,14 @@ namespace Library.Application.BookUseCases.Commands
 
             _unitOfWork.BookLendingRepository.Add(lending);
 
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId);
+            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId, cancellationToken);
             
             book.Quantity -= 1;
             _unitOfWork.BookRepository.Update(book);
 
             await _unitOfWork.SaveChangesAsync();
 
-
+            return Unit.Value;
         }
     }
 }

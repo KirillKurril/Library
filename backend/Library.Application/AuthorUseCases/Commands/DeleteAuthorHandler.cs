@@ -1,6 +1,6 @@
 namespace Library.Application.AuthorUseCases.Commands;
 
-public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand>
+public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand, Unit>
 {
     private readonly IUnitOfWork _unitOfWork;
 
@@ -9,11 +9,13 @@ public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand>
         _unitOfWork = unitOfWork;
     }
 
-    public async Task Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
     {
         var author = await _unitOfWork.AuthorRepository.GetByIdAsync(request.Id, cancellationToken);
 
         _unitOfWork.AuthorRepository.Delete(author);
         await _unitOfWork.SaveChangesAsync();
+
+        return Unit.Value;
     }
 }

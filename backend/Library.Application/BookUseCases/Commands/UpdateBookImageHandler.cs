@@ -1,6 +1,6 @@
 namespace Library.Application.BookUseCases.Commands
 {
-    public class UpdateBookImageHandler : IRequestHandler<UpdateBookImageCommand>
+    public class UpdateBookImageHandler : IRequestHandler<UpdateBookImageCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -9,7 +9,7 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(UpdateBookImageCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateBookImageCommand request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId, cancellationToken);
 
@@ -17,6 +17,8 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork.BookRepository.Update(book);
 
             await _unitOfWork.SaveChangesAsync();
+
+            return Unit.Value;
         }
     }
 }

@@ -5,5 +5,5 @@ namespace Library.Application.AuthorUseCases.Commands
         string? Name,    
         string? Surname,
         DateTime? BirthDate,
-        string? Country) : IRequest;
+        string? Country) : IRequest<Unit>;
 }

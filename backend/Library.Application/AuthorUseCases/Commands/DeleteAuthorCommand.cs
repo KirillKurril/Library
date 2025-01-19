@@ -1,4 +1,4 @@
 namespace Library.Application.AuthorUseCases.Commands
 {
-    public sealed record DeleteAuthorCommand(Guid Id) : IRequest;
+    public sealed record DeleteAuthorCommand(Guid Id) : IRequest<Unit>;
 }

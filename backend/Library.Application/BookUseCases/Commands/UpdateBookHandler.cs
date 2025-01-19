@@ -1,7 +1,7 @@
 
 namespace Library.Application.BookUseCases.Commands
 {
-    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand>
+    public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -10,12 +10,14 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
             var updatedBook = request.Adapt<Book>();
             _unitOfWork.BookRepository.Update(updatedBook);
 
             await _unitOfWork.SaveChangesAsync();
+
+            return Unit.Value;
         }
     }
 }

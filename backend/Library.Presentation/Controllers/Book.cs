@@ -135,7 +135,7 @@ namespace Library.Presentation.Controllers
         }
 
         /// <summary>
-        /// Взять книгу
+        /// Выдать книгу
         /// </summary>
         /// <param name="id">ID книги</param>
         /// <param name="cancellationToken">Токен отмены</param>
@@ -145,7 +145,7 @@ namespace Library.Presentation.Controllers
         /// <response code="404">Книга не найдена</response>
         /// <response code="409">Книга уже взята</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("{id}/lend")]
+        [HttpPost("/lend")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

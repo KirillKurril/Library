@@ -8,5 +8,5 @@ namespace Library.Application.BookUseCases.Commands
         int? Quantity,
         Guid? GenreId,
         Guid? AuthorId,
-        string? ImageUrl) : IRequest;
+        string? ImageUrl) : IRequest<Unit>;
 }

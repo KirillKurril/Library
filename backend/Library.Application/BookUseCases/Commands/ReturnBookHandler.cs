@@ -1,7 +1,7 @@
 using Library.Application.Common.Interfaces;
 namespace Library.Application.BookUseCases.Commands
 {
-    public class ReturnBookHandler : IRequestHandler<ReturnBookCommand>
+    public class ReturnBookHandler : IRequestHandler<ReturnBookCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -11,7 +11,7 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(ReturnBookCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
         {
             var lending = await _unitOfWork.BookLendingRepository.FirstOrDefaultAsync(
                 bl => bl.UserId == request.UserId &&
@@ -28,6 +28,8 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork.BookRepository.Update(book);
 
             await _unitOfWork.SaveChangesAsync();
+
+            return Unit.Value;
         }
     }
 }
