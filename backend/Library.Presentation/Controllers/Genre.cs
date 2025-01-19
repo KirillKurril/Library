@@ -1,6 +1,4 @@
-﻿using Library.Application.AuthorUseCases.Commands;
-using Library.Application.Common.Exceptions;
-using Library.Application.DTOs;
+﻿using Library.Application.Common.Exceptions;
 using Library.Application.GenreUseCases.Commands;
 using Library.Application.GenreUseCases.Queries;
 using Library.Domain.Entities;

@@ -31,7 +31,7 @@ namespace Library.Presentation.Controllers
         [Route("for-filtration")]
         public async Task<ActionResult<IEnumerable<AuthorBriefDTO>>> GetForFiltrationList(CancellationToken cancellationToken)
         {
-            var query = new GetAllAuthorsQuery();
+            var query = new GetAllForFiltrationAuthorsQuery();
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }

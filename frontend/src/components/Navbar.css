@@ -1,62 +1,114 @@
 .navbar-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .logo-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .logo {
-  height: 40px;
-  width: auto;
+    height: 40px;
+    width: auto;
 }
 
 .brand-name {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #444444;
-  text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+    letter-spacing: -0.5px;
 }
 
-.right-section {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+.brand-name:hover {
+    color: #333;
+    background: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-left: auto;
 }
 
 .nav-link {
-  color: #444444;
-  text-decoration: none;
-  font-weight: 500;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .nav-link:hover {
-  color: #666666;
+    color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.1);
 }
 
-.sign-in-button {
-  background-color: #444444;
-  color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
+.auth-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.sign-in-button:hover {
-  background-color: #666666;
+.username {
+    color: #333;
+    font-weight: 500;
 }
 
-.welcome-text {
-  color: #444444;
-  font-weight: 500;
+.auth-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.auth-button.login {
+    background-color: #007bff;
+    color: white;
+}
+
+.auth-button.login:hover {
+    background-color: #0056b3;
+}
+
+.auth-button.logout {
+    background-color: #dc3545;
+    color: white;
+}
+
+.auth-button.logout:hover {
+    background-color: #c82333;
+}
+
+.admin-link {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.admin-link:hover {
+    background-color: rgba(37, 99, 235, 0.15);
+}
+
+.login-btn, .logout-btn {
+    border: 1px solid #555;
+}
+
+.login-btn:hover, .logout-btn:hover {
+    border-color: #2563eb;
 }

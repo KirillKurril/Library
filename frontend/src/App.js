@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './hooks/useAuth';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import useAuth from './hooks/useAuth';
 import './App.css';
 
 import Navbar from './components/Navbar';
@@ -24,21 +24,20 @@ import CreateUser from './pages/admin/CreateUser';
 import EditUser from './pages/admin/EditUser';
 
 const PrivateRoute = ({ children }) => {
-    const { user } = useAuth();
-    return user ? children : <Navigate to="/" />;
+    //const { isAuthenticated } = 
+    //return isAuthenticated ? children : <Navigate to="/" />;
+    return <Navigate to="/" />;
 };
 
 const AdminRoute = ({ children }) => {
-    const { user } = useAuth();
-    return user?.isAdmin ? children : <Navigate to="/" />;
+    //const { isAuthenticated, hasRole } = useAuth();
+    //return isAuthenticated && hasRole(['admin']) ? children : <Navigate to="/" />;
+    return <Navigate to="/" />;
 };
 
-const App = () => {
-    const isLogin = useAuth();
-
-
+function App() {
     return (
-        <Router>
+        <BrowserRouter>
             <div className="app">
                 <Navbar />
                 <main>
@@ -55,7 +54,6 @@ const App = () => {
                         />
                         <Route path="/admin/*" element={
                             <AdminRoute>
-                                <>
                                     <AdminNavbar />
                                     <Routes>
                                         <Route index element={<Navigate to="books" />} />
@@ -72,22 +70,13 @@ const App = () => {
                                         <Route path="users/create" element={<CreateUser />} />
                                         <Route path="users/edit/:id" element={<EditUser />} />
                                     </Routes>
-                                </>
                             </AdminRoute>
                         } />
                     </Routes>
                 </main>
             </div>
-        </Router>
+        </BrowserRouter>
     );
-};
+}
 
-const AppWithAuth = () => {
-    return (
-        <AuthProvider>
-            <App />
-        </AuthProvider>
-    );
-};
-
-export default AppWithAuth;
+export default App;

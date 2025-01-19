@@ -1,40 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import useAuth from '../hooks/useAuth';
 import './Navbar.css';
 
 const Navbar = () => {
-    const { user, loading, login, logout } = useAuth();
-
-    console.log('Navbar render:', { user, loading }); // Добавим для отладки
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
+    //const { isAuthenticated, username, login, logout } = useAuth();
+    let isAuthenticated = true;
+    let username = "Oleg";
+    let hasAdminRole = true; // Временная заглушка для демонстрации админ-функционала
+    let login = () => {};
+    let logout = () => {};
+    
     return (
         <nav className="navbar-container">
             <div className="logo-section">
-                <img className="logo" src="https://localhost:7020/images/logo.jpg" alt="Library Logo" />
+                <img className="logo" src={process.env.REACT_APP_API_URL + '/images/logo.png'} alt="Library Logo" />
                 <Link className="brand-name" to="/">Library</Link>
             </div>
             
-            <div className="right-section">
-                {user ? (
+            <div className="nav-links">
+                <Link to="/" className="nav-link">Catalog</Link>
+                {isAuthenticated && (
+                    <Link to="/my-books" className="nav-link">My Books</Link>
+                )}
+                {hasAdminRole && (
+                    <Link to="/admin" className="nav-link">Admin Panel</Link>
+                )}
+                {isAuthenticated ? (
                     <>
-                        <Link className="nav-link" to="/my-books">My Books</Link>
-                        {user.isAdmin && (
-                            <Link className="nav-link" to="/admin">Admin Panel</Link>
-                        )}
-                        <span className="welcome-text">Welcome, {user.username}!</span>
-                        <button className="sign-in-button" onClick={logout}>
-                            Sign Out
-                        </button>
+                        <span className="nav-link">Welcome, {username}!</span>
+                        <button className="nav-link logout-btn" onClick={logout}>Logout</button>
                     </>
                 ) : (
-                    <button className="sign-in-button" onClick={login}>
-                        Sign In
-                    </button>
+                    <button className="nav-link login-btn" onClick={login}>Login</button>
                 )}
             </div>
         </nav>

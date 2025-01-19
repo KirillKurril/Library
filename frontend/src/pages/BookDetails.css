@@ -1,0 +1,142 @@
+.book-details-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.book-details-content {
+    display: flex;
+    gap: 3rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.book-details-image {
+    flex: 0 0 300px;
+}
+
+.book-details-cover {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.book-details-info {
+    flex: 1;
+}
+
+.book-details-title {
+    font-size: 2rem;
+    color: #1a1a1a;
+    margin: 0 0 1.5rem 0;
+    font-weight: 600;
+}
+
+.book-details-metadata {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.book-details-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.book-details-label {
+    font-weight: 500;
+    color: #666;
+    min-width: 100px;
+}
+
+.book-details-expand {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #666;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.5rem;
+}
+
+.book-details-author-info {
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.book-details-clickable {
+    cursor: pointer;
+    color: #2563eb;
+    transition: color 0.2s ease;
+}
+
+.book-details-clickable:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.book-details-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.book-details-status.available {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.book-details-status.unavailable {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.book-details-description {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.book-details-description h2 {
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+}
+
+.book-details-description p {
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.book-details-loading, 
+.book-details-error {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.book-details-error {
+    color: #dc2626;
+}
+
+@media (max-width: 768px) {
+    .book-details-content {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .book-details-image {
+        flex: 0 0 auto;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+}

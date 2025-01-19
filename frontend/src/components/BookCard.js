@@ -1,13 +1,57 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import './BookCard.css';
 
-const BookCard = ({ book }) => {
+const BookCard = ({ book, author, genre }) => {
+    const navigate = useNavigate();
+
+    const handleDetailsClick = () => {
+        navigate(`/books/${book.id}`);
+    };
+
+    const handleAuthorClick = (e) => {
+        e.stopPropagation();
+        navigate(`/?AuthorId=${author.id}`);
+    };
+
+    const handleGenreClick = (e) => {
+        e.stopPropagation();
+        navigate(`/?genreId=${genre.id}`);
+    };
+
+    const truncateDescription = (text, maxLength = 100) => {
+        if (!text) return '';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    };
+
     return (
         <div className="book-card">
-            <img src={book.coverUrl} alt={book.title} />
-            <h3>{book.title}</h3>
-            <p>{book.author}</p>
-            <Link to={`/books/${book.id}`}>View Details</Link>
+            <div className="book-card-image">
+                <img 
+                    src={`${process.env.REACT_APP_API_URL}${book.imageUrl.substring(book.imageUrl.indexOf('/images'))}`} 
+                    alt={book.title} 
+                    onError={(e) => {
+                        e.target.src = `${process.env.REACT_APP_API_URL}/images/covers/default.jpg`;
+                    }}
+                />
+            </div>
+            <div className="book-card-content">
+                <h3 className="book-card-title">{book.title}</h3>
+                <div className="book-card-metadata">
+                    by <span className="book-card-clickable" onClick={handleAuthorClick}>{author?.name} {author?.surname}</span>
+                </div>
+                <div className="book-card-metadata">
+                    <span className="book-card-clickable" onClick={handleGenreClick}>{genre?.name || 'Uncategorized'}</span>
+                </div>
+                <p className="book-card-description">{truncateDescription(book.description)}</p>
+                <button 
+                    className="book-card-button"
+                    onClick={handleDetailsClick}
+                >
+                    Details
+                </button>
+            </div>
         </div>
     );
 };

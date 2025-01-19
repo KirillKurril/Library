@@ -26,6 +26,7 @@ namespace Library.Presentation
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowAll");
             app.UseStaticFiles();
             app.UseHttpsRedirection();
 
