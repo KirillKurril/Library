@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-
-namespace Library.Application.GenreUseCases.Commands
+﻿namespace Library.Application.GenreUseCases.Commands
 {
     public class UpdateGenreHandler : IRequestHandler<UpdateGenreCommand>
     {
@@ -12,13 +10,7 @@ namespace Library.Application.GenreUseCases.Commands
 
         public async Task Handle(UpdateGenreCommand request, CancellationToken cancellationToken)
         {
-            var genre = await _unitOfWork.GenreRepository.GetByIdAsync(request.id, cancellationToken);
-
-            if (genre == null)
-                throw new NotFoundException(request.id.ToString());
-
-            _unitOfWork.GenreRepository.Update(new Genre(){ Id = request.id, Name = request.genreName });
-
+            _unitOfWork.GenreRepository.Update(request.Adapt<Genre>());
             await _unitOfWork.SaveChangesAsync();
         }
     }

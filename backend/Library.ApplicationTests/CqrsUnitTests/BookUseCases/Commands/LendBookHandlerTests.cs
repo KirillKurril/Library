@@ -6,15 +6,15 @@ using Moq;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
 {
-    public class BorrowBookHandlerTests
+    public class LendBookHandlerTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly Mock<IRepository<BookLending>> _mockBookLendingRepository;
         private readonly Mock<ILibrarySettings> _mockLibrarySettings;
-        private readonly BorrowBookHandler _handler;
+        private readonly LendBookHandler _handler;
 
-        public BorrowBookHandlerTests()
+        public LendBookHandlerTests()
         {
             _mockBookRepository = new Mock<IRepository<Book>>();
             _mockBookLendingRepository = new Mock<IRepository<BookLending>>();
@@ -29,7 +29,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
             _mockLibrarySettings.Setup(s => s.DefaultLoanPeriodInDays)
                 .Returns(14);
 
-            _handler = new BorrowBookHandler(
+            _handler = new LendBookHandler(
                 _mockUnitOfWork.Object,
                 _mockLibrarySettings.Object);
         }
@@ -39,7 +39,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
         {
             var bookId = Guid.NewGuid();
             var userId = Guid.NewGuid();
-            var command = new BorrowBookCommand(bookId, userId);
+            var command = new LendBookCommand(bookId, userId);
 
             var book = new Book
             {

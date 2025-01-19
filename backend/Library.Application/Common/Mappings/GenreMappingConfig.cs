@@ -11,6 +11,10 @@ namespace Library.Application.Common.Mappings
 
             config.NewConfig<CreateGenreCommand, Genre>()
                 .Map(dest => dest.Name, src => src.Name);
+
+            config.NewConfig<UpdateGenreCommand, Genre>()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name);
         }
     }
 }

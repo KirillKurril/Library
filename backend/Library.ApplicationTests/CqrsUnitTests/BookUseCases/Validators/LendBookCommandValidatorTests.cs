@@ -1,6 +1,7 @@
 using FluentValidation.TestHelper;
 using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Validators;
+using Library.Application.Common.Interfaces;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
@@ -9,15 +10,17 @@ using System.Linq.Expressions;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
 {
-    public class BorrowBookCommandValidatorTests
+    public class LendBookCommandValidatorTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-        private readonly BorrowBookCommandValidator _validator;
+        private readonly Mock<IUserDataAccessor> _userDataAccessor;
+        private readonly LendBookCommandValidator _validator;
 
-        public BorrowBookCommandValidatorTests()
+        public LendBookCommandValidatorTests()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _validator = new BorrowBookCommandValidator(_mockUnitOfWork.Object);
+            _userDataAccessor = new Mock<IUserDataAccessor>();
+            _validator = new LendBookCommandValidator(_mockUnitOfWork.Object, _userDataAccessor.Object);
         }
 
         [Fact]
@@ -25,12 +28,16 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         {
             var userId = Guid.NewGuid();
             var bookId = Guid.Empty;
-            var command = new BorrowBookCommand(bookId, userId);
+            var command = new LendBookCommand(bookId, userId);
 
             _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
+
+            _userDataAccessor.Setup(x => x.UserExist(
+                 It.IsAny<Guid>()))
+                 .ReturnsAsync(true);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -44,11 +51,15 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var userId = Guid.NewGuid();
             var bookId = Guid.NewGuid();
 
-            var command = new BorrowBookCommand(bookId, userId);
+            var command = new LendBookCommand(bookId, userId);
             _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
+
+            _userDataAccessor.Setup(x => x.UserExist(
+                 It.IsAny<Guid>()))
+                 .ReturnsAsync(true);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -62,7 +73,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var userId = Guid.NewGuid();
             var bookId = Guid.NewGuid();
 
-            var command = new BorrowBookCommand(bookId, userId);
+            var command = new LendBookCommand(bookId, userId);
             var book = new Book
             {
                 Id = Guid.NewGuid(),
@@ -74,6 +85,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 It.IsAny<CancellationToken>(),
                 It.IsAny<Expression<Func<Book, object>>>()))
                 .ReturnsAsync(book);
+
+            _userDataAccessor.Setup(x => x.UserExist(
+                 It.IsAny<Guid>()))
+                 .ReturnsAsync(true);
 
             var result = await _validator.TestValidateAsync(command);
 

@@ -145,7 +145,7 @@ namespace Library.Presentation.Controllers
         /// <response code="404">Книга не найдена</response>
         /// <response code="409">Книга уже взята</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("{id}/borrow")]
+        [HttpPost("{id}/lend")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -153,11 +153,11 @@ namespace Library.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> BorrowBook(
-            Guid id,
+            Guid bookId,
+            Guid userId,
             CancellationToken cancellationToken)
         {
-            var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
-            var command = new BorrowBookCommand(id, userId);
+            var command = new LendBookCommand(bookId, userId);
             await _mediator.Send(command, cancellationToken);
             return Ok();
         }

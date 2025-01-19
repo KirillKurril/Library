@@ -12,11 +12,6 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (book == null)
-                throw new NotFoundException(request.Id.ToString());
-
-
             var updatedBook = request.Adapt<Book>();
             _unitOfWork.BookRepository.Update(updatedBook);
 

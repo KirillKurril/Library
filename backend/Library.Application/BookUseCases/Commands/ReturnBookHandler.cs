@@ -23,8 +23,6 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork.BookLendingRepository.Delete(lending);
 
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId);
-            if (book == null)
-                throw new NotFoundException(request.BookId.ToString());
 
             book.Quantity += 1;
             _unitOfWork.BookRepository.Update(book);

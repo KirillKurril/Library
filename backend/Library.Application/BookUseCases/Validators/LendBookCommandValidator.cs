@@ -1,14 +1,13 @@
-using System;
-using FluentValidation;
 using Library.Application.BookUseCases.Commands;
-using Library.Domain.Abstractions;
-using System.Linq;
+using Library.Application.Common.Interfaces;
 
 namespace Library.Application.BookUseCases.Validators
 {
-    public class BorrowBookCommandValidator : AbstractValidator<BorrowBookCommand>
+    public class LendBookCommandValidator : AbstractValidator<LendBookCommand>
     {
-        public BorrowBookCommandValidator(IUnitOfWork unitOfWork)
+        public LendBookCommandValidator(
+            IUnitOfWork unitOfWork,
+            IUserDataAccessor userDataAccessor)
         {
             RuleFor(x => x.BookId)
                  .NotEmpty().WithMessage("Book ID is required");
@@ -22,6 +21,13 @@ namespace Library.Application.BookUseCases.Validators
                     return book != null && book.IsAvailable;
                 }).WithMessage("Book is not available for borrowing or does not exist.")
                 .When(x => x.BookId != Guid.Empty);
+
+            RuleFor(x => x.UserId)
+                .MustAsync(async (userId, ct) =>
+                {
+                    var userExist = await userDataAccessor.UserExist(userId);
+                    return userExist;
+                }).WithMessage($"User doesn't exist");
         }
     }
 }

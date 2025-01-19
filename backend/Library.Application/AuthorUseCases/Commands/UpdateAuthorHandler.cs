@@ -16,8 +16,6 @@ public class UpdateAuthorHandler : IRequestHandler<UpdateAuthorCommand>
     public async Task Handle(UpdateAuthorCommand request, CancellationToken cancellationToken)
     {
         var existingAuthor = await _unitOfWork.AuthorRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (existingAuthor == null)
-            throw new NotFoundException(request.Id.ToString());
 
         var updatedAuthor = _mapper.Map(request, existingAuthor);
         _unitOfWork.AuthorRepository.Update(updatedAuthor);

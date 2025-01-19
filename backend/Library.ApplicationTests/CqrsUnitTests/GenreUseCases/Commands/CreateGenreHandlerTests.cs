@@ -20,7 +20,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Commands
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockValidator = new Mock<IValidator<CreateGenreCommand>>();
             _mockMapper = new Mock<IMapper>();
-            _handler = new CreateGenreHandler(_mockUnitOfWork.Object, _mockValidator.Object, _mockMapper.Object);
+            _handler = new CreateGenreHandler(_mockUnitOfWork.Object, _mockMapper.Object);
         }
 
         [Fact]

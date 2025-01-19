@@ -35,7 +35,7 @@ namespace Library.IntegrationTests.EntitiesBdConfigurations
             var isbnProperty = entityType.FindProperty(nameof(Book.ISBN));
             isbnProperty.Should().NotBeNull();
             isbnProperty.IsNullable.Should().BeFalse();
-            isbnProperty.GetMaxLength().Should().Be(13);
+            isbnProperty.GetMaxLength().Should().Be(17);
 
             var quantityProperty = entityType.FindProperty(nameof(Book.Quantity));
             quantityProperty.Should().NotBeNull();
