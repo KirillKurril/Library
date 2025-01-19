@@ -6,6 +6,7 @@ using MediatR;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 
 namespace Library.Presentation.Controllers
 {
@@ -24,16 +25,9 @@ namespace Library.Presentation.Controllers
         public async Task<ActionResult<IEnumerable<Genre>>> GetAllList(
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var query = new GetAllGenresQuery();
-                var result = await _mediator.Send(query, cancellationToken);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while retrieving all genres. {ex.Message}");
-            }
+            var query = new GetAllGenresQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
 
         [HttpGet]
@@ -42,20 +36,9 @@ namespace Library.Presentation.Controllers
            Guid id,
            CancellationToken cancellationToken)
         {
-            try
-            {
-                var command = new GetGenreByIdQuery(id);
-                var genre = await _mediator.Send(command, cancellationToken);
-                return Ok(genre);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while retrieving genre with ID {id}. {ex.Message}");
-            }
+            var command = new GetGenreByIdQuery(id);
+            var genre = await _mediator.Send(command, cancellationToken);
+            return Ok(genre);
         }
 
 
@@ -65,21 +48,21 @@ namespace Library.Presentation.Controllers
             string genreName,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var command = genreName.Adapt<CreateGenreCommand>();
-                var response = await _mediator.Send(command, cancellationToken);
-                response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id });
-                return Ok(response);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Errors);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while creating the genre. {ex.Message}");
-            }
+            var command = genreName.Adapt<CreateGenreCommand>();
+            var response = await _mediator.Send(command, cancellationToken);
+            response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id });
+            return Ok(response);
+        }
+
+        [HttpPut]
+        [Authorize(Roles ="admin")]
+        public async Task<IActionResult> Update(
+            Guid id,
+            string genreName,
+            CancellationToken cancellationToken)
+        {
+
+            return Ok();
         }
 
         [HttpDelete]
@@ -89,20 +72,9 @@ namespace Library.Presentation.Controllers
                    Guid id,
                    CancellationToken cancellationToken)
         {
-            try
-            {
-                var command = new DeleteGenreCommand(id);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while deleting genre with ID {id}. {ex.Message}");
-            }
+            var command = new DeleteGenreCommand(id);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
     }
 }

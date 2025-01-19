@@ -17,9 +17,15 @@ namespace Library.Application.BookUseCases.Commands
                 bl => bl.UserId == request.UserId &&
                 bl.BookId == request.BookId);
 
+            if (lending == null)
+                throw new NotFoundException($"Lending bookId: {request.BookId}, userId: {request.UserId}");
+
             _unitOfWork.BookLendingRepository.Delete(lending);
 
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId);
+            if (book == null)
+                throw new NotFoundException(request.BookId.ToString());
+
             book.Quantity += 1;
             _unitOfWork.BookRepository.Update(book);
 

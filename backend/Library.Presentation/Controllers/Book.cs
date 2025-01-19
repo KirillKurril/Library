@@ -51,17 +51,10 @@ namespace Library.Presentation.Controllers
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
-                var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
-                var result = await _mediator.Send(query, cancellationToken);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while retrieving borrowed books. {ex.Message}");
-            }
+            var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
+            var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
 
         /// <summary>
@@ -88,16 +81,9 @@ namespace Library.Presentation.Controllers
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var query = new SearchBooksQuery(searchTerm, genreId, AuthorId, pageNo, itemsPerPage);
-                var result = await _mediator.Send(query, cancellationToken);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while searching books. {ex.Message}");
-            }
+            var query = new SearchBooksQuery(searchTerm, genreId, AuthorId, pageNo, itemsPerPage);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
 
         /// <summary>
@@ -118,24 +104,10 @@ namespace Library.Presentation.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var query = new GetBookByIdQuery(id);
-                var result = await _mediator.Send(query, cancellationToken);
+            var query = new GetBookByIdQuery(id);
+            var result = await _mediator.Send(query, cancellationToken);
 
-                if (result == null)
-                    return NotFound($"Book with ID {id} not found");
-
-                return Ok(result);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while retrieving book with ID {id}. {ex.Message}");
-            }
+            return Ok(result);
         }
 
         /// <summary>
@@ -156,24 +128,10 @@ namespace Library.Presentation.Controllers
             string isbn,
             CancellationToken cancellationToken)
         {
-            try
-            {
                 var query = new GetBookByIsbnQuery(isbn);
                 var result = await _mediator.Send(query, cancellationToken);
 
-                if (result == null)
-                    return NotFound($"Book with ISBN {isbn} not found");
-
                 return Ok(result);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, $"An error occurred while retrieving book with ISBN {isbn}");
-            }
         }
 
         /// <summary>
@@ -198,29 +156,10 @@ namespace Library.Presentation.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
-                var command = new BorrowBookCommand(id, userId);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
-            }
-            catch (BookInUseException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, $"An error occurred while borrowing book with ID {id}");
-            }
+            var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
+            var command = new BorrowBookCommand(id, userId);
+            await _mediator.Send(command, cancellationToken);
+            return Ok();
         }
 
         /// <summary>
@@ -243,21 +182,10 @@ namespace Library.Presentation.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
-                var command = new ReturnBookCommand(id, userId);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while returning book with ID {id}. {ex.Message}");
-            }
+            var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
+            var command = new ReturnBookCommand(id, userId);
+            await _mediator.Send(command, cancellationToken);
+            return Ok();
         }
 
         /// <summary>
@@ -312,28 +240,9 @@ namespace Library.Presentation.Controllers
             [FromBody] UpdateBookDTO updateBookDTO,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var command = updateBookDTO.Adapt<UpdateBookCommand>();
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Errors);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (DuplicateIsbnException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while updating the book {ex.Message}");
-            }
+            var command = updateBookDTO.Adapt<UpdateBookCommand>();
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
 
         /// <summary>
@@ -358,24 +267,9 @@ namespace Library.Presentation.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var command = new DeleteBookCommand(id);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (BookInUseException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while deleting book with ID {id}. {ex.Message}");
-            }
+            var command = new DeleteBookCommand(id);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
 
         /// <summary>
@@ -400,29 +294,18 @@ namespace Library.Presentation.Controllers
             IFormFile image,
             CancellationToken cancellationToken)
         {
-            try
+            var urlResponse = await _imageService.SaveImage(image, Request.Host, Request.Scheme);
+            if (!urlResponse.Success)
             {
-                var urlResponse = await _imageService.SaveImage(image, Request.Host, Request.Scheme);
-                if (!urlResponse.Success)
-                {
-                    _logger.LogError(urlResponse.ErrorMessage);
-                    if (urlResponse.ErrorMessage.Contains("is not an image"))
-                        return BadRequest(urlResponse.ErrorMessage);
-                    else
-                        return StatusCode(500, urlResponse.ErrorMessage);
-                }
-                var command = new UpdateBookImageCommand(id, urlResponse.Data);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
+                _logger.LogError(urlResponse.ErrorMessage);
+                if (urlResponse.ErrorMessage.Contains("is not an image"))
+                    return BadRequest(urlResponse.ErrorMessage);
+                else
+                    return StatusCode(500, urlResponse.ErrorMessage);
             }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while uploading image for book with ID {id}. {ex.Message}");
-            }
+            var command = new UpdateBookImageCommand(id, urlResponse.Data);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
 
         /// <summary>
@@ -445,25 +328,14 @@ namespace Library.Presentation.Controllers
             Guid id,
             CancellationToken cancellationToken)
         {
-            try
+            var urlResponse = _imageService.GetDefaultCoverImage(Request.Host, Request.Scheme);
+            if (!urlResponse.Success)
             {
-                var urlResponse = _imageService.GetDefaultCoverImage(Request.Host, Request.Scheme);
-                if (!urlResponse.Success)
-                {
-                    return StatusCode(500, urlResponse.ErrorMessage);
-                }
-                var command = new UpdateBookImageCommand(id, urlResponse.Data);
-                await _mediator.Send(command, cancellationToken);
-                return NoContent();
+               return StatusCode(500, urlResponse.ErrorMessage);
             }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while uploading image for book with ID {id}. {ex.Message}");
-            }
+            var command = new UpdateBookImageCommand(id, urlResponse.Data);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
     }
 }

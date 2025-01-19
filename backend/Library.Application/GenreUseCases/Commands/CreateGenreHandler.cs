@@ -5,16 +5,13 @@ namespace Library.Application.GenreUseCases.Commands
     public class CreateGenreHandler : IRequestHandler<CreateGenreCommand, CreateEntityResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<CreateGenreCommand> _validator;
         private readonly IMapper _mapper;
 
         public CreateGenreHandler(
             IUnitOfWork unitOfWork,
-            IValidator<CreateGenreCommand> validator,
             IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
             _mapper = mapper;
         }
 

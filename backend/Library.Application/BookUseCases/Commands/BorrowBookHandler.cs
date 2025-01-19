@@ -1,4 +1,6 @@
 using Library.Application.Common.Interfaces;
+using Library.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Library.Application.BookUseCases.Commands
 {
@@ -31,6 +33,11 @@ namespace Library.Application.BookUseCases.Commands
             _unitOfWork.BookLendingRepository.Add(lending);
 
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId);
+            
+            if (book == null)
+                throw new NotFoundException(request.BookId.ToString());
+
+
             book.Quantity -= 1;
             _unitOfWork.BookRepository.Update(book);
 

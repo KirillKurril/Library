@@ -12,6 +12,8 @@ namespace Library.Application.BookUseCases.Commands
         public async Task Handle(UpdateBookImageCommand request, CancellationToken cancellationToken)
         {
             var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId, cancellationToken);
+            if (book == null)
+                throw new NotFoundException(request.BookId.ToString());
 
             book.ImageUrl = request.ImageUrl;
             await _unitOfWork.SaveChangesAsync();
