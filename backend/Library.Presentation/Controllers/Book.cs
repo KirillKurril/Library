@@ -35,23 +35,22 @@ namespace Library.Presentation.Controllers
         /// </summary>
         /// <param name="pageNo">Номер страницы (опционально)</param>
         /// <param name="itemsPerPage">Количество элементов на странице (опционально)</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Список взятых книг с пагинацией</returns>
         /// <response code="200">Список успешно получен</response>
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet]
-        [Route("my-books")]
+        [Route("/users/{userId:guid}/my-books")]
         [Authorize]
         [ProducesResponseType(typeof(PaginationListModel<IEnumerable<BookLendingDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PaginationListModel<IEnumerable<BookLendingDTO>>>> GetBorrowedList(
+            [FromRoute] Guid userId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
-            var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
             var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
@@ -65,7 +64,6 @@ namespace Library.Presentation.Controllers
         /// <param name="AuthorId">ID автора (опционально)</param>
         /// <param name="pageNo">Номер страницы (опционально)</param>
         /// <param name="itemsPerPage">Количество элементов на странице (опционально)</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Список книг с пагинацией</returns>
         /// <response code="200">Список успешно получен</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
@@ -90,18 +88,17 @@ namespace Library.Presentation.Controllers
         /// Получить книгу по ID
         /// </summary>
         /// <param name="id">ID книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Книга</returns>
         /// <response code="200">Книга успешно получена</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet]
-        [Route("{id:Guid}")]
+        [Route("{id:guid}")]
         [ProducesResponseType(typeof(BookDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BookDetailsDTO>> GetById(
-            Guid id,
+            [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var query = new GetBookByIdQuery(id);
@@ -114,7 +111,6 @@ namespace Library.Presentation.Controllers
         /// Получить книгу по ISBN
         /// </summary>
         /// <param name="isbn">ISBN книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Книга</returns>
         /// <response code="200">Книга успешно получена</response>
         /// <response code="404">Книга не найдена</response>
@@ -125,7 +121,7 @@ namespace Library.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BookDetailsDTO>> GetByISBN(
-            string isbn,
+            [FromRoute] string isbn,
             CancellationToken cancellationToken)
         {
                 var query = new GetBookByIsbnQuery(isbn);
@@ -137,53 +133,53 @@ namespace Library.Presentation.Controllers
         /// <summary>
         /// Выдать книгу
         /// </summary>
-        /// <param name="id">ID книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
+        /// <param name="bookId">ID книги</param>
+        /// <param name="userId">ID пользователя</param>
         /// <returns>Результат операции</returns>
         /// <response code="204">Книга успешно взята</response>
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="409">Книга уже взята</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("/lend")]
-        [Authorize]
+        [HttpPost("users/{userId:guid}/books/{bookId:guid}/lend")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> BorrowBook(
-            Guid bookId,
-            Guid userId,
+        public async Task<IActionResult> LendBook(
+            [FromRoute] Guid bookId,
+            [FromRoute] Guid userId,
             CancellationToken cancellationToken)
         {
             var command = new LendBookCommand(bookId, userId);
             await _mediator.Send(command, cancellationToken);
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
         /// Вернуть книгу
         /// </summary>
-        /// <param name="id">ID книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
+        /// <param name="bookId">ID книги</param>
+        /// <param name="userId">ID пользователя</param>
         /// <returns>Результат операции</returns>
         /// <response code="204">Книга успешно возвращена</response>
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("{id}/return")]
+        [HttpPost("users/{userId:guid}/books/{bookId:guid}/return")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ReturnBook(
-            Guid id,
+            [FromRoute] Guid userId,
+            [FromRoute] Guid bookId,
             CancellationToken cancellationToken)
         {
-            var userId = new Guid(User.Claims.FirstOrDefault(c => c.Type == "id")?.Value);
-            var command = new ReturnBookCommand(id, userId);
+            var command = new ReturnBookCommand(bookId, userId);
             await _mediator.Send(command, cancellationToken);
             return Ok();
         }
@@ -192,7 +188,6 @@ namespace Library.Presentation.Controllers
         /// Создать книгу
         /// </summary>
         /// <param name="createBookDTO">Данные для создания книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Результат операции</returns>
         /// <response code="201">Книга успешно создана</response>
         /// <response code="401">Пользователь не авторизован</response>
@@ -222,7 +217,6 @@ namespace Library.Presentation.Controllers
         /// Обновить книгу
         /// </summary>
         /// <param name="updateBookDTO">Данные для обновления книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Результат операции</returns>
         /// <response code="204">Книга успешно обновлена</response>
         /// <response code="401">Пользователь не авторизован</response>
@@ -249,7 +243,6 @@ namespace Library.Presentation.Controllers
         /// Удалить книгу
         /// </summary>
         /// <param name="id">ID книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Результат операции</returns>
         /// <response code="204">Книга успешно удалена</response>
         /// <response code="401">Пользователь не авторизован</response>
@@ -264,7 +257,7 @@ namespace Library.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(
-            Guid id,
+            [FromBody] Guid id,
             CancellationToken cancellationToken)
         {
             var command = new DeleteBookCommand(id);
@@ -276,21 +269,21 @@ namespace Library.Presentation.Controllers
         /// Загрузить изображение книги
         /// </summary>
         /// <param name="id">ID книги</param>
-        /// <param name="image">Изображение книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
+        /// <param name="image">Изображение обложки книги</param>
         /// <returns>Результат операции</returns>
         /// <response code="204">Изображение успешно загружено</response>
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("{id}/upload-image")]
+        [HttpPost("{id:guid}/upload-cover/")]
         [Authorize(Roles = "admin")]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UploadImage(
-            Guid id,
+            [FromRoute] Guid id,
             IFormFile image,
             CancellationToken cancellationToken)
         {
@@ -312,20 +305,19 @@ namespace Library.Presentation.Controllers
         /// Установить изображение книги по умолчанию
         /// </summary>
         /// <param name="id">ID книги</param>
-        /// <param name="cancellationToken">Токен отмены</param>
         /// <returns>Результат операции</returns>
         /// <response code="204">Изображение успешно установлено</response>
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("{id}/delete-cover")]
+        [HttpPost("{id:guid}/remove-cover/")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SetDefaultCover(
-            Guid id,
+            [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var urlResponse = _imageService.GetDefaultCoverImage(Request.Host, Request.Scheme);

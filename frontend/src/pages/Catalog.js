@@ -13,7 +13,7 @@ const Catalog = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const itemsPerPage = 16; // Количество книг на странице
+    const itemsPerPage = 16; 
 
     useEffect(() => {
         const fetchData = async () => {
@@ -23,7 +23,6 @@ const Catalog = () => {
                 const genreId = searchParams.get('genreId');
                 const currentPage = parseInt(searchParams.get('pageNo')) || 1;
 
-                // Формируем URL с параметрами фильтрации и пагинации
                 const params = new URLSearchParams();
                 if (authorId) params.append('AuthorId', authorId);
                 if (genreId) params.append('genreId', genreId);

@@ -1,8 +1,8 @@
 ﻿using Microsoft.OpenApi.Models;
 using System.Reflection;
 
-namespace Library.Presentation
-{
+namespace Library.Presentation.Swagger
+    {
     public static class SwaggerSetup
     {
         public static IServiceCollection AddSwaggerConfiguration(this IServiceCollection services)

@@ -1,47 +1,72 @@
-﻿using Library.Application.Common.Settings;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
+using Library.Application.Common.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 
-namespace Library.Infrastructure.Authentication
+namespace Library.Infrastructure.Startup.Authentication;
+
+public static class KeycloakConfiguration
 {
-    public static class KeycloakConfiguration
+    public static IServiceCollection AddKeycloakAuthentication(
+        this IServiceCollection services,
+        KeycloakSettings keycloakSettings)
     {
-        public static IServiceCollection AddKeycloakAuthentication(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        services.AddSingleton(keycloakSettings);
+
+        services.AddAuthentication(options =>
         {
-            var keycloakSettings = configuration
-               .GetSection("Keycloak")
-               .Get<KeycloakSettings>();
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+       .AddJwtBearer(options =>
+       {
+           options.Authority = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}";
+           options.MetadataAddress = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/.well-known/openid-configuration";
+           options.RequireHttpsMetadata = false;
+           options.SaveToken = true;
 
-            services.AddSingleton(keycloakSettings);
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-           .AddJwtBearer(options =>
+           options.TokenValidationParameters = new TokenValidationParameters
            {
-               options.Authority = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}";
-               options.MetadataAddress = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/.well-known/openid-configuration";
-               options.RequireHttpsMetadata = false;
-               options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+               ValidateIssuer = true,
+               ValidateAudience = true,
+               ValidateLifetime = true,
+               ValidateIssuerSigningKey = true,
+               ValidIssuer = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}",
+               ValidAudience = "aspnet-api",
+               RoleClaimType = ClaimTypes.Role
+           };
+
+           options.Events = new JwtBearerEvents
+           {
+               OnTokenValidated = context =>
                {
-                   ValidateAudience = false,
-                   ValidateIssuer = true,
-                   ValidIssuer = $"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}",
-                   ValidateLifetime = true
-               };
-           });
+                   var identity = context.Principal?.Identity as ClaimsIdentity;
+                   if (identity == null) return Task.CompletedTask;
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("admin", p => p.RequireRole("admin"));
-            });
+                   var resourceAccessClaim = identity.Claims
+                       .FirstOrDefault(c => c.Type == "resource_access")?.Value;
 
-            return services;
-        }
+                   var resourceAccess = JObject.Parse(resourceAccessClaim);
+                   var apiRoles = resourceAccess["aspnet-api"]?["roles"] as JArray;
+
+                   foreach (var role in apiRoles.Values<string>())
+                       identity.AddClaim(new Claim(ClaimTypes.Role, role));
+
+                   return Task.CompletedTask;
+               }
+           };
+       });
+
+       services.AddAuthorization(options =>
+       {
+           options.AddPolicy("admin", p => p.RequireRole("admin"));
+       });
+
+        return services;
     }
 }

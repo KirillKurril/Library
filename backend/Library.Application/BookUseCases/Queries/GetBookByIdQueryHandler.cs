@@ -18,7 +18,7 @@ namespace Library.Application.BookUseCases.Queries
                 cancellationToken,
                 b => b.Author,
                 b => b.Genre);
-            
+
             if (book == null)
             {
                 throw new NotFoundException(nameof(Book), request.Id);

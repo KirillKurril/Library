@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Library.Presentation.Services
 {
@@ -16,22 +17,26 @@ namespace Library.Presentation.Services
         private readonly KeycloakSettings _settings;
         private readonly HttpContext _httpContext;
         private readonly IDistributedCache _cache;
+        private readonly ILogger<TokenAccesor> _logger;
         private readonly string _tokenKey;
         public TokenAccesor(
             IHttpContextAccessor contextAccessor,
             KeycloakSettings settings,
             HttpClient httpClient,
             IDistributedCache cache,
+            ILogger<TokenAccesor> logger,
             IConfiguration configuration)
         {
             _httpContext = contextAccessor.HttpContext;
             _settings = settings;
             _httpClient = httpClient;
             _cache = cache;
+            _logger = logger;
             _tokenKey = configuration.GetValue<string>("Redis:AccessTokenKey");
         }
         public async Task<string> GetAccessTokenAsync()
         {
+            _logger.LogInformation("-------------------> Attempting to get access token");
             if (_httpContext.User.Identity.IsAuthenticated)
             {
                 return await _httpContext.GetTokenAsync("access_token");

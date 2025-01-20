@@ -1,6 +1,7 @@
 using Library.Application;
 using Library.Application.Common.Settings;
 using Library.Infrastructure.Authentication;
+using Library.Infrastructure.Startup.Authentication;
 using Library.Infrastructure.Startup.Caching;
 using Library.Infrastructure.Startup.InfrastructureSe;
 using Library.Infrastructure.Startup.Persistance;
@@ -22,6 +23,9 @@ namespace Library.Infrastructure
                 .GetSection("Keycloak")
                 .Get<KeycloakSettings>();
 
+            var accessTokenKey = configuration
+                .GetValue<string>("Redis:AccessTokenKey");
+
             services.AddSingleton(keycloakSettings);
 
             services
@@ -30,8 +34,7 @@ namespace Library.Infrastructure
                 .AddPersistence(configuration)
                 .AddTokenConfiguration(keycloakSettings)
                 .AddImageHandler()
-                .AddImageHandler()
-                .AddKeycloakAuthentication(configuration)
+                .AddKeycloakAuthentication(keycloakSettings)
                 .AddRedisCache(configuration)
                 .AddCorsPolicy()
                 .InitializeDatabase();

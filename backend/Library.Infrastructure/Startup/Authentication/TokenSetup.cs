@@ -15,6 +15,7 @@ public static class TokenSetup
         services.AddHttpClient<ITokenAccessor, TokenAccesor>(opt =>
         {
             opt.BaseAddress = new Uri($"{keycloakSettings.Host}/realms/{keycloakSettings.Realm}/");
+            
         });
 
         services.AddScoped<IUserDataAccessor, UserDataAccessor>();

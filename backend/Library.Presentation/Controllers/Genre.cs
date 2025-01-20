@@ -1,4 +1,4 @@
-﻿using Library.Application.Common.Exceptions;
+using Library.Application.Common.Exceptions;
 using Library.Application.GenreUseCases.Commands;
 using Library.Application.GenreUseCases.Queries;
 using Library.Domain.Entities;
@@ -6,7 +6,6 @@ using MediatR;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
 
 namespace Library.Presentation.Controllers
 {
@@ -48,7 +47,7 @@ namespace Library.Presentation.Controllers
             string genreName,
             CancellationToken cancellationToken)
         {
-            var command = genreName.Adapt<CreateGenreCommand>();
+            var command = new CreateGenreCommand(genreName);
             var response = await _mediator.Send(command, cancellationToken);
             response.RedirectUrl = Url.Action(nameof(GetById), new { id = response.Id });
             return Ok(response);
