@@ -3,11 +3,10 @@ import './Pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     const getPageNumbers = () => {
-        const delta = 2; // Количество страниц слева и справа от текущей
+        const delta = 2; 
         const range = [];
         const rangeWithDots = [];
 
-        // Всегда показываем первую страницу
         range.push(1);
 
         for (let i = currentPage - delta; i <= currentPage + delta; i++) {

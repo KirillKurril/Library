@@ -21,8 +21,7 @@ namespace Library.Application.Common.Mappings
                 .Map(dest => dest.Description, src => src.Description)
                 .Map(dest => dest.Quantity, src => src.Quantity)
                 .Map(dest => dest.GenreId, src => src.GenreId)
-                .Map(dest => dest.AuthorId, src => src.AuthorId)
-                .Map(dest => dest.ImageUrl, src => src.ImageUrl);
+                .Map(dest => dest.AuthorId, src => src.AuthorId);
 
             config.NewConfig<UpdateBookCommand, Book>()
                 .Map(dest => dest.Id, src => src.Id)

@@ -205,7 +205,6 @@ namespace Library.Presentation.Controllers
             var result = await SetDefaultCover(createBookResult.Id, cancellationToken);
             if (result is OkResult)
                 return Ok(createBookResult);
-
             else
                 return StatusCode(500, $"Error setting default image to {createBookDTO.Title}");
         }
@@ -278,12 +277,12 @@ namespace Library.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadImage(
+        public async Task<IActionResult> UpdateCover(
             [FromRoute] Guid id,
             IFormFile image,
             CancellationToken cancellationToken)
         {
-            var urlResponse = await _imageService.SaveImage(image, Request.Host, Request.Scheme);
+            var urlResponse = await _imageService.SaveCoverImage(image, Request.Host, Request.Scheme);
             if (!urlResponse.Success)
             {
                 _logger.LogError(urlResponse.ErrorMessage);
@@ -316,7 +315,7 @@ namespace Library.Presentation.Controllers
             [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
-            var urlResponse = _imageService.GetDefaultCoverImage(Request.Host, Request.Scheme);
+            var urlResponse = _imageService.GetDefaultCoverURL(Request.Host, Request.Scheme);
             if (!urlResponse.Success)
             {
                return StatusCode(500, urlResponse.ErrorMessage);

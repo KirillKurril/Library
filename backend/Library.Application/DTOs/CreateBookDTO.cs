@@ -1,12 +1,14 @@
-﻿namespace Library.Application.DTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Library.Application.DTOs
 {
     public class CreateBookDTO
     {
-        public string ISBN { get; }
-        public string Title { get; }
-        public string? Description { get; }
-        public int Quantity { get; }
-        public Guid GenreId { get; }
-        public Guid AuthorId { get; }
+        public string ISBN { get; set; }
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public int Quantity { get; set; }
+        public Guid GenreId { get; set; }
+        public Guid AuthorId { get; set; }
     }
 }

@@ -29,12 +29,12 @@ const Catalog = () => {
                 params.append('pageNo', currentPage);
                 params.append('itemsPerPage', itemsPerPage);
 
-                const catalogUrl = `${process.env.REACT_APP_API_URL}/api/Book/catalog?${params.toString()}`;
+                const catalogUrl = `${process.env.REACT_APP_API_URL}/books/catalog?${params.toString()}`;
 
                 const [booksResponse, authorsResponse, genresResponse] = await Promise.all([
                     axios.get(catalogUrl),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/Author/for-filtration`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/api/Genre`)
+                    axios.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`),
+                    axios.get(`${process.env.REACT_APP_API_URL}/genres`)
                 ]);
 
                 setBooks(booksResponse.data);

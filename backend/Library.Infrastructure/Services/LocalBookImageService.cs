@@ -21,7 +21,7 @@ namespace Library.Presentation.Services
             _configuration = configuration;
             _logger = logger;   
         }
-        public async Task<ResponseData<string>> SaveImage(IFormFile image, HostString host, string scheme)
+        public async Task<ResponseData<string>> SaveCoverImage(IFormFile image, HostString host, string scheme)
         {
             var isImage = await IsImageFile(image);
             if (isImage)
@@ -39,32 +39,40 @@ namespace Library.Presentation.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error saving book cover: {ex.Message}");
                     return new ResponseData<string>(false, $"Error saving book cover: {ex.Message}");
                 }
 
-                var baseUrl = $"{scheme}://{host}";
-                var url = Path.Combine(baseUrl, "images", "covers", filePath);
-
-                _logger.LogInformation($"Saved image to url {url} and to path {filePath}");
+                var uriBuilder = new UriBuilder
+                {
+                    Scheme = scheme,
+                    Host = host.Host,
+                    Port = host.Port ?? -1,
+                    Path = $"/images/covers/{fileName}"
+                };
+                var url = uriBuilder.ToString();
 
                 return new ResponseData<string>(url);
             }
             return new ResponseData<string>(false, $"Transfered file {image.FileName} is not an image");
         }
-        public ResponseData<string> GetDefaultCoverImage(HostString host, string scheme)
+        public ResponseData<string> GetDefaultCoverURL(HostString host, string scheme)
         {
-            string defaulCoverFileName = "";
-            defaulCoverFileName = _configuration.GetValue<string>("LibrarySettings:LibrarySettings");
+            string defaulCoverFileName = _configuration.GetValue<string>("LibrarySettings:DefaulCoverFileName");
 
             if(defaulCoverFileName == null)
             {
                 _logger.LogError("Error receiving default book cover file name from configuration");
                 return new ResponseData<string>(false, "Error receiving default book cover file name from configuration");
             }
-            
-            var baseUrl = $"{scheme}://{host}";
-            var url = Path.Combine(baseUrl, "images", "covers", defaulCoverFileName);
+
+            var uriBuilder = new UriBuilder
+            {
+                Scheme = scheme,
+                Host = host.Host,
+                Port = host.Port ?? -1,
+                Path = $"/images/covers/{defaulCoverFileName}"
+            };
+            var url = uriBuilder.ToString();
 
             return new ResponseData<string>(url);
         }

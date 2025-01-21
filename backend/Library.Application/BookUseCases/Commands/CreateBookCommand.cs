@@ -8,8 +8,5 @@ namespace Library.Application.BookUseCases.Commands
         string? Description,
         int Quantity,
         Guid GenreId,
-        Guid AuthorId) : IRequest<CreateEntityResponse>
-    {
-        public string? ImageUrl { get; set; }
-    }
+        Guid AuthorId) : IRequest<CreateEntityResponse>;
 }

@@ -2,10 +2,10 @@
 {
     public class UpdateAuthor
     {
-        public Guid Id { get; }
-        public string? Name { get; }
-        public string? Surname { get; }
-        public DateTime? BirthDate { get; }
-        public string? Country { get; }
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public string? Surname { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string? Country { get; set; }
     }
 }
