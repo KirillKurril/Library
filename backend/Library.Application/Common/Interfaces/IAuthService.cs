@@ -4,6 +4,5 @@
     {
         Task<string> GetAccessTokenAsync();
         Task SetAuthorizationHeaderAsync(HttpClient httpClient);
-        Task<string> RefreshTokenAsync(string refreshToken);
     }
 }

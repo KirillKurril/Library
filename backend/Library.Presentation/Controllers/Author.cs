@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Library.Presentation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("authors")]
     [ApiController]
     public class AuthorController : ControllerBase
     {
@@ -18,8 +18,7 @@ namespace Library.Presentation.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        [Route("")]
+        [HttpGet("")]
         public async Task<ActionResult<IEnumerable<Author>>> GetAllList(CancellationToken cancellationToken)
         {
             var query = new GetAllAuthorsQuery();
@@ -38,17 +37,19 @@ namespace Library.Presentation.Controllers
 
         [HttpGet]
         [Route("{id:Guid}")]
-        public async Task<ActionResult<Author>> GetById(Guid id,
+        public async Task<ActionResult<Author>> GetById(
+            [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var query = new GetAuthorByIdQuery(id);
             var result = await _mediator.Send(query, cancellationToken);
-            return NotFound($"Author with ID {id} not found");
+            return Ok(result);
         }
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Create(CreateAuthorDTO createAuthorDTO,
+        //[Authorize(Roles = "admin")]
+        public async Task<IActionResult> Create(
+            [FromBody] CreateAuthorDTO createAuthorDTO,
             CancellationToken cancellationToken)
         {
             var command = createAuthorDTO.Adapt<CreateAuthorCommand>();
@@ -58,8 +59,9 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Update(UpdateBookDTO updateAuthorDTO,
+        //[Authorize(Roles = "admin")]
+        public async Task<IActionResult> Update(
+            [FromBody] UpdateBookDTO updateAuthorDTO,
             CancellationToken cancellationToken)
         {
             var command = updateAuthorDTO.Adapt<UpdateAuthorCommand>();
@@ -67,9 +69,10 @@ namespace Library.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Delete(Guid id,
+        [HttpDelete("{id:guid}")]
+        //[Authorize(Roles = "admin")]
+        public async Task<IActionResult> Delete(
+            [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var command = new DeleteAuthorCommand(id);

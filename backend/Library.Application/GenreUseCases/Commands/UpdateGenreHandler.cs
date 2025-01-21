@@ -10,7 +10,8 @@
 
         public async Task<Unit> Handle(UpdateGenreCommand request, CancellationToken cancellationToken)
         {
-            _unitOfWork.GenreRepository.Update(request.Adapt<Genre>());
+            var updatedGenre = request.Adapt<Genre>();
+            _unitOfWork.GenreRepository.Update(updatedGenre);
             await _unitOfWork.SaveChangesAsync();
             return Unit.Value;
         }

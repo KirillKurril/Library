@@ -1,4 +1,3 @@
-using Library.Application.Common.Exceptions;
 using Library.Application.GenreUseCases.Commands;
 using Library.Application.GenreUseCases.Queries;
 using Library.Domain.Entities;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Library.Presentation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("genres")]
     [ApiController]
     public class GenreController : ControllerBase
     {
@@ -32,7 +31,7 @@ namespace Library.Presentation.Controllers
         [HttpGet]
         [Route("{id:int}")]
         public async Task<ActionResult<Genre>> GetById(
-           Guid id,
+           [FromRoute] Guid id,
            CancellationToken cancellationToken)
         {
             var command = new GetGenreByIdQuery(id);
@@ -42,9 +41,9 @@ namespace Library.Presentation.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<CreateEntityResponse>> Create(
-            string genreName,
+            [FromBody] string genreName,
             CancellationToken cancellationToken)
         {
             var command = new CreateGenreCommand(genreName);
@@ -54,21 +53,21 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles ="admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(
-            Guid id,
-            string genreName,
+            UpdateGenreDTO updateGenreDTO,
             CancellationToken cancellationToken)
         {
-
-            return Ok();
+            var command = updateGenreDTO.Adapt<UpdateGenreCommand>();
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
         }
 
         [HttpDelete]
         [Route("{id:Guid}")]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
-                   Guid id,
+                   [FromRoute] Guid id,
                    CancellationToken cancellationToken)
         {
             var command = new DeleteGenreCommand(id);

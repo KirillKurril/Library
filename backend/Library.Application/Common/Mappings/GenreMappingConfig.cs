@@ -1,4 +1,5 @@
-﻿using Library.Application.GenreUseCases.Commands;
+﻿using Library.Application.DTOs;
+using Library.Application.GenreUseCases.Commands;
 
 namespace Library.Application.Common.Mappings
 {
@@ -10,6 +11,10 @@ namespace Library.Application.Common.Mappings
                 .Map(dest => dest.Name, src => src);
 
             config.NewConfig<CreateGenreCommand, Genre>()
+                .Map(dest => dest.Name, src => src.Name);
+
+            config.NewConfig<UpdateGenreDTO, UpdateGenreCommand>()
+                .Map(dest => dest.Id, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name);
 
             config.NewConfig<UpdateGenreCommand, Genre>()

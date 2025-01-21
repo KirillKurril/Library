@@ -1,4 +1,4 @@
-﻿using Library.Application.Common.Interfaces;
+using Library.Application.Common.Interfaces;
 using System.Net.Http.Headers;
 using Library.Application.Common.Settings;
 using Microsoft.AspNetCore.Authentication;
@@ -17,48 +17,27 @@ namespace Library.Presentation.Services
         private readonly KeycloakSettings _settings;
         private readonly HttpContext _httpContext;
         private readonly IDistributedCache _cache;
-        private readonly ILogger<TokenAccesor> _logger;
         private readonly string _tokenKey;
         public TokenAccesor(
             IHttpContextAccessor contextAccessor,
             KeycloakSettings settings,
             HttpClient httpClient,
             IDistributedCache cache,
-            ILogger<TokenAccesor> logger,
             IConfiguration configuration)
         {
             _httpContext = contextAccessor.HttpContext;
             _settings = settings;
             _httpClient = httpClient;
             _cache = cache;
-            _logger = logger;
             _tokenKey = configuration.GetValue<string>("Redis:AccessTokenKey");
         }
         public async Task<string> GetAccessTokenAsync()
         {
-            _logger.LogInformation("-------------------> Attempting to get access token");
-            if (_httpContext.User.Identity.IsAuthenticated)
-            {
-                return await _httpContext.GetTokenAsync("access_token");
-            }
-
             var cachedToken = await GetCachedTokenAsync();
+            
             if (cachedToken != null && DateTime.UtcNow < cachedToken.ExpiresAt)
             {
                 return cachedToken.AccessToken;
-            }
-
-            if (cachedToken?.RefreshToken != null)
-            {
-                try
-                {
-                    var newToken = await RefreshTokenAsync(cachedToken.RefreshToken);
-                    return newToken;
-                }
-                catch
-                {
-                    return await RequestNewTokenAsync();
-                }
             }
 
             return await RequestNewTokenAsync();
@@ -74,76 +53,30 @@ namespace Library.Presentation.Services
                 new KeyValuePair<string,string>("client_secret", _settings.ClientSecret)
             ]);
 
-            var response = await _httpClient.PostAsync(requestUri, content);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException(response.StatusCode.ToString());
-            }
+                var response = await _httpClient.PostAsync(requestUri, content);
 
-            var jsonString = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<JsonElement>(jsonString);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Token request failed with status {response.StatusCode}. Error: {errorContent}");
+                }
 
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var tokenResponse = JsonSerializer.Deserialize<JsonElement>(jsonString);
 
-            var expiration_in = TimeSpan.FromSeconds(
-                tokenResponse.GetProperty("expires_in").GetInt32() - 60);
+                var expiration_in = TimeSpan.FromSeconds(
+                    tokenResponse.GetProperty("expires_in").GetInt32() - 60);
 
-            var tokenModel = new TokenCacheModel
-            {
-                AccessToken = tokenResponse
-                    .GetProperty("access_token")
-                    .GetString()!,
+                var tokenModel = new TokenCacheModel
+                {
+                    AccessToken = tokenResponse
+                        .GetProperty("access_token")
+                        .GetString()!,
+                    ExpiresAt = DateTime.UtcNow + expiration_in
+                };
 
-                RefreshToken = tokenResponse.
-                    GetProperty("refresh_token")
-                    .GetString()!,
-
-                ExpiresAt = DateTime.UtcNow + expiration_in
-            };
-
-            await CacheTokenAsync(tokenModel, expiration_in);
-            return tokenModel.AccessToken;
-        }
-
-        public async Task<string> RefreshTokenAsync(string refreshToken)
-        {
-            var requestUri = "protocol/openid-connect/token";
-
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string,string>("client_id", _settings.ClientId),
-                new KeyValuePair<string,string>("grant_type", "refresh_token"),
-                new KeyValuePair<string,string>("refresh_token", refreshToken),
-                new KeyValuePair<string,string>("client_secret", _settings.ClientSecret)
-            });
-
-            var response = await _httpClient.PostAsync(requestUri, content);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException(response.StatusCode.ToString());
-            }
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<JsonElement>(jsonString);
-
-            var expiration_in = TimeSpan.FromSeconds(
-                tokenResponse.GetProperty("expires_in").GetInt32() - 60);
-
-            var tokenModel = new TokenCacheModel
-            {
-                AccessToken = tokenResponse
-                    .GetProperty("access_token")
-                    .GetString()!,
-
-                RefreshToken = tokenResponse.
-                    GetProperty("refresh_token")
-                    .GetString()!,
-
-                ExpiresAt = DateTime.UtcNow + expiration_in
-
-            };
-
-            await CacheTokenAsync(tokenModel, expiration_in);
-            return tokenModel.AccessToken;
+                await CacheTokenAsync(tokenModel, expiration_in);
+                return tokenModel.AccessToken;
         }
         private async Task CacheTokenAsync(TokenCacheModel token, TimeSpan expiration_in)
         {
