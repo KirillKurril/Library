@@ -1,8 +1,8 @@
-﻿namespace Library.Application.DTOs
+namespace Library.Application.DTOs
 {
     public class UpdateGenreDTO
     {
         public Guid Id { get; set; }
-        public Guid Name { get; set; }
+        public string Name { get; set; }
     }
 }

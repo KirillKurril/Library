@@ -12,6 +12,12 @@ public class DeleteAuthorCommandValidator : AbstractValidator<DeleteAuthorComman
                 {
                     var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
                     return author != null;
-                }).WithMessage($"Author being deleted doesn't exist");
+                }).WithMessage($"Author being deleted doesn't exist")
+                .MustAsync(async (authorId, ct) =>
+                {
+                    var hasBooks = await unitOfWork.BookRepository.FirstOrDefaultAsync(
+                        b => b.AuthorId == authorId);
+                    return hasBooks == null;
+                }).WithMessage($"Author being deleted must have no books");
     }
 }

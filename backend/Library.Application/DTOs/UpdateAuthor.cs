@@ -1,6 +1,6 @@
 ﻿namespace Library.Application.DTOs
 {
-    public class UpdateAuthor
+    public class UpdateAuthorDTO
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }

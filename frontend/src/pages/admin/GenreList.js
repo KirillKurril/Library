@@ -22,7 +22,7 @@ const GenreList = () => {
 
     const fetchGenres = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genre/filtred-list?pageNo=${currentPage}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genres/filtred-list?pageNo=${currentPage}`);
             setGenres(response.data.items);
             setTotalPages(response.data.totalPages);
         } catch (error) {
@@ -49,7 +49,7 @@ const GenreList = () => {
     const handleDeleteConfirm = async () => {
         const id = confirmModal.genreId;
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL}/genre/${id}/delete`);
+            await axios.delete(`${process.env.REACT_APP_API_URL}/genres/${id}/delete`);
             if (genres.length === 1 && currentPage > 1) {
                 setCurrentPage(prev => prev - 1);
             } else {

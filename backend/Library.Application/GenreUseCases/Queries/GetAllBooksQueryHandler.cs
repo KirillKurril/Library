@@ -1,4 +1,4 @@
-namespace Library.Application.GenreUseCases.Queries
+﻿namespace Library.Application.GenreUseCases.Queries
 {
     public class GetAllGenresQueryHandler : IRequestHandler<GetAllGenresQuery, IEnumerable<Genre>>
     {

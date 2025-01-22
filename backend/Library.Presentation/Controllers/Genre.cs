@@ -4,7 +4,7 @@ using Library.Domain.Entities;
 using MediatR;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+using Library.Application.Common.Models;
 
 namespace Library.Presentation.Controllers
 {
@@ -18,8 +18,22 @@ namespace Library.Presentation.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet("filtred-list")]
+        [ProducesResponseType(typeof(ResponseData<Author>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<PaginationListModel<Genre>>> GetFiltredList(
+            [FromQuery] string? searchTerm,
+            [FromQuery] int? pageNo,
+            [FromQuery] int? itemsPerPage,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetGenresListQuery(searchTerm, pageNo, itemsPerPage);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
         [HttpGet]
-        [Route("")]
+        [Route("list")]
         public async Task<ActionResult<IEnumerable<Genre>>> GetAllList(
             CancellationToken cancellationToken)
         {
@@ -29,7 +43,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("{id:guid}")]
         public async Task<ActionResult<Genre>> GetById(
            [FromRoute] Guid id,
            CancellationToken cancellationToken)
@@ -41,6 +55,7 @@ namespace Library.Presentation.Controllers
 
 
         [HttpPost]
+        [Route("create")]
         //[Authorize(Roles = "admin")]
         public async Task<ActionResult<CreateEntityResponse>> Create(
             [FromBody] string genreName,
@@ -53,9 +68,10 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
+        [Route("update")]
         //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(
-            UpdateGenreDTO updateGenreDTO,
+            [FromBody] UpdateGenreDTO updateGenreDTO,
             CancellationToken cancellationToken)
         {
             var command = updateGenreDTO.Adapt<UpdateGenreCommand>();
@@ -64,7 +80,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpDelete]
-        [Route("{id:Guid}")]
+        [Route("{id:Guid}/delete")]
         //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
                    [FromRoute] Guid id,

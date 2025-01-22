@@ -22,7 +22,15 @@ const CreateGenre = () => {
         }
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/genres/create`, { name: genreName });
+            await axios.post(`${process.env.REACT_APP_API_URL}/genres/create`, 
+                JSON.stringify(genreName),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'accept': 'text/plain'
+                    }
+                }
+            );
             navigate('/admin/genres');
         } catch (error) {
             if (error.response?.status === 400 && error.response?.data?.errors) {

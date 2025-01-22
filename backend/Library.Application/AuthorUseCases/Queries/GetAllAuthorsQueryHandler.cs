@@ -1,4 +1,4 @@
-namespace Library.Application.AuthorUseCases.Queries;
+﻿namespace Library.Application.AuthorUseCases.Queries;
 
 public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, IEnumerable<Author>>
 {

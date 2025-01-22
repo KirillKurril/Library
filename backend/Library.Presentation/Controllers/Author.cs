@@ -1,5 +1,7 @@
 ﻿using Library.Application.AuthorUseCases.Commands;
 using Library.Application.AuthorUseCases.Queries;
+using Library.Application.BookUseCases.Queries;
+using Library.Application.Common.Models;
 using Library.Domain.Entities;
 using Mapster;
 using MediatR;
@@ -18,10 +20,24 @@ namespace Library.Presentation.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("")]
+        [HttpGet("list")]
         public async Task<ActionResult<IEnumerable<Author>>> GetAllList(CancellationToken cancellationToken)
         {
             var query = new GetAllAuthorsQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("filtred-list")]
+        [ProducesResponseType(typeof(ResponseData<Author>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<PaginationListModel<Author>>> GetFiltredList(
+            [FromQuery] string? searchTerm,
+            [FromQuery] int? pageNo,
+            [FromQuery] int? itemsPerPage,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetAuthorsListQuery(searchTerm, pageNo, itemsPerPage);
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
@@ -47,6 +63,7 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPost]
+        [Route("create")]
         //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Create(
             [FromBody] CreateAuthorDTO createAuthorDTO,
@@ -59,9 +76,10 @@ namespace Library.Presentation.Controllers
         }
 
         [HttpPut]
+        [Route("update")]
         //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(
-            [FromBody] UpdateBookDTO updateAuthorDTO,
+            [FromBody] UpdateAuthorDTO updateAuthorDTO,
             CancellationToken cancellationToken)
         {
             var command = updateAuthorDTO.Adapt<UpdateAuthorCommand>();
@@ -69,7 +87,8 @@ namespace Library.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete]
+        [Route("{id:guid}/delete")]
         //[Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
             [FromRoute] Guid id,

@@ -19,7 +19,7 @@ const EditGenre = () => {
 
     const fetchGenre = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genre/${id}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genres/${id}`);
             setGenre(response.data);
         } catch (error) {
             console.error('Error fetching genre:', error);
@@ -44,12 +44,10 @@ const EditGenre = () => {
 
         try {
             const updateData = {
-                updateGenreDTO: {
-                    id: id,
-                    name: genreName
-                }
+                id: id,
+                name: genreName
             };
-            await axios.put(`${process.env.REACT_APP_API_URL}/genre/update`, updateData);
+            await axios.put(`${process.env.REACT_APP_API_URL}/genres/update`, updateData);
             navigate('/admin/genres');
         } catch (error) {
             if (error.response?.status === 400 && error.response?.data?.errors) {

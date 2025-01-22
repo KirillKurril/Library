@@ -9,7 +9,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Queries
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<IRepository<Author>> _mockAuthorRepository;
-        private readonly GetAllAuthorsQueryHandler _handler;
+        private readonly GetAuthorsListQueryHandler _handler;
 
         public GetAllAuthorsQueryHandlerTests()
         {
@@ -19,7 +19,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Queries
             _mockUnitOfWork.Setup(uow => uow.AuthorRepository)
                 .Returns(_mockAuthorRepository.Object);
 
-            _handler = new GetAllAuthorsQueryHandler(_mockUnitOfWork.Object);
+            _handler = new GetAuthorsListQueryHandler(_mockUnitOfWork.Object);
         }
 
         [Fact]

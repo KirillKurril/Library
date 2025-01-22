@@ -1,31 +1,28 @@
 using Library.Application.Common.Models;
-using Library.Application.DTOs;
 using Microsoft.Extensions.Configuration;
 
-namespace Library.Application.BookUseCases.Queries
+namespace Library.Application.GenreUseCases.Queries
 {
-    public class SearchBooksQueryHandler : IRequestHandler<SearchBooksQuery, PaginationListModel<BookCatalogDTO>>
+    public class GetGenresListQueryHandler : IRequestHandler<GetGenresListQuery, PaginationListModel<Genre>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
-        public SearchBooksQueryHandler(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public GetGenresListQueryHandler(
+            IUnitOfWork unitOfWork,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
         }
 
-        public async Task<PaginationListModel<BookCatalogDTO>> Handle(SearchBooksQuery request, CancellationToken cancellationToken)
+        public async Task<PaginationListModel<Genre>> Handle(GetGenresListQuery request, CancellationToken cancellationToken)
         {
             var searchTerm = request.SearchTerm?.ToLower();
 
-            var query = _unitOfWork.BookRepository.GetQueryable()
-                .Where(b => (string.IsNullOrEmpty(searchTerm) ||
-                        b.Title.ToLower().Contains(searchTerm))
-                        && (request.GenreId == null || b.GenreId == request.GenreId)
-                        && (request.AuthorId == null || b.AuthorId == request.AuthorId))
-                .ProjectToType<BookCatalogDTO>().ToList();
-
+            var query = _unitOfWork.GenreRepository.GetQueryable()
+                   .Where(b => (string.IsNullOrEmpty(searchTerm) ||
+                           (b.Name).ToLower().Contains(searchTerm)));
 
             var totalItems = query.Count();
             var pageSize = request.ItemsPerPage
@@ -37,7 +34,7 @@ namespace Library.Application.BookUseCases.Queries
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize).ToList();
 
-            return new PaginationListModel<BookCatalogDTO>()
+            return new PaginationListModel<Genre>()
             {
                 Items = items,
                 CurrentPage = pageNumber,

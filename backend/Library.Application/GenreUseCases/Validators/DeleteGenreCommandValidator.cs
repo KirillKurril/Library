@@ -12,6 +12,12 @@ public class DeleteGenreCommandValidator : AbstractValidator<DeleteGenreCommand>
             {
                 var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId, ct);
                 return genre != null;
-            }).WithMessage($"Genre being deleted doesn't exist");
+            }).WithMessage($"Genre being deleted doesn't exist")
+            .MustAsync(async (genreId, ct) =>
+            {
+                var hasBooks = await unitOfWork.BookRepository.FirstOrDefaultAsync(
+                    b => b.GenreId == genreId);
+                return hasBooks == null;
+            }).WithMessage($"No books should belong to the genre being removed ");
     }
 }

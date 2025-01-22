@@ -9,12 +9,12 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Queries
     public class GetAllGenresQueryHandlerTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-        private readonly GetAllGenresQueryHandler _handler;
+        private readonly GetGenresListQueryHandler _handler;
 
         public GetAllGenresQueryHandlerTests()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _handler = new GetAllGenresQueryHandler(_mockUnitOfWork.Object);
+            _handler = new GetGenresListQueryHandler(_mockUnitOfWork.Object);
         }
 
         [Fact]

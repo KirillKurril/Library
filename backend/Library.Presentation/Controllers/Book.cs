@@ -39,7 +39,8 @@ namespace Library.Presentation.Controllers
         /// <response code="200">Список успешно получен</response>
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("/users/{userId:guid}/my-books")]
+        [HttpGet]
+        [Route("/users/{userId:guid}/my-books")]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(typeof(PaginationListModel<IEnumerable<BookLendingDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -66,10 +67,11 @@ namespace Library.Presentation.Controllers
         /// <returns>Список книг с пагинацией</returns>
         /// <response code="200">Список успешно получен</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("catalog")]
+        [HttpGet]
+        [Route("catalog")]
         [ProducesResponseType(typeof(ResponseData<BookCatalogDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ResponseData<BookCatalogDTO>>> GetFiltredList(
+        public async Task<ActionResult<PaginationListModel<BookCatalogDTO>>> GetFiltredList(
             [FromQuery] string? searchTerm,
             [FromQuery] Guid? genreId,
             [FromQuery] Guid? AuthorId,
@@ -90,7 +92,8 @@ namespace Library.Presentation.Controllers
         /// <response code="200">Книга успешно получена</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("{id:guid}")]
+        [HttpGet]
+        [Route("{id:guid}")]
         [ProducesResponseType(typeof(BookDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -112,7 +115,8 @@ namespace Library.Presentation.Controllers
         /// <response code="200">Книга успешно получена</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpGet("{isbn}")]
+        [HttpGet]
+        [Route("{isbn}")]
         [ProducesResponseType(typeof(BookDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -137,7 +141,8 @@ namespace Library.Presentation.Controllers
         /// <response code="404">Книга не найдена</response>
         /// <response code="409">Книга уже взята</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("/users/{userId:guid}/books/{bookId:guid}/lend")]
+        [HttpPost]
+        [Route("/users/{userId:guid}/books/{bookId:guid}/lend")]
         [AllowAnonymous]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -165,7 +170,8 @@ namespace Library.Presentation.Controllers
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("/users/{userId:guid}/books/{bookId:guid}/return")]
+        [HttpPost]
+        [Route("/users/{userId:guid}/books/{bookId:guid}/return")]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -190,6 +196,7 @@ namespace Library.Presentation.Controllers
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost]
+        [Route("create")]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(typeof(CreateEntityResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -220,6 +227,7 @@ namespace Library.Presentation.Controllers
         /// <response code="409">Книга уже существует</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPut]
+        [Route("update")]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -246,6 +254,7 @@ namespace Library.Presentation.Controllers
         /// <response code="409">Книга уже взята</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpDelete]
+        [Route("{id:guid}/delete")]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -253,7 +262,7 @@ namespace Library.Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(
-            [FromBody] Guid id,
+            [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var command = new DeleteBookCommand(id);

@@ -1,11 +1,4 @@
 ﻿using Library.Application.GenreUseCases.Commands;
-using Library.Domain.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Library.Application.GenreUseCases.Validators
 {
