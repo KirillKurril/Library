@@ -34,7 +34,7 @@ const Catalog = () => {
                 const [booksResponse, authorsResponse, genresResponse] = await Promise.all([
                     axios.get(catalogUrl),
                     axios.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/genres`)
+                    axios.get(`${process.env.REACT_APP_API_URL}/genres/list`)
                 ]);
 
                 setBooks(booksResponse.data);

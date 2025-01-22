@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Form.css';
 
-const GenreForm = ({ onSubmit, initialData }) => {
-    const [formData, setFormData] = useState(initialData || {
-        name: '',
-        description: ''
-    });
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit(formData);
-    };
+const GenreForm = ({ onSubmit, errors, initialValues }) => {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState(initialValues);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -19,30 +14,40 @@ const GenreForm = ({ onSubmit, initialData }) => {
         }));
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(formData.name);
+    };
+
     return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="name">Name:</label>
+        <form onSubmit={handleSubmit} className="form">
+            <div className="form-group">
+                <label htmlFor="name">Name *</label>
                 <input
                     type="text"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
+                    className={errors.name ? 'error' : ''}
                 />
+                {errors.name && <span className="error-message">{errors.name}</span>}
             </div>
-            <div>
-                <label htmlFor="description">Description:</label>
-                <textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    required
-                />
+
+            {errors.submit && <div className="error-message">{errors.submit}</div>}
+
+            <div className="form-buttons">
+                <button type="submit" className="submit-button">
+                    Save
+                </button>
+                <button 
+                    type="button" 
+                    onClick={() => navigate('/admin/genres')}
+                    className="cancel-button"
+                >
+                    Cancel
+                </button>
             </div>
-            <button type="submit">Submit</button>
         </form>
     );
 };

@@ -6,6 +6,7 @@
 
 body {
     margin: 0;
+    background-color: rgba(250, 250, 250);
     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -19,4 +20,15 @@ main {
   flex: 1;
   padding: 2rem;
   margin-top: 1rem;
+}
+
+.admin-layout {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+
+.admin-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 20px;
 }

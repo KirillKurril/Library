@@ -7,7 +7,7 @@ const Navbar = () => {
     //const { isAuthenticated, username, login, logout } = useAuth();
     let isAuthenticated = true;
     let username = "Oleg";
-    let hasAdminRole = true; // Временная заглушка для демонстрации админ-функционала
+    let hasAdminRole = true;
     let login = () => {};
     let logout = () => {};
     
@@ -20,11 +20,9 @@ const Navbar = () => {
             
             <div className="nav-links">
                 <Link to="/" className="nav-link">Catalog</Link>
-                {isAuthenticated && (
-                    <Link to="/my-books" className="nav-link">My Books</Link>
-                )}
+                <Link to="/my-books" className="nav-link">My Books</Link>
                 {hasAdminRole && (
-                    <Link to="/admin" className="nav-link">Admin Panel</Link>
+                    <Link to="/admin/books" className="nav-link">Admin Panel</Link>
                 )}
                 {isAuthenticated ? (
                     <>
