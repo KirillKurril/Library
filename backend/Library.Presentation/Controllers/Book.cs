@@ -314,7 +314,7 @@ namespace Library.Presentation.Controllers
         /// <response code="401">Пользователь не авторизован</response>
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
-        [HttpPost("{id:guid}/remove-cover/")]
+        [HttpDelete("{id:guid}/remove-cover/")]
         //[Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

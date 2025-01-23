@@ -10,7 +10,6 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef(null);
 
-    // Reset state when modal is opened
     useEffect(() => {
         if (isOpen) {
             setUploadModalOpen(false);

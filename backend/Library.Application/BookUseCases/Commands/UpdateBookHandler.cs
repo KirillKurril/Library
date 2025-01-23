@@ -1,4 +1,3 @@
-
 namespace Library.Application.BookUseCases.Commands
 {
     public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, Unit>

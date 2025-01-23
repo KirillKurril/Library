@@ -25,12 +25,10 @@ const BookList = () => {
             setBooks(response.data.items);
             setTotalPages(response.data.totalPages);
             
-            // Check if there are no books at all
             if (response.data.totalPages === 0) {
                 setNoBooks(true);
             } else {
                 setNoBooks(false);
-                // If current page is greater than total pages, redirect to last available page
                 if (currentPage > response.data.totalPages) {
                     setCurrentPage(response.data.totalPages);
                 }
@@ -44,19 +42,15 @@ const BookList = () => {
         try {
             await axios.delete(`${process.env.REACT_APP_API_URL}/books/${id}/delete`);
             
-            // After deletion, check if this was the last book on the current page
             const updatedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?pageNo=${currentPage}`);
             
             if (updatedResponse.data.totalPages === 0) {
-                // No books left at all
                 setNoBooks(true);
                 setBooks([]);
                 setTotalPages(0);
             } else if (currentPage > updatedResponse.data.totalPages) {
-                // Last book on non-first page was deleted
                 setCurrentPage(prev => prev - 1);
             } else {
-                // Regular case - just refresh the current page
                 setBooks(updatedResponse.data.items);
                 setTotalPages(updatedResponse.data.totalPages);
             }
