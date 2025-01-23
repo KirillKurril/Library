@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
+import BookSearchBar from '../components/searchbars/BookSearchBar';
 import './Catalog.css';
 
 const Catalog = () => {
@@ -21,11 +22,13 @@ const Catalog = () => {
                 setLoading(true);
                 const authorId = searchParams.get('AuthorId');
                 const genreId = searchParams.get('genreId');
+                const searchTerm = searchParams.get('searchTerm');
                 const currentPage = parseInt(searchParams.get('pageNo')) || 1;
 
                 const params = new URLSearchParams();
                 if (authorId) params.append('AuthorId', authorId);
                 if (genreId) params.append('genreId', genreId);
+                if (searchTerm) params.append('searchTerm', searchTerm);
                 params.append('pageNo', currentPage);
                 params.append('itemsPerPage', itemsPerPage);
 
@@ -76,6 +79,7 @@ const Catalog = () => {
 
     return (
         <div className="catalog-container">
+            <BookSearchBar />
             <div className="catalog-grid">
                 {books.items.map(book => (
                     <BookCard

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Pagination from '../../components/Pagination';
 import ConfirmModal from '../../components/ConfirmModal';
 import CoverManageModal from '../../components/CoverManageModal';
+import BookSearchBar from '../../components/searchbars/BookSearchBar';
 import '../../styles/AdminTable.css';
 
 const BookList = () => {
@@ -15,11 +16,7 @@ const BookList = () => {
     const [noBooks, setNoBooks] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchBooks();
-    }, [currentPage]);
-
-    const fetchBooks = async () => {
+    const fetchBooks = useCallback(async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?pageNo=${currentPage}`);
             setBooks(response.data.items);
@@ -36,7 +33,11 @@ const BookList = () => {
         } catch (error) {
             console.error('Error fetching books:', error);
         }
-    };
+    }, [currentPage]);
+
+    useEffect(() => {
+        fetchBooks();
+    }, [fetchBooks]);
 
     const handleDelete = async (id) => {
         try {
@@ -69,10 +70,6 @@ const BookList = () => {
         });
     };
 
-    const closeDeleteModal = () => {
-        setDeleteModal({ isOpen: false, bookId: null, bookTitle: '' });
-    };
-
     const handleEdit = (id) => {
         navigate(`/admin/books/edit/${id}`);
     };
@@ -92,6 +89,7 @@ const BookList = () => {
                     <Link to="/admin/books/create" className="add-button">
                         Add New Book
                     </Link>
+                    <BookSearchBar />
                 </div>
                 <div className="no-items-message">
                     No books available. Click "Add New Book" to create one.
@@ -106,6 +104,7 @@ const BookList = () => {
                 <Link to="/admin/books/create" className="add-button">
                     Add New Book
                 </Link>
+                <BookSearchBar />
             </div>
             <table className="admin-table">
                 <thead>

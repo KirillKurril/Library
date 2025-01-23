@@ -6,15 +6,4 @@ const keycloak = new Keycloak({
  clientId: "react-frontend"
 });
 
-// try {
-//     const authenticated = await keycloak.init();
-//     if (authenticated) {
-//         console.log('User is authenticated');
-//     } else {
-//         console.log('User is not authenticated');
-//     }
-// } catch (error) {
-//     console.error('Failed to initialize adapter:', error);
-// }
-
 export default keycloak;
