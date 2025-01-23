@@ -95,13 +95,15 @@ const GenreList = () => {
             <table className="admin-table">
                 <thead>
                     <tr>
+                        <th>#</th>
                         <th>Name</th>
                         <th className="action-column">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {genres.map(genre => (
+                    {genres.map((genre, index) => (
                         <tr key={genre.id}>
+                            <td>{index + 1}</td>
                             <td>{genre.name}</td>
                             <td>
                                 <div className="action-buttons">

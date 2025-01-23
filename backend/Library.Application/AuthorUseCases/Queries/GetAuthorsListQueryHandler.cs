@@ -22,8 +22,10 @@ public class GetAuthorsListQueryHandler : IRequestHandler<GetAuthorsListQuery, P
         var searchTerm = request.SearchTerm?.ToLower();
 
         var query = _unitOfWork.AuthorRepository.GetQueryable()
-               .Where(b => (string.IsNullOrEmpty(searchTerm) ||
-                       (b.Name + " " + b.Surname).ToLower().Contains(searchTerm)));
+               .Where(a => (string.IsNullOrEmpty(searchTerm) ||
+                       (a.Name + " " + a.Surname).ToLower().Contains(searchTerm)))
+               .OrderBy(a => a.Id);
+
 
 
         var totalItems = query.Count();

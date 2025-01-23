@@ -21,8 +21,9 @@ namespace Library.Application.GenreUseCases.Queries
             var searchTerm = request.SearchTerm?.ToLower();
 
             var query = _unitOfWork.GenreRepository.GetQueryable()
-                   .Where(b => (string.IsNullOrEmpty(searchTerm) ||
-                           (b.Name).ToLower().Contains(searchTerm)));
+                   .Where(g => (string.IsNullOrEmpty(searchTerm) ||
+                           (g.Name).ToLower().Contains(searchTerm)))
+               .OrderBy(g => g.Id);
 
             var totalItems = query.Count();
             var pageSize = request.ItemsPerPage

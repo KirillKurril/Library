@@ -1,9 +1,10 @@
 import React from 'react';
+import BookForm from '../../components/forms/BookForm';
 
 const CreateBook = () => {
     return (
-        <div>
-            <h2>Create Book</h2>
+        <div className="admin-content-page">
+            <BookForm />
         </div>
     );
 };

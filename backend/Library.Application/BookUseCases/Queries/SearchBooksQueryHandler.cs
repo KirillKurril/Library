@@ -24,7 +24,8 @@ namespace Library.Application.BookUseCases.Queries
                         b.Title.ToLower().Contains(searchTerm))
                         && (request.GenreId == null || b.GenreId == request.GenreId)
                         && (request.AuthorId == null || b.AuthorId == request.AuthorId))
-                .ProjectToType<BookCatalogDTO>().ToList();
+               .OrderBy(b => b.Id)
+               .ProjectToType<BookCatalogDTO>().ToList();
 
 
             var totalItems = query.Count();

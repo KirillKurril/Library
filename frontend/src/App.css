@@ -19,7 +19,6 @@ body {
 main {
   flex: 1;
   padding: 2rem;
-  margin-top: 1rem;
 }
 
 .admin-layout {

@@ -54,6 +54,7 @@ namespace Library.Application.Common.Mappings
                 .Map(dest => dest.Id, src => src.Id)
                 .Map(dest => dest.Title, src => src.Title)
                 .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.Quantity, src => src.Quantity)
                 .Map(dest => dest.GenreId, src => src.GenreId)
                 .Map(dest => dest.AuthorId, src => src.AuthorId)
                 .Map(dest => dest.ImageUrl, src => src.ImageUrl)

@@ -210,7 +210,7 @@ namespace Library.Presentation.Controllers
             createBookResult.RedirectUrl = Url.Action(nameof(GetById), new { id = createBookResult.Id });
 
             var result = await SetDefaultCover(createBookResult.Id, cancellationToken);
-            if (result is OkResult)
+            if (result is NoContentResult)
                 return Ok(createBookResult);
             else
                 return StatusCode(500, $"Error setting default image to {createBookDTO.Title}");

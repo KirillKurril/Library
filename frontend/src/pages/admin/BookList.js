@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Pagination from '../../components/Pagination';
+import ConfirmModal from '../../components/ConfirmModal';
+import CoverManageModal from '../../components/CoverManageModal';
 import '../../styles/AdminTable.css';
 
 const BookList = () => {
     const [books, setBooks] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, bookId: null, bookTitle: '' });
+    const [coverModal, setCoverModal] = useState({ isOpen: false, bookId: null });
+    const [noBooks, setNoBooks] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,42 +24,87 @@ const BookList = () => {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?pageNo=${currentPage}`);
             setBooks(response.data.items);
             setTotalPages(response.data.totalPages);
+            
+            // Check if there are no books at all
+            if (response.data.totalPages === 0) {
+                setNoBooks(true);
+            } else {
+                setNoBooks(false);
+                // If current page is greater than total pages, redirect to last available page
+                if (currentPage > response.data.totalPages) {
+                    setCurrentPage(response.data.totalPages);
+                }
+            }
         } catch (error) {
             console.error('Error fetching books:', error);
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this book?')) {
-            try {
-                await axios.delete(`${process.env.REACT_APP_API_URL}/books/${id}`);
-                fetchBooks();
-            } catch (error) {
-                console.error('Error deleting book:', error);
+        try {
+            await axios.delete(`${process.env.REACT_APP_API_URL}/books/${id}/delete`);
+            
+            // After deletion, check if this was the last book on the current page
+            const updatedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?pageNo=${currentPage}`);
+            
+            if (updatedResponse.data.totalPages === 0) {
+                // No books left at all
+                setNoBooks(true);
+                setBooks([]);
+                setTotalPages(0);
+            } else if (currentPage > updatedResponse.data.totalPages) {
+                // Last book on non-first page was deleted
+                setCurrentPage(prev => prev - 1);
+            } else {
+                // Regular case - just refresh the current page
+                setBooks(updatedResponse.data.items);
+                setTotalPages(updatedResponse.data.totalPages);
             }
+            
+            setDeleteModal({ isOpen: false, bookId: null, bookTitle: '' });
+        } catch (error) {
+            console.error('Error deleting book:', error);
         }
     };
 
-    const handleEdit = async (id) => {
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/${id}`);
-            if (response.data) {
-                navigate(`/admin/books/edit/${id}`, { state: { bookData: response.data } });
-            }
-        } catch (error) {
-            console.error('Error fetching book details:', error);
-        }
+    const openDeleteModal = (book) => {
+        setDeleteModal({
+            isOpen: true,
+            bookId: book.id,
+            bookTitle: book.title
+        });
+    };
+
+    const closeDeleteModal = () => {
+        setDeleteModal({ isOpen: false, bookId: null, bookTitle: '' });
+    };
+
+    const handleEdit = (id) => {
+        navigate(`/admin/books/edit/${id}`);
     };
 
     const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setCurrentPage(newPage);
-        }
+        setCurrentPage(newPage);
     };
 
     const truncateDescription = (description) => {
         return description?.length > 50 ? description.substring(0, 50) + '...' : description;
     };
+
+    if (noBooks) {
+        return (
+            <div className="admin-table-container">
+                <div className="admin-header">
+                    <Link to="/admin/books/create" className="add-button">
+                        Add New Book
+                    </Link>
+                </div>
+                <div className="no-items-message">
+                    No books available. Click "Add New Book" to create one.
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="admin-table-container">
@@ -65,6 +116,7 @@ const BookList = () => {
             <table className="admin-table">
                 <thead>
                     <tr>
+                        <th>Cover</th>
                         <th>Title</th>
                         <th>Description</th>
                         <th>Genre ID</th>
@@ -75,6 +127,16 @@ const BookList = () => {
                 <tbody>
                     {books.map((book) => (
                         <tr key={book.id}>
+                            <td>
+                                <img 
+                                    src={book.imageUrl} 
+                                    alt={`${book.title} cover`} 
+                                    className="book-cover-thumbnail"
+                                    onError={(e) => {
+                                        e.target.src = `${process.env.PUBLIC_URL}/placeholder-cover.jpg`;
+                                    }}
+                                />
+                            </td>
                             <td>{book.title}</td>
                             <td>{truncateDescription(book.description)}</td>
                             <td>{book.genreId}</td>
@@ -88,8 +150,14 @@ const BookList = () => {
                                         Edit
                                     </button>
                                     <button
+                                        className="edit-button"
+                                        onClick={() => setCoverModal({ isOpen: true, bookId: book.id })}
+                                    >
+                                        Update Cover
+                                    </button>
+                                    <button
                                         className="delete-button"
-                                        onClick={() => handleDelete(book.id)}
+                                        onClick={() => openDeleteModal(book)}
                                     >
                                         Delete
                                     </button>
@@ -99,29 +167,26 @@ const BookList = () => {
                     ))}
                 </tbody>
             </table>
-            <div className="pagination">
-                <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
-                    Previous
-                </button>
-                {[...Array(totalPages)].map((_, index) => (
-                    <button
-                        key={index + 1}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={currentPage === index + 1 ? 'active' : ''}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-                <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
-                    Next
-                </button>
-            </div>
+            {totalPages > 1 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                />
+            )}
+            <ConfirmModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ ...deleteModal, isOpen: false })}
+                onConfirm={() => handleDelete(deleteModal.bookId)}
+                title="Confirm Deletion"
+                message={`Are you sure you want to delete "${deleteModal.bookTitle}"?`}
+            />
+            <CoverManageModal
+                isOpen={coverModal.isOpen}
+                onClose={() => setCoverModal({ isOpen: false, bookId: null })}
+                bookId={coverModal.bookId}
+                onSuccess={fetchBooks}
+            />
         </div>
     );
 };
