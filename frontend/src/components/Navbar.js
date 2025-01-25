@@ -6,9 +6,13 @@ import { useKeycloak } from "@react-keycloak/web";
 const Navbar = () => {
     
     const { keycloak, initialized } = useKeycloak();
-    const isAdmin = keycloak.hasResourceRole("admin");
-    const isAuthenticated = keycloak.authenticated;
-    const username = keycloak.tokenParsed?.preferred_username;
+    // const isAdmin = keycloak.hasResourceRole("admin");
+    // const isAuthenticated = keycloak.authenticated;
+    // const username = keycloak.tokenParsed?.preferred_username;
+
+    const isAdmin = true;
+    const isAuthenticated = true;
+    const username = "Oleg";
 
 
     return (

@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   TextField,
@@ -13,23 +12,26 @@ import {
   IconButton,
 } from '@mui/material';
 
-const BookSearchBar = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('searchTerm') || '');
-  const [selectedAuthor, setSelectedAuthor] = useState(searchParams.get('AuthorId') || '');
-  const [selectedGenre, setSelectedGenre] = useState(searchParams.get('genreId') || '');
+const AdminBookSearchBar = ({ onSearchResult }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAuthor, setSelectedAuthor] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('');
   const [isIsbnSearch, setIsIsbnSearch] = useState(false);
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
+  const [previousFilters, setPreviousFilters] = useState({
+    author: '',
+    genre: ''
+  });
 
   useEffect(() => {
     const fetchFilters = async () => {
       try {
         const [authorsResponse, genresResponse] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/authors/list`),
+          axios.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`),
           axios.get(`${process.env.REACT_APP_API_URL}/genres/list`)
         ]);
+        console.log('Authors data:', authorsResponse.data);
         setAuthors(authorsResponse.data);
         setGenres(genresResponse.data);
       } catch (error) {
@@ -40,14 +42,6 @@ const BookSearchBar = () => {
     fetchFilters();
   }, []);
 
-  const updateSearchParams = useCallback((params) => {
-    const newSearchParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) newSearchParams.set(key, value);
-    });
-    setSearchParams(newSearchParams);
-  }, [setSearchParams]);
-
   const handleTextChange = useCallback((e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -56,67 +50,58 @@ const BookSearchBar = () => {
   const handleAuthorChange = useCallback((e) => {
     const value = e.target.value;
     setSelectedAuthor(value);
-    updateSearchParams({
-      searchTerm,
-      AuthorId: value,
-      genreId: selectedGenre
-    });
-  }, [searchTerm, selectedGenre, updateSearchParams]);
+  }, []);
 
   const handleGenreChange = useCallback((e) => {
     const value = e.target.value;
     setSelectedGenre(value);
-    updateSearchParams({
-      searchTerm,
-      AuthorId: selectedAuthor,
-      genreId: value
-    });
-  }, [searchTerm, selectedAuthor, updateSearchParams]);
+  }, []);
 
   const handleIsbnCheckboxChange = useCallback((e) => {
     const checked = e.target.checked;
     setIsIsbnSearch(checked);
     if (checked) {
-      updateSearchParams({});
-    } else {
-      updateSearchParams({
-        searchTerm,
-        AuthorId: selectedAuthor,
-        genreId: selectedGenre
+      setPreviousFilters({
+        author: selectedAuthor,
+        genre: selectedGenre
       });
+      setSelectedAuthor('');
+      setSelectedGenre('');
+    } else {
+      setSelectedAuthor(previousFilters.author);
+      setSelectedGenre(previousFilters.genre);
     }
-  }, [searchTerm, selectedAuthor, selectedGenre, updateSearchParams]);
+  }, [selectedAuthor, selectedGenre, previousFilters]);
 
-  const handleIsbnSearch = useCallback(async () => {
-    if (isIsbnSearch && searchTerm) {
-      try {
+  const handleSearch = useCallback(async () => {
+    if (!searchTerm && !selectedAuthor && !selectedGenre) return;
+
+    try {
+      if (isIsbnSearch) {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/${searchTerm}`);
         if (response.data) {
-          navigate(`/books/${response.data.id}`);
+          onSearchResult([response.data]);
         }
-      } catch (error) {
-        console.error('Error searching by ISBN:', error);
+      } else {
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('searchTerm', searchTerm);
+        if (selectedAuthor) params.append('AuthorId', selectedAuthor);
+        if (selectedGenre) params.append('genreId', selectedGenre);
+        params.append('pageNo', 1);
+        params.append('itemsPerPage', 10);
+        
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?${params.toString()}`);
+        onSearchResult(response.data.items);
       }
+    } catch (error) {
+      console.error('Error searching books:', error);
     }
-  }, [isIsbnSearch, searchTerm, navigate]);
-
-  const handleSearch = useCallback(() => {
-    if (!isIsbnSearch) {
-      updateSearchParams({
-        searchTerm,
-        AuthorId: selectedAuthor,
-        genreId: selectedGenre
-      });
-    } else if (searchTerm) {
-      handleIsbnSearch();
-    }
-  }, [isIsbnSearch, searchTerm, selectedAuthor, selectedGenre, updateSearchParams, handleIsbnSearch]);
+  }, [isIsbnSearch, searchTerm, selectedAuthor, selectedGenre, onSearchResult]);
 
   return (
     <Box sx={{ 
       width: '100%', 
       py: 2,
-      mb: 2,
       display: 'flex',
       flexWrap: 'wrap',
       gap: 2,
@@ -136,11 +121,7 @@ const BookSearchBar = () => {
         onChange={handleTextChange}
         onKeyPress={(e) => {
           if (e.key === 'Enter') {
-            if (isIsbnSearch) {
-              handleIsbnSearch();
-            } else {
-              handleSearch();
-            }
+            handleSearch();
           }
         }}
         size="small"
@@ -164,7 +145,7 @@ const BookSearchBar = () => {
           </MenuItem>
           {authors.map((author) => (
             <MenuItem key={author.id} value={author.id}>
-              {`${author.name} ${author.surname}`}
+              {author.name}
             </MenuItem>
           ))}
         </Select>
@@ -214,7 +195,7 @@ const BookSearchBar = () => {
       />
 
       <IconButton 
-        onClick={isIsbnSearch ? handleIsbnSearch : handleSearch}
+        onClick={handleSearch}
         sx={{ 
           flex: '0 0 auto',
           bgcolor: 'primary.main', 
@@ -231,4 +212,4 @@ const BookSearchBar = () => {
   );
 };
 
-export default React.memo(BookSearchBar);
+export default React.memo(AdminBookSearchBar);

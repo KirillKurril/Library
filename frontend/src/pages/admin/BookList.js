@@ -4,7 +4,7 @@ import axios from 'axios';
 import Pagination from '../../components/Pagination';
 import ConfirmModal from '../../components/ConfirmModal';
 import CoverManageModal from '../../components/CoverManageModal';
-import BookSearchBar from '../../components/searchbars/BookSearchBar';
+import AdminBookSearchBar from '../../components/searchbars/AdminBookSearchBar';
 import '../../styles/AdminTable.css';
 
 const BookList = () => {
@@ -38,6 +38,12 @@ const BookList = () => {
     useEffect(() => {
         fetchBooks();
     }, [fetchBooks]);
+
+    const handleSearchResult = useCallback((searchResults) => {
+        setBooks(searchResults);
+        setTotalPages(1); // При поиске показываем все результаты на одной странице
+        setNoBooks(searchResults.length === 0);
+    }, []);
 
     const handleDelete = async (id) => {
         try {
@@ -86,10 +92,12 @@ const BookList = () => {
         return (
             <div className="admin-table-container">
                 <div className="admin-header">
+                    <AdminBookSearchBar onSearchResult={handleSearchResult} />
+                </div>
+                <div className="admin-actions">
                     <Link to="/admin/books/create" className="add-button">
                         Add New Book
                     </Link>
-                    <BookSearchBar />
                 </div>
                 <div className="no-items-message">
                     No books available. Click "Add New Book" to create one.
@@ -101,10 +109,12 @@ const BookList = () => {
     return (
         <div className="admin-table-container">
             <div className="admin-header">
+                <AdminBookSearchBar onSearchResult={handleSearchResult} />
+            </div>
+            <div className="admin-actions">
                 <Link to="/admin/books/create" className="add-button">
                     Add New Book
                 </Link>
-                <BookSearchBar />
             </div>
             <table className="admin-table">
                 <thead>

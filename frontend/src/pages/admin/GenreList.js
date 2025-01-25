@@ -4,6 +4,8 @@ import axios from 'axios';
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
 import ConfirmModal from '../../components/ConfirmModal';
+import Pagination from '../../components/Pagination';
+import AdminGenreSearchBar from '../../components/searchbars/AdminGenreSearchBar';
 
 const GenreList = () => {
     const navigate = useNavigate();
@@ -22,7 +24,7 @@ const GenreList = () => {
 
     const fetchGenres = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genres/filtred-list?pageNo=${currentPage}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genres/filtred-list?pageNo=${currentPage}&itemsPerPage=8`);
             setGenres(response.data.items);
             setTotalPages(response.data.totalPages);
         } catch (error) {
@@ -85,69 +87,66 @@ const GenreList = () => {
         setCurrentPage(newPage);
     };
 
+    const handleSearchResult = useCallback((items, totalPages) => {
+        setGenres(items);
+        setTotalPages(totalPages);
+        setCurrentPage(1);
+    }, []);
+
     return (
         <div className="admin-table-container">
             <div className="admin-header">
+                <AdminGenreSearchBar onSearchResult={handleSearchResult} />
+            </div>
+            <div className="admin-actions">
                 <Link to="/admin/genres/create" className="add-button">
                     Add New Genre
                 </Link>
             </div>
-            <table className="admin-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th className="action-column">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {genres.map((genre, index) => (
-                        <tr key={genre.id}>
-                            <td>{index + 1}</td>
-                            <td>{genre.name}</td>
-                            <td>
-                                <div className="action-buttons">
-                                    <button 
-                                        className="edit-button"
-                                        onClick={() => handleEdit(genre.id)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button 
-                                        className="delete-button"
-                                        onClick={() => handleDeleteClick(genre.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="pagination">
-                <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
-                    Previous
-                </button>
-                {[...Array(totalPages)].map((_, i) => (
-                    <button
-                        key={i + 1}
-                        onClick={() => handlePageChange(i + 1)}
-                        className={currentPage === i + 1 ? 'active' : ''}
-                    >
-                        {i + 1}
-                    </button>
-                ))}
-                <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
-                    Next
-                </button>
-            </div>
+            {genres.length > 0 ? (
+                <>
+                    <table className="admin-table genre-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th className="action-column">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {genres.map((genre) => (
+                                <tr key={genre.id}>
+                                    <td>{genre.name}</td>
+                                    <td className="action-column">
+                                        <div className="action-buttons">
+                                            <button 
+                                                className="edit-button"
+                                                onClick={() => handleEdit(genre.id)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button 
+                                                className="delete-button"
+                                                onClick={() => handleDeleteClick(genre.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                </>
+            ) : (
+                <div className="no-items-message">
+                    No genres found
+                </div>
+            )}
             <ErrorModal
                 isOpen={errorModal.isOpen}
                 onClose={() => setErrorModal({ ...errorModal, isOpen: false })}

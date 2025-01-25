@@ -4,6 +4,8 @@ import axios from 'axios';
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
 import ConfirmModal from '../../components/ConfirmModal';
+import Pagination from '../../components/Pagination';
+import AdminAuthorSearchBar from '../../components/searchbars/AdminAuthorSearchBar';
 
 const AuthorList = () => {
     const navigate = useNavigate();
@@ -22,7 +24,7 @@ const AuthorList = () => {
 
     const fetchAuthors = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/authors/filtred-list?pageNo=${currentPage}`);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/authors/filtred-list?pageNo=${currentPage}&itemsPerPage=8`);
             setAuthors(response.data.items);
             setTotalPages(response.data.totalPages);
         } catch (error) {
@@ -83,7 +85,12 @@ const AuthorList = () => {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        }).replace(/\./g, '.');
     };
 
     const handlePageChange = (newPage) => {
@@ -92,73 +99,72 @@ const AuthorList = () => {
         }
     };
 
+    const handleSearchResult = useCallback((items, totalPages) => {
+        setAuthors(items);
+        setTotalPages(totalPages);
+        setCurrentPage(1);
+    }, []);
+
     return (
         <div className="admin-table-container">
             <div className="admin-header">
+                <AdminAuthorSearchBar onSearchResult={handleSearchResult} />
+            </div>
+            <div className="admin-actions">
                 <Link to="/admin/authors/create" className="add-button">
                     Add New Author
                 </Link>
             </div>
-            <table className="admin-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Surname</th>
-                        <th>Birth Date</th>
-                        <th>Country</th>
-                        <th className="action-column">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {authors.map((author) => (
-                        <tr key={author.id}>
-                            <td>{author.name}</td>
-                            <td>{author.surname}</td>
-                            <td>{formatDate(author.birthDate)}</td>
-                            <td>{author.country}</td>
-                            <td>
-                                <div className="action-buttons">
-                                    <button 
-                                        className="edit-button"
-                                        onClick={() => handleEdit(author.id)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button 
-                                        className="delete-button"
-                                        onClick={() => handleDeleteClick(author.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="pagination">
-                <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                >
-                    Previous
-                </button>
-                {[...Array(totalPages)].map((_, index) => (
-                    <button
-                        key={index + 1}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={currentPage === index + 1 ? 'active' : ''}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
-                <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                >
-                    Next
-                </button>
-            </div>
+            {authors.length > 0 ? (
+                <>
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Birth Date</th>
+                                <th>Country</th>
+                                <th className="action-column">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {authors.map((author) => (
+                                <tr key={author.id}>
+                                    <td>{author.name}</td>
+                                    <td>{author.surname}</td>
+                                    <td>{formatDate(author.birthDate)}</td>
+                                    <td>{author.country}</td>
+                                    <td className="action-column">
+                                        <div className="action-buttons">
+                                            <button
+                                                className="edit-button"
+                                                onClick={() => handleEdit(author.id)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="delete-button"
+                                                onClick={() => handleDeleteClick(author.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                </>
+            ) : (
+                <div className="no-items-message">
+                    No authors found
+                </div>
+            )}
             <ErrorModal
                 isOpen={errorModal.isOpen}
                 onClose={() => setErrorModal({ ...errorModal, isOpen: false })}
