@@ -15,12 +15,12 @@ const Navbar = () => {
             
             <div className="nav-links">
                 <Link to="/" className="nav-link">Catalog</Link>
-                <Link to="/my-books" className="nav-link">My Books</Link>
                 {isAdmin && (
                     <Link to="/admin/books" className="nav-link">Admin Panel</Link>
                 )}
                 {isAuthenticated ? (
                     <>
+                        <Link to="/my-books" className="nav-link">My Books</Link>
                         <span className="nav-link">Welcome, {username}!</span>
                         <button className="nav-link logout-btn" onClick={logout}>Logout</button>
                     </>
