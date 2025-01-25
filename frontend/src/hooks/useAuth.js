@@ -1,7 +1,34 @@
 import { useKeycloak } from "@react-keycloak/web";
+import { useState, useEffect } from "react";
 
 export const useAuth = () => {
-    const { keycloak, initialized } = useKeycloak();
+    const { keycloak } = useKeycloak();
+
+    const [authState, setAuthState] = useState({
+        isAuthenticated: false,
+        username: null,
+        isAdmin: false,
+    });
+
+    useEffect(() => {
+        const updateState = () => {
+            setAuthState({
+                isAuthenticated: keycloak.authenticated,
+                username: keycloak.tokenParsed?.preferred_username || null,
+                isAdmin: keycloak.hasResourceRole("admin"),
+            });
+        };
+
+        updateState();
+
+        keycloak.onAuthSuccess = updateState;
+        keycloak.onAuthLogout = updateState;
+
+        return () => {
+            keycloak.onAuthSuccess = null;
+            keycloak.onAuthLogout = null;
+        };
+    }, [keycloak]);
 
     const login = () => {
         if (keycloak && !keycloak.authenticated) {
@@ -16,17 +43,9 @@ export const useAuth = () => {
     };
 
     return {
-        initialized,
-        isAuthenticated: keycloak.authenticated,
-        userId: keycloak.subject,
-        username: keycloak.tokenParsed?.preferred_username,
-        fullName: keycloak.tokenParsed?.name,
-        email: keycloak.tokenParsed?.email,
-        isAdmin: keycloak.hasResourceRole("admin"),
-        token: keycloak.token,
+        authState,
         login,
         logout,
-        keycloak 
     };
 };
 
