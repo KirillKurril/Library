@@ -1,15 +1,13 @@
 using Library.Application.Common.Interfaces;
 using System.Net.Http.Headers;
 using Library.Application.Common.Settings;
-using Microsoft.AspNetCore.Authentication;
 using Library.Application.Common.Models;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
-namespace Library.Presentation.Services
+namespace Library.Infrastructure.Services
 {
     public class TokenAccesor : ITokenAccessor
     {

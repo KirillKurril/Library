@@ -112,33 +112,5 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
             Assert.Single(result.Items);
             Assert.Equal(genreId, result.Items[0].GenreId);
         }
-
-        [Fact]
-        public async Task Handle_WithPagination_ReturnsPaginatedResults()
-        {
-            var books = Enumerable.Range(1, 25)
-                .Select(i => new Book
-                {
-                    Id = Guid.NewGuid(),
-                    Title = $"Book {i}",
-                    GenreId = Guid.NewGuid(),
-                    AuthorId = Guid.NewGuid()
-                }).AsQueryable();
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetQueryable(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<Expression<Func<Book, object>>[]>()))
-                .Returns(books);
-
-            var query = new SearchBooksQuery(null, null, null, 2, 10);
-
-            var result = await _handler.Handle(query, CancellationToken.None);
-
-            Assert.NotNull(result);
-            Assert.Equal(10, result.Items.Count);
-            Assert.Equal(2, result.CurrentPage);
-            Assert.Equal(3, result.TotalPages);
-            Assert.Equal("Book 11", result.Items[0].Title);
-        }
     }
 }

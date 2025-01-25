@@ -1,5 +1,4 @@
-﻿
-namespace Library.Application.Common.Interfaces
+﻿namespace Library.Application.Common.Interfaces
 {
     public interface IDbInitializer
     {

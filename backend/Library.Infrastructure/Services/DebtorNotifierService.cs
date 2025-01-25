@@ -6,26 +6,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 
-namespace Library.Presentation.Services
+namespace Library.Infrastructure.Services
 {
     public class DebtorNotifierService : IDebtorNotifierService, IHostedService, IDisposable
     {
         private Timer? _timer;
         private readonly TimeSpan _taskInterval;
         private readonly IEmailSenderService _emailSender;
+        private readonly ILibrarySettings _librarySettings;
         private readonly ILogger<DebtorNotifierService> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         public DebtorNotifierService(
-            IConfiguration configuration,
             IEmailSenderService emailSender,
+            ILibrarySettings librarySettings,
             ILogger<DebtorNotifierService> logger,
             IServiceScopeFactory serviceScopeFactory)
         {
-            var reviewIntervalSettings = configuration
-                .GetValue<int>("LibrarySettings:DebtorReviewIntervalInDays");
-            _taskInterval = TimeSpan.FromDays(reviewIntervalSettings);
+            _librarySettings = librarySettings;
+            _taskInterval = TimeSpan.FromDays(librarySettings.DebtorReviewIntervalInDays);
             _emailSender = emailSender;
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;

@@ -26,8 +26,8 @@ namespace Library.Application.GenreUseCases.Queries
                .OrderBy(g => g.Id);
 
             var totalItems = query.Count();
-            var pageSize = request.ItemsPerPage
-                ?? _configuration.GetValue<int>("ItemsPerPage");
+            var pageSize = request.ItemsPerPage 
+                ?? int.Parse(_configuration.GetSection("ItemsPerPage").Value ?? "10");
 
             var pageNumber = request.PageNo ?? 1;
 

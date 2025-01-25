@@ -32,10 +32,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 Description: "Test Description",
                 Quantity: 5,
                 GenreId: Guid.NewGuid(),
-                AuthorId: Guid.NewGuid())
-            {
-                ImageUrl = "http://example.com/image.jpg"
-            };
+                AuthorId: Guid.NewGuid());
 
             var expectedBook = command.Adapt<Book>();
             _mockBookRepository.Setup(r => r.Add(It.IsAny<Book>()))
@@ -49,8 +46,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 b.Description == command.Description &&
                 b.Quantity == command.Quantity &&
                 b.GenreId == command.GenreId &&
-                b.AuthorId == command.AuthorId &&
-                b.ImageUrl == command.ImageUrl)), Times.Once);
+                b.AuthorId == command.AuthorId)), Times.Once);
 
             Assert.Equal(expectedBook.Id, result.Id);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);

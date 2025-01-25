@@ -4,6 +4,7 @@ using Library.Application.AuthorUseCases.Validators;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
+using System.Linq.Expressions;
 
 namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
 {
@@ -11,14 +12,18 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<IRepository<Author>> _mockAuthorRepository;
+        private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly DeleteAuthorCommandValidator _validator;
 
         public DeleteAuthorCommandValidatorTests()
         {
             _mockAuthorRepository = new Mock<IRepository<Author>>();
+            _mockBookRepository = new Mock<IRepository<Book>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockUnitOfWork.Setup(uow => uow.AuthorRepository)
                 .Returns(_mockAuthorRepository.Object);
+            _mockUnitOfWork.Setup(uow => uow.BookRepository)
+                .Returns(_mockBookRepository.Object);
             _validator = new DeleteAuthorCommandValidator(_mockUnitOfWork.Object);
         }
 
@@ -31,6 +36,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
 
             _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
+            _mockBookRepository.Setup(r => r.FirstOrDefaultAsync(
+                It.IsAny<Expression<Func<Book, bool>>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Book)null);
 
             var result = await _validator.TestValidateAsync(command);
 

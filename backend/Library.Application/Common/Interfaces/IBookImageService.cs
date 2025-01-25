@@ -1,7 +1,7 @@
 ﻿using Library.Application.Common.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Library.Presentation.Services.BookImage
+namespace Library.Application.Common.Interfaces
 {
     public interface IBookImageService
     {

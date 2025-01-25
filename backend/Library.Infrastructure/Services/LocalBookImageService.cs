@@ -1,24 +1,23 @@
-﻿using Library.Presentation.Services.BookImage;
-using Library.Application.Common.Models;
+﻿using Library.Application.Common.Models;
+using Library.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 
-namespace Library.Presentation.Services
+namespace Library.Infrastructure.Services
 {
     public class LocalBookImageService : IBookImageService
     {
         private readonly IWebHostEnvironment _env;
-        private readonly IConfiguration _configuration;
+        private readonly ILibrarySettings _librarySettings;
         private readonly ILogger<LocalBookImageService> _logger;
         public LocalBookImageService(
             IWebHostEnvironment webHostEnvironment,
-            IConfiguration configuration,
+            ILibrarySettings librarySettings,
             ILogger<LocalBookImageService> logger)
         {
             _env = webHostEnvironment;
-            _configuration = configuration;
+            _librarySettings = librarySettings;
             _logger = logger;   
         }
         public async Task<ResponseData<string>> SaveCoverImage(IFormFile image, HostString host, string scheme)
@@ -57,7 +56,7 @@ namespace Library.Presentation.Services
         }
         public ResponseData<string> GetDefaultCoverURL(HostString host, string scheme)
         {
-            string defaulCoverFileName = _configuration.GetValue<string>("LibrarySettings:DefaulCoverFileName");
+            string defaulCoverFileName = _librarySettings.DefaulCoverFileName;
 
             if(defaulCoverFileName == null)
             {

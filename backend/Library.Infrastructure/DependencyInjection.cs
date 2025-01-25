@@ -37,6 +37,10 @@ namespace Library.Infrastructure
                 .AddKeycloakAuthentication(keycloakSettings)
                 .AddRedisCache(configuration)
                 .AddCorsPolicy()
+                .AddEmailServices()
+                .AddEmailServices()
+                .AddLibrarySettings()
+                .AddSmtpSettings()
                 .InitializeDatabase();
 
             return services;

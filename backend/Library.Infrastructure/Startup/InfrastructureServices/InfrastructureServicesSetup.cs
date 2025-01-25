@@ -1,6 +1,5 @@
 ﻿using Library.Application.Common.Interfaces;
-using Library.Presentation.Services;
-using Library.Presentation.Services.BookImage;
+using Library.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Library.Infrastructure.Startup.InfrastructureSe;
@@ -23,4 +22,19 @@ public static class PresentationServicesSetup
         services.AddScoped<IBookImageService, LocalBookImageService>();
         return services;
     }
+
+    public static IServiceCollection AddLibrarySettings(
+    this IServiceCollection services)
+    {
+        services.AddSingleton<ILibrarySettings, LibrarySettingsLocalFile>();
+        return services;
+    }
+
+    public static IServiceCollection AddSmtpSettings(
+    this IServiceCollection services)
+    {
+        services.AddSingleton<ISmtpSettings, SmtpSettingsLocalFile>();
+        return services;
+    }
+
 }

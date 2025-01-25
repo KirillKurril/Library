@@ -1,8 +1,7 @@
 using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Queries;
-using Library.Application.Common.Exceptions;
+using Library.Application.Common.Interfaces;
 using Library.Application.Common.Models;
-using Library.Presentation.Services.BookImage;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

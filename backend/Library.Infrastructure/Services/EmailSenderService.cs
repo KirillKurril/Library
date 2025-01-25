@@ -1,30 +1,22 @@
 ﻿using Library.Application.Common.Interfaces;
 using Library.Application.Common.Models;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using MailKit.Security;
 
-namespace Library.Presentation.Services
+namespace Library.Infrastructure.Services
 {
     public class EmailSenderService : IEmailSenderService 
     {
-        private readonly string _smtpServer;
-        private readonly int _port;
-        private readonly string _senderEmail;
-        private readonly string _senderPassword;
+        private readonly ISmtpSettings _settings;
         private readonly ILogger<EmailSenderService> _logger;
 
         public EmailSenderService(
-            IConfiguration configuration,
+            ISmtpSettings settings,
             ILogger<EmailSenderService> logger)
         {
-            var smtpConfiguration = configuration.GetRequiredSection("SmtpConfiguration");
-            _smtpServer = smtpConfiguration.GetValue<string>("SmtpServer");
-            _port = smtpConfiguration.GetValue<int>("Port");
-            _senderEmail = smtpConfiguration.GetValue<string>("SenderEmail");
-            _senderPassword = smtpConfiguration.GetValue<string>("SenderPassword");
-
+            _settings = settings;
             _logger = logger;
         }
 
@@ -34,12 +26,17 @@ namespace Library.Presentation.Services
 
             try
             {
-                await client.ConnectAsync(_smtpServer, _port, MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(_senderEmail, _senderPassword);
+                await client.ConnectAsync(
+                    _settings.Server,
+                    _settings.Port,
+                    SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync(
+                    _settings.SenderEmail,
+                    _settings.Password);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error trying connect smpt server {_smtpServer}:\n{ex.Message}");
+                _logger.LogError($"Error trying connect smpt server {_settings.Server}:{_settings.Port}\n{ex.Message}");
                 await client.DisconnectAsync(true);
                 client.Dispose();
                 return new ResponseData<bool>(false, ex.Message);
@@ -72,7 +69,7 @@ namespace Library.Presentation.Services
         private MimeMessage CreateEmailMessage(DebtorNotification notification)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("Library Admin", _senderEmail));
+            emailMessage.From.Add(new MailboxAddress("Library Admin", _settings.SenderEmail));
             emailMessage.To.Add(new MailboxAddress(notification.FirstName + " " + notification.LastName, notification.Email));
             emailMessage.Subject = "Reminder: Books Not Returned on Time";
 

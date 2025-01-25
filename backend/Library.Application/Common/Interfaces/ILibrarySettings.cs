@@ -2,7 +2,8 @@
 {
     public interface ILibrarySettings
     {
-        int DefaultLoanPeriodInDays { get; }
-        int IsbnLength { get; }
+        double DefaultLoanPeriodInDays { get; }
+        double DebtorReviewIntervalInDays { get; }
+        string DefaulCoverFileName { get; }
     }
 }

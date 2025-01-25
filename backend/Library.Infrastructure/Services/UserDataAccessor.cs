@@ -4,7 +4,7 @@ using Library.Application.Common.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Library.Presentation.Services;
+namespace Library.Infrastructure.Services;
 
 public class UserDataAccessor : IUserDataAccessor
 {

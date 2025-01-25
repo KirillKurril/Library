@@ -45,10 +45,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 "Test Description",
                 10,
                 Guid.NewGuid(),
-                Guid.NewGuid())
-            {
-                ImageUrl = "http://test.com/image.jpg"
-            };
+                Guid.NewGuid());
 
             var result = await _validator.TestValidateAsync(command);
             result.ShouldNotHaveAnyValidationErrors();
@@ -190,38 +187,15 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         }
 
         [Fact]
-        public async Task Validate_ImageUrlTooLong_ShouldHaveValidationError()
-        {
-            var longUrl = new string('*', 501);
-            var command = new CreateBookCommand(
-                "978-0-7475-3269-9",
-                "Test Book",
-                "Test Description",
-                10,
-                Guid.NewGuid(),
-                Guid.NewGuid())
-            {
-                ImageUrl = longUrl
-            };
-
-            var result = await _validator.TestValidateAsync(command);
-            result.ShouldHaveValidationErrorFor(x => x.ImageUrl)
-                .WithErrorMessage("Image URL must not exceed 500 characters");
-        }
-
-        [Fact]
         public async Task Validate_MultipleValidationErrors_ShouldReturnAllErrors()
         {
             var command = new CreateBookCommand(
                 "",
                 "",
-                new string('*', 2001), 
-                0,  
-                Guid.Empty, 
-                Guid.Empty) 
-            {
-                ImageUrl = new string('*', 501) 
-            };
+                new string('*', 2001),
+                0,
+                Guid.Empty,
+                Guid.Empty); 
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -231,7 +205,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             result.ShouldHaveValidationErrorFor(x => x.Quantity);
             result.ShouldHaveValidationErrorFor(x => x.GenreId);
             result.ShouldHaveValidationErrorFor(x => x.AuthorId);
-            result.ShouldHaveValidationErrorFor(x => x.ImageUrl);
         }
 
         [Fact]
@@ -249,22 +222,5 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             result.ShouldNotHaveValidationErrorFor(x => x.Description);
         }
 
-        [Fact]
-        public async Task Validate_NullImageUrl_ShouldNotHaveValidationError()
-        {
-            var command = new CreateBookCommand(
-                "978-0-7475-3269-9",
-                "Test Book",
-                "Test Description",
-                10,
-                Guid.NewGuid(),
-                Guid.NewGuid())
-            {
-                ImageUrl = null
-            };
-
-            var result = await _validator.TestValidateAsync(command);
-            result.ShouldNotHaveValidationErrorFor(x => x.ImageUrl);
-        }
     }
 }

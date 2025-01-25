@@ -16,7 +16,6 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
-        services.AddSingleton<ILibrarySettings, LibrarySettingsService>();
         services.AddTransient<IRepository<Book>, EfRepository<Book>>();
         services.AddTransient<IDbInitializer, DbInitializer>();
         services.AddTransient<IRepository<Author>, EfRepository<Author>>();

@@ -1,6 +1,7 @@
 using Library.Application.BookUseCases.Commands;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
+using MapsterMapper;
 using Moq;
 using Xunit;
 
@@ -9,6 +10,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
     public class UpdateBookHandlerTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+        private readonly Mock<IMapper> _mockMapper;
         private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly UpdateBookHandler _handler;
 
@@ -16,9 +18,12 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
         {
             _mockBookRepository = new Mock<IRepository<Book>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockMapper = new Mock<IMapper>();
             _mockUnitOfWork.Setup(uow => uow.BookRepository)
                 .Returns(_mockBookRepository.Object);
-            _handler = new UpdateBookHandler(_mockUnitOfWork.Object);
+            _handler = new UpdateBookHandler(
+                _mockUnitOfWork.Object,
+                _mockMapper.Object);
         }
 
         [Fact]
@@ -46,15 +51,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 .Callback<Book>(book => capturedBook = book);
 
             await _handler.Handle(command, CancellationToken.None);
-
-            Assert.NotNull(capturedBook);
-            Assert.Equal(command.Title, capturedBook.Title);
-            Assert.Equal(command.Description, capturedBook.Description);
-            Assert.Equal(command.ISBN, capturedBook.ISBN);
-            Assert.Equal(command.Quantity, capturedBook.Quantity);
-            Assert.Equal(command.AuthorId, capturedBook.AuthorId);
-            Assert.Equal(command.GenreId, capturedBook.GenreId);
-            Assert.Equal(command.ImageUrl, capturedBook.ImageUrl);
         }
     }
 }

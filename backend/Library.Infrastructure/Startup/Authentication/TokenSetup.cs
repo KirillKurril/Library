@@ -1,6 +1,6 @@
 ﻿using Library.Application.Common.Interfaces;
 using Library.Application.Common.Settings;
-using Library.Presentation.Services;
+using Library.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Library.Infrastructure.Authentication;
