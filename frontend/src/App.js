@@ -37,20 +37,10 @@ function App() {
         realm: process.env.REACT_APP_KEYCLOAK_REALM,
         clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID
   }
-    const eventLogger = (event, error) => {
-        console.log('onKeycloakEvent', event, error);
-    }
-
-    const tokenLogger = (tokens) => {
-        console.log('onKeycloakTokens', tokens);
-    }  
-
     return (
         <ReactKeycloakProvider
             authClient={keycloak}
-            initOptions={initOptions}
-            onEvent={eventLogger}
-            onTokens={tokenLogger}>
+            initOptions={initOptions}>
             <BrowserRouter>
                 <div className="app">
                     <Navbar />

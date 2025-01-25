@@ -1,10 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
-import useAuth from '../hooks/useAuth';
+import { useKeycloak } from "@react-keycloak/web";
 
 const Navbar = () => {
-    const { isAuthenticated, username, isAdmin, login, logout } = useAuth();
+    
+    const { keycloak, initialized } = useKeycloak();
+    const isAdmin = keycloak.hasResourceRole("admin");
+    const isAuthenticated = keycloak.authenticated;
+    const username = keycloak.tokenParsed?.preferred_username;
+
 
     return (
         <nav className="navbar-container">
@@ -12,7 +17,11 @@ const Navbar = () => {
                 <img className="logo" src={process.env.REACT_APP_API_URL + '/images/logo.png'} alt="Library Logo" />
                 <Link className="brand-name" to="/">Library</Link>
             </div>
-            
+            <div>
+                <div>{JSON.stringify(isAdmin)}</div>
+                <div>{JSON.stringify(isAuthenticated)}</div>
+                <div>{username || "Not logged in"}</div>
+            </div>
             <div className="nav-links">
                 <Link to="/" className="nav-link">Catalog</Link>
                 {isAdmin && (
@@ -22,10 +31,10 @@ const Navbar = () => {
                     <>
                         <Link to="/my-books" className="nav-link">My Books</Link>
                         <span className="nav-link">Welcome, {username}!</span>
-                        <button className="nav-link logout-btn" onClick={logout}>Logout</button>
+                        <button className="nav-link logout-btn" onClick={keycloak.logout}>Logout</button>
                     </>
                 ) : (
-                    <button className="nav-link login-btn" onClick={login}>Login</button>
+                    <button className="nav-link login-btn" onClick={keycloak.login}>Login</button>
                 )}
             </div>
         </nav>
