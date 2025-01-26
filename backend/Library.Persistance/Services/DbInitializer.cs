@@ -106,6 +106,36 @@ namespace Library.Persistance.Services
             {
                 throw new Exception($"Error saving books: {ex.Message}", ex);
             }
+
+            var overdueBookLendings = new List<BookLending>()
+            {
+                new BookLending 
+                { 
+                    BookId = books[0].Id, 
+                    UserId = Guid.Parse("164e314c-6730-49bc-8358-d9b6568b2521"),
+                    BorrowedAt = DateTime.Now.AddMonths(-2),
+                    ReturnDate = DateTime.Now.AddMonths(-1)
+                },
+                new BookLending 
+                { 
+                    BookId = books[3].Id, 
+                    UserId = Guid.Parse("164e314c-6730-49bc-8358-d9b6568b2521"),
+                    BorrowedAt = DateTime.Now.AddMonths(-3),
+                    ReturnDate = DateTime.Now.AddMonths(-2)
+                }
+            };
+
+            foreach(var lending in overdueBookLendings)
+                _unitOfWork.BookLendingRepository.Add(lending);
+
+            try 
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error saving book lendings: {ex.Message}", ex);
+            }
         }
     }
 }

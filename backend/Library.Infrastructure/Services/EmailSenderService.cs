@@ -4,6 +4,7 @@ using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using MimeKit;
 using MailKit.Security;
+using Microsoft.Extensions.Configuration;
 
 namespace Library.Infrastructure.Services
 {
@@ -47,10 +48,8 @@ namespace Library.Infrastructure.Services
             {
                 try
                 {
-                    tasks.Add(Task.Run(async () => {
-                        var letter = CreateEmailMessage(notification);
-                        await client.SendAsync(letter);
-                    }));
+                    var letter = CreateEmailMessage(notification);
+                    await client.SendAsync(letter);
 
                     _logger.LogInformation($"Email sent to {notification.Email}");
                 }
@@ -70,7 +69,7 @@ namespace Library.Infrastructure.Services
         {
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("Library Admin", _settings.SenderEmail));
-            emailMessage.To.Add(new MailboxAddress(notification.FirstName + " " + notification.LastName, notification.Email));
+            emailMessage.To.Add(new MailboxAddress(notification.Username, notification.Email));
             emailMessage.Subject = "Reminder: Books Not Returned on Time";
 
             var booksList = string.Join("<li>", notification.ExpiredBooks.Select(book =>
@@ -81,7 +80,7 @@ namespace Library.Infrastructure.Services
                 Text = $@"
             <html>
             <body>
-                <h1>Dear {notification.FirstName} {notification.LastName},</h1>
+                <h1>Dear {notification.Username},</h1>
                 <p>We hope you're doing well!</p>
                 <p>This is a friendly reminder that the following books you borrowed from our library have not yet been returned:</p>
                 <ul>

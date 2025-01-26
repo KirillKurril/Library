@@ -11,14 +11,17 @@ public class UserDataAccessor : IUserDataAccessor
     private readonly HttpClient _httpClient;
     private readonly ITokenAccessor _tokenAccessor;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<UserDataAccessor> _logger;
     public UserDataAccessor(
         ITokenAccessor tokenAccessor,
         HttpClient httpClient,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<UserDataAccessor> logger)
     {
         _httpClient = httpClient;
         _tokenAccessor = tokenAccessor;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<ResponseData<JsonElement>> GetUserDataAsJson(Guid userId)
@@ -59,56 +62,51 @@ public class UserDataAccessor : IUserDataAccessor
 
         var content = await countResponse.Content.ReadAsStringAsync();
         var userCount = JsonSerializer.Deserialize<int>(content);
-
         var step = _configuration.GetValue<int>("UsersFetchingStep");
-
         var userIds = notifications.Select(n => n.UserID);
-        var tasks = new List<Task>();
-         
-        for (int i = 0; i < userCount; i += step)
+
+        var offsets = Enumerable.Range(0, (userCount + step - 1) / step)
+                       .Select(x => x * step)
+                       .ToList();
+
+        var tasks = offsets.Select(async offset =>
+        {
+            var usersInfoResponse = await _httpClient.GetAsync($"users?first={offset}&max={step}");
+            if (!usersInfoResponse.IsSuccessStatusCode)
             {
-                tasks.Add(Task.Run(async () =>
+                return;
+            }
+            var usersData = await usersInfoResponse.Content.ReadAsStringAsync();
+            var usersArray = JsonSerializer.Deserialize<JsonElement[]>(usersData, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            foreach (var userElement in usersArray)
+            {
+                if (userElement.TryGetProperty("id", out var idProperty))
                 {
-                    var usersInfoResponse = await _httpClient.GetAsync($"users?first={i}&max={step}");
-                    if (!usersInfoResponse.IsSuccessStatusCode)
-                    {
-                        return;
-                    }
-                    var usersData = await usersInfoResponse.Content.ReadAsStringAsync();
-                    var usersArray = JsonSerializer.Deserialize<JsonElement[]>(usersData, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    var userId = idProperty.GetGuid();
 
-                    foreach (var userElement in usersArray)
+                    if (userIds.Contains(userId))
                     {
-                        if (userElement.TryGetProperty("id", out var idProperty))
+                        userElement.TryGetProperty("email", out var emailProperty);
+                        userElement.TryGetProperty("username", out var NameProperty);
+
+                        var email = emailProperty.GetString();
+                        var username = NameProperty.GetString();
+
+                        var notification = notifications.FirstOrDefault(n => n.UserID == userId);
+                        if (notification != null)
                         {
-                            var userId = idProperty.GetGuid();
-
-                            if (userIds.Contains(userId))
-                            {
-                                userElement.TryGetProperty("email", out var emailProperty);
-                                userElement.TryGetProperty("firstName", out var firstNameProperty);
-                                userElement.TryGetProperty("lastName", out var lastNameProperty);
-
-                                var email = emailProperty.GetString();
-                                var firstName = firstNameProperty.GetString();
-                                var lastName = lastNameProperty.GetString();
-
-                                var notification = notifications.FirstOrDefault(n => n.UserID == userId);
-                                if (notification != null)
-                                {
-                                    notification.Email = email;
-                                    notification.FirstName = firstName;
-                                    notification.LastName = lastName;
-                                    result.Add(notification);
-                                }
-                            }
+                            notification.Email = email;
+                            notification.Username = username;
+                            result.Add(notification);
                         }
                     }
-                }));
+                }
             }
+        });
 
         await Task.WhenAll(tasks);
 
