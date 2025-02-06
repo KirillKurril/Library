@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useKeycloak } from "@react-keycloak/web";
 
 export const api = axios.create({
     baseURL: process.env.ASPNET_API_URL,
@@ -9,10 +8,10 @@ export const api = axios.create({
 });
 api.interceptors.request.use(
     async (config) => {
-        const { keycloak } = useKeycloak();
-        if (keycloak && keycloak.token) {
-            config.headers.Authorization = `Bearer ${keycloak.token}`;
-        }
+        // const { keycloak } = useKeycloak();
+        // if (keycloak && keycloak.token) {
+        //     config.headers.Authorization = `Bearer ${keycloak.token}`;
+        // }
         return config;
     },
     (error) => {
