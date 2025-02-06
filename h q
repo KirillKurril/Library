@@ -1,0 +1,341 @@
+[33mcommit ced71c7093301b9bac9faa199193509e8d468f1b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Jan 26 04:20:25 2025 +0300
+
+    email service works correctly, searchbars works correctly, lasted authentication and user managment
+
+[33mcommit 92fe47432fc071110f5847253c295689671539bf[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Jan 26 01:49:53 2025 +0300
+
+    fixed up tests
+
+[33mcommit 13d4a4571d5b8124ce3b0759b71f371ba2d45bdd[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sat Jan 25 22:14:28 2025 +0300
+
+    everything is ready excluding users admin panel, client authentication and mail service need to be revised
+
+[33mcommit e0458375ed1203091c3be8100bf96d51d70056c2[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sat Jan 25 17:34:52 2025 +0300
+
+    eliminated useAuth
+
+[33mcommit 1e0bcaeb2c47dd6466d49f7d94ae53a8cefe4136[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sat Jan 25 17:13:11 2025 +0300
+
+    reconfigured adding auth bearer token
+
+[33mcommit cfad835241c6a73892e0fb19773fafa5da979174[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sat Jan 25 15:31:47 2025 +0300
+
+    implemented test keycloak authentication in library token. access_token recieves but doesnt processed correctly
+
+[33mcommit 8aba17b5d760a4859d6ccf9180fc7c445bba80de[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Jan 24 01:48:39 2025 +0300
+
+    authentication bases complited
+
+[33mcommit a06980853b73a3456d3f640ab57016ab12c9033e[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Jan 24 00:15:19 2025 +0300
+
+    now really before authentication
+
+[33mcommit 840c6f9afcde262ad2abfc28ea90ef9554101710[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Jan 23 21:55:56 2025 +0300
+
+    before authentication
+
+[33mcommit da60cc90099a7a9a275c9cf31688edf4453f44fd[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Jan 23 18:31:29 2025 +0300
+
+    admin panel designing. books panel almost ready
+
+[33mcommit 07e8122f52d8092f8dfc8982b08f55d96fa0bf13[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Jan 22 20:09:23 2025 +0300
+
+    genre and author admin completed
+
+[33mcommit dbfcbd9965b4eff298fdeab24f2e64883e993f92[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Jan 22 18:30:27 2025 +0300
+
+    added endpoints for filtrated genres and authors. designing admin panel
+
+[33mcommit 2c0cf4628a3a3eb63848dc2f838c43580026d767[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Tue Jan 21 21:51:59 2025 +0300
+
+    book creation, cover default setting and uploading fixed
+
+[33mcommit 115e3ecac355f552bdee370cb31459872402a07d[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Tue Jan 21 16:49:21 2025 +0300
+
+    rebuild token accessing policy, most controller functions works correctly, controllers refactored
+
+[33mcommit 1bcad4da3aea9719ee0f749b5f5cd626857749b3[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Jan 20 17:26:28 2025 +0300
+
+    now authorization and authentication on api works correct
+
+[33mcommit 519c4adc6f8df6480910f3aa6b3f2b62b06514fb[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Jan 19 23:21:30 2025 +0300
+
+    added Unit for all the void response commands
+
+[33mcommit 76bae7fbee75d61006891f8bc185342d03a7f0a3[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Jan 19 22:29:20 2025 +0300
+
+    changed from borrow book to lend book logic
+
+[33mcommit e2e84e4214619bf39f3efe677998d43806b319db[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Jan 19 21:46:21 2025 +0300
+
+    removed try catches in controllers, notFoundExceptions added in all CommandHandlers Genre update pipeline added
+
+[33mcommit 359fbc2a18233f56fba2c303b8ae4a91cff6da67[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Jan 19 20:27:55 2025 +0300
+
+    catalog and books details ready
+
+[33mcommit 470ff4437262d8fcdf9caf3fd6c2bcf41cc881e4[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sat Jan 18 00:34:47 2025 +0300
+
+    problems with authentication
+
+[33mcommit 7c6328edb3bc7a21279ad37e952377a50b84e2e5[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Jan 17 17:24:50 2025 +0300
+
+    db connects correctly
+
+[33mcommit fa9acf4b823b778a8d361f3176c0c8edc57ae32d[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Jan 17 01:06:46 2025 +0300
+
+    Moved swagger back to presentation and now project runs
+
+[33mcommit a3f1012505efcdc60a9273795d500d7db31efe06[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Jan 17 00:55:02 2025 +0300
+
+    Finally everything is divided into projects, responsibility is distributed. compiled, now I will check if it runs correctly.
+
+[33mcommit b224ba01bbe7a177a854632c4388d593dac0e1a2[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Jan 16 20:27:15 2025 +0300
+
+    all the configuration was moved to ifrastructure project, changed regex for ISBN, written seed for db, updated init configuration for ms, redis, credentials are moved to appsettings
+
+[33mcommit fcb6ba30334c9494f66c6191bdc44e8eb76c8a9d[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Jan 13 19:11:39 2025 +0300
+
+    Figured out the framework, wrote app.js index.js, index.html, axios.js and i hope authorization pipeline
+
+[33mcommit 9baa2dd712d0dc0460820814fb5d3af81a6e5477[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Jan 13 02:31:11 2025 +0300
+
+    front init, login and registration pages integrated in keycloak are ready
+
+[33mcommit 7ccfc03e777d4bda0277b22b50ea1295bb5f927e[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Dec 16 03:55:07 2024 +0300
+
+    Everything is brought to the moment of swagger, it remains to cover with tests
+
+[33mcommit 65ae88102cda1508963dce8cc8314a097da04d79[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 15 15:37:37 2024 +0300
+
+    db tests ready
+
+[33mcommit 5128729062a9ff3cf882584ce23e10614e956329[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 15 14:57:11 2024 +0300
+
+    db tests almost finished efRepTests left
+
+[33mcommit 0268d6c9c6b58d9015f7b68f3779dc4ca46cf40f[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 15 04:57:57 2024 +0300
+
+    integration tests are in-process
+
+[33mcommit c9a38c6d5901179385436cbc1e80ac33cdb52167[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 15 03:25:27 2024 +0300
+
+    some CQRS tests fixes
+
+[33mcommit d33e04fe2c05577b6419e754be7df482a390ef87[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 15 02:58:40 2024 +0300
+
+    Unit tests for CQRS are ready
+
+[33mcommit 8f4d433ae84b7ce31fc32f5b9da37eebf3c855b0[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sat Dec 14 04:52:57 2024 +0300
+
+    Unit tests left queries and validators for books
+
+[33mcommit 7bce2d2954a840dc95f78d4934e887101b85c3e7[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Dec 13 20:23:26 2024 +0300
+
+    CQRS validation ready
+
+[33mcommit c16316b4aa2a9004ab945a0097a82c7f29925f3c[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Dec 12 20:48:55 2024 +0300
+
+    raw global exception handler
+
+[33mcommit 61c831e6e076277a291fb41a27001c72cbec525a[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Dec 12 20:39:20 2024 +0300
+
+    before adding global exception handling middleware
+
+[33mcommit c11fe5020a3e3ec85e5c73750ba380e2c6b54ca6[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Dec 12 17:18:34 2024 +0300
+
+    entities configuration classes created, reset entities id type from int to guid. doesn't fixed incorrect bounding entities by receiving from context. Init test projects
+
+[33mcommit 9627f4f6de65aeb8932ad64200b75ff89f021d91[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Dec 11 04:40:01 2024 +0300
+
+    email sender ready, coverSaver ready. Let's test and debug
+
+[33mcommit 528957ba31ea18bdee4bd3a6b7ed4aad2deb9dec[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Tue Dec 10 05:36:27 2024 +0300
+
+    notifier ready, emailsender init
+
+[33mcommit bcdbe104f75380a711521b0eec286ed66ada7711[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Tue Dec 10 04:00:16 2024 +0300
+
+    auth is written but not debugged
+
+[33mcommit 83636508103be30dd41865a314e08583923cc475[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Dec 9 22:58:21 2024 +0300
+
+    authentication
+
+[33mcommit b366cee03073f58f274e059c141edfc8eebb4d5c[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Dec 9 22:57:25 2024 +0300
+
+    authentication
+
+[33mcommit 5ab126643c7acdd10c0a620033d9c3e722c3456d[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Dec 9 05:54:37 2024 +0300
+
+    Troubles with authentication
+
+[33mcommit e891c834c58d51b1d6939b807b4a4ac5e401a086[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Mon Dec 9 03:58:43 2024 +0300
+
+    auth designing
+
+[33mcommit 34d105771d76bdae39d97aaac844cd2f5ecdffe5[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 8 21:34:00 2024 +0300
+
+    fixed .gitignore
+
+[33mcommit 83aad75458fd5269e1361a6dd140739eac2309f5[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 8 21:24:55 2024 +0300
+
+    keycloak added
+
+[33mcommit 2b50a95e1e424e43ccaaf9a85ed1b34aa8a2f290[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Sun Dec 8 21:11:35 2024 +0300
+
+    commit
+
+[33mcommit a4031d3fb52a0b9328157eaad8502c15b8540a20[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Dec 6 18:36:05 2024 +0300
+
+    CQRS designed. Finally. I hope.
+
+[33mcommit a46a38021e79857c88e46f1f9664faf2c4c13a15[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Dec 6 15:12:30 2024 +0300
+
+    first select with pagination query is ready
+
+[33mcommit cbf48e976b8a19aff2e227c500a63c2a9fa1795c[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Dec 6 05:37:31 2024 +0300
+
+    Book commands designed
+
+[33mcommit 02364f8d30beee652f56d2bb1b198829272917d4[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Fri Dec 6 04:34:23 2024 +0300
+
+    CQRS hndlers writting checkpoint
+
+[33mcommit e959effc7573b175ebeb387ec5f67d7d89ccac1c[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Thu Dec 5 05:52:51 2024 +0300
+
+    Controllers and IRequest entities implemented
+
+[33mcommit 943e72f900d94c369ca6a7dd4a97c03f5b939443[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Dec 4 17:22:24 2024 +0300
+
+    controllers actions declaration added
+
+[33mcommit 163e0e86e2685e07ca767996ca68bb2c62f94b16[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Dec 4 15:43:22 2024 +0300
+
+    Presenter started. Need to replase records fields with dto's
+
+[33mcommit 9ba78b40d2484aee8e62ef16235d4705acd6e24c[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Dec 4 06:12:40 2024 +0300
+
+    Application and Domain designed
+
+[33mcommit 654a267e57c5374bd10c9b7920738db9caea3972[m
+Author: KirillKurril <kirillkurill1525@gmail.com>
+Date:   Wed Dec 4 03:15:18 2024 +0300
+
+    init
+
+[33mcommit 34f14efcf17379210ecef137cede6d466f7557be[m
+Author: KirillKurril <126201667+KirillKurril@users.noreply.github.com>
+Date:   Wed Dec 4 03:03:50 2024 +0300
+
+    Initial commit

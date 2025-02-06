@@ -1,33 +1,45 @@
-// import { useKeycloak } from "@react-keycloak/web";
+import { useEffect, useState, useCallback } from "react";
+import { getAuthorizationUrl, exchangeCodeForToken } from "../helpers/authHelpers/keycloakUriConfigurator";
 
-// export const useAuth = () => {
-//     const { keycloak, initialized } = useKeycloak();
+const parseJwt = (token) => {
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch (e) {
+    return null;
+  }
+};
 
-//     const login = () => {
-//         if (keycloak && !keycloak.authenticated) {
-//             keycloak.login();
-//         }
-//     };
+const useAuth = () => {
+  const [user, setUser] = useState(null);
 
-//     const logout = () => {
-//         if (keycloak && keycloak.authenticated) {
-//             keycloak.logout();
-//         }
-//     };
+  const initializeAuth = useCallback(async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    console.log(`code: ${code}`)
+    
+    if (code && !user) {
+      const tokenData = await exchangeCodeForToken(code);
+      if (tokenData?.access_token) {
+        const decodedToken = parseJwt(tokenData.access_token);
+        setUser(decodedToken);
+      }
+    }
+  }, [user]);
 
-//     return {
-//         initialized,
-//         isAuthenticated: keycloak.authenticated,
-//         userId: keycloak.subject,
-//         username: keycloak.tokenParsed?.preferred_username,
-//         fullName: keycloak.tokenParsed?.name,
-//         email: keycloak.tokenParsed?.email,
-//         isAdmin: keycloak.hasResourceRole("admin"),
-//         token: keycloak.token,
-//         login,
-//         logout,
-//         keycloak 
-//     };
-// };
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
-// export default useAuth;
+  const login = () => {
+    window.location.href = getAuthorizationUrl();
+  };
+
+  const logout = () => {
+    setUser(null);
+    window.location.href = "/";
+  };
+
+  return { user, login, logout, isAuthenticated: !!user };
+};
+
+export default useAuth;

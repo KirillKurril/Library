@@ -1,14 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
-import { useKeycloak } from "@react-keycloak/web";
+import { useAuth } from "../hooks/useAuth"
 
 const Navbar = () => {
     
-    const { keycloak, initialized } = useKeycloak();
+    const { user, login, logout, isAuthenticated_ } = useAuth();    
     // const isAdmin = keycloak.hasResourceRole("admin");
     // const isAuthenticated = keycloak.authenticated;
     // const username = keycloak.tokenParsed?.preferred_username;
+
+    console.log(`user: ${user}`)
+    console.log(``)
 
     const isAdmin = true;
     const isAuthenticated = true;

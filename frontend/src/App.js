@@ -24,23 +24,13 @@ import EditUser from './pages/admin/EditUser';
 
 import PrivateRoute from "./helpers/PrivateRoute";
 import AdminRoute from './helpers/AdminRoute';
-import { ReactKeycloakProvider } from "@react-keycloak/web";
-import keycloak from "./keycloak";
 
 
 
 
 
 function App() {
-    const initOptions = {
-        url: process.env.REACT_APP_KEYCLOAK_URL,
-        realm: process.env.REACT_APP_KEYCLOAK_REALM,
-        clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID
-  }
     return (
-        <ReactKeycloakProvider
-            authClient={keycloak}
-            initOptions={initOptions}>
             <BrowserRouter>
                 <div className="app">
                     <Navbar />
@@ -85,7 +75,6 @@ function App() {
                     </main>
                 </div>
             </BrowserRouter>
-        </ReactKeycloakProvider>
     );
 }
 
