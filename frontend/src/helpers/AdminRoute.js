@@ -1,13 +1,10 @@
 import { Navigate } from "react-router-dom";
+import useAuth from '../hooks/useAuth';
 
 const AdminRoute = ({ children }) => {
-  // const { keycloak } = useKeycloak();
-
-  // const isLoggedIn = keycloak.authenticated;
-  // const hasAdminRole = isLoggedIn && keycloak.hasResourceRole("admin", "library-frontend");
-
-  // return isLoggedIn && hasAdminRole ? children : <Navigate to="/" />; 
-  return children;
+  const { isAdmin } = useAuth();  
+  console.log("isAdmin", isAdmin);
+  return isAdmin ? children : <Navigate to="/" />;
 };
 
 export default AdminRoute;

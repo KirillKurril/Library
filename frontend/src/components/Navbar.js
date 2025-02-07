@@ -5,6 +5,8 @@ import useAuth from '../hooks/useAuth';
 
 const Navbar = () => {
     const { login, logout, isAuthenticated, userName, isAdmin } = useAuth();
+    
+    console.log("isAuthenticated", isAuthenticated,"username", userName, "isAdmin", isAdmin);
 
     return (
         <nav className="navbar-container">

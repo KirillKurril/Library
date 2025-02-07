@@ -1,13 +1,8 @@
+import useAuth from '../hooks/useAuth';
 
 const PrivateRoute = ({ children }) => {
-  // const { keycloak } = useKeycloak();
-
-  // const isLoggedIn = keycloak.authenticated;
-
-  // console.info(keycloak.token);
-
-  // return isLoggedIn ? children : null;
-  return children;
+  const { isAuthenticated } = useAuth();  
+  return isAuthenticated ? children : <Navigate to="/" />;
 };
 
 export default PrivateRoute;

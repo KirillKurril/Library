@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   getAuthorizationUrl,
   exchangeCodeForToken,
@@ -41,30 +41,33 @@ const clearTokenData = () => {
 };
 
 const useAuth = () => {
-  const [user, setUser] = useState(null);
-  const [tokenData, setTokenData] = useState(loadTokenData());
+  const [tokenData, setTokenData] = useState(() => loadTokenData());
+  const [user, setUser] = useState(() => {
+    const savedToken = loadTokenData()?.access_token;
+    return savedToken ? parseJwt(savedToken) : null;
+  });
 
-  const handleTokenData = (data) => {
+  const handleTokenData = useCallback((data) => {
     saveTokenData(data);
     setTokenData(data);
     setUser(parseJwt(data.access_token));
-  };
+  }, []);
 
   const refreshToken = useCallback(async () => {
-    if (tokenData?.refresh_token) {
-      try {
-        const newTokenData = await refreshTokenRequest(tokenData.refresh_token);
-        if (newTokenData?.access_token) {
-          handleTokenData(newTokenData);
-        } else {
-          logout();
-        }
-      } catch (error) {
-        console.error("Ошибка обновления токена:", error);
+    if (!tokenData?.refresh_token) return;
+
+    try {
+      const newTokenData = await refreshTokenRequest(tokenData.refresh_token);
+      if (newTokenData?.access_token) {
+        handleTokenData(newTokenData);
+      } else {
         logout();
       }
+    } catch (error) {
+      console.error("Ошибка обновления токена:", error);
+      logout();
     }
-  }, [tokenData]);
+  }, [tokenData, handleTokenData]);
 
   const initializeAuth = useCallback(async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -80,18 +83,17 @@ const useAuth = () => {
       } catch (error) {
         console.error("Ошибка получения токена:", error);
       }
-    } else if (tokenData) {
+    } else if (tokenData?.access_token) {
       if (isTokenExpired(tokenData.access_token)) {
         await refreshToken();
       } else {
         setUser(parseJwt(tokenData.access_token));
       }
     }
-  }, [tokenData, refreshToken]);
+  }, [tokenData, refreshToken, handleTokenData]);
 
   useEffect(() => {
     initializeAuth();
-
     const interval = setInterval(() => {
       if (tokenData?.access_token && isTokenExpired(tokenData.access_token)) {
         refreshToken();
@@ -101,33 +103,26 @@ const useAuth = () => {
     return () => clearInterval(interval);
   }, [initializeAuth, tokenData, refreshToken]);
 
-  const logout = () => {
-    const idTokenHint = tokenData?.id_token; 
+  const logout = useCallback(() => {
+    const idTokenHint = tokenData?.id_token;
     clearTokenData();
     setUser(null);
     setTokenData(null);
 
-    if (idTokenHint) {
-      const logoutUrl = getLogoutUrl(idTokenHint);
-      window.location.href = logoutUrl;
-    } else {
-      window.location.href = "/"; 
-    }
-  };
+    window.location.href = idTokenHint ? getLogoutUrl(idTokenHint) : "/";
+  }, [tokenData]);
 
-  const login = () => {
+  const login = useCallback(() => {
     window.location.href = getAuthorizationUrl();
-  };
+  }, []);
 
-  const userId = user?.sub;
-  const userEmail = user?.email || "not specified"
-  const userName = user?.preferred_username || "not specified"
-  const userRoles = user?.resource_access?.["aspnet-api"]?.roles || [];
-  const isAdmin = userRoles.includes("admin");
-  const accessToken = tokenData?.access_token;
-  const isAuthenticated = !!user;
-
-  console.log(user, );
+  const userId = useMemo(() => user?.sub, [user]);
+  const userEmail = useMemo(() => user?.email || "not specified", [user]);
+  const userName = useMemo(() => user?.preferred_username || "not specified", [user]);
+  const userRoles = useMemo(() => user?.resource_access?.["aspnet-api"]?.roles || [], [user]);
+  const isAdmin = useMemo(() => userRoles.includes("admin"), [userRoles]);
+  const accessToken = useMemo(() => tokenData?.access_token, [tokenData]);
+  const isAuthenticated = useMemo(() => !!user, [user]);
 
   return {
     user,
