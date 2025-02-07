@@ -6,6 +6,7 @@ namespace Library.Application.BookUseCases.Queries
     public sealed record GetBorrowedBooksQuery(
         Guid UserId,
         int? PageNo,
-        int? ItemsPerPage
+        int? ItemsPerPage,
+        string? SearchTerm
         ) : IRequest<PaginationListModel<BookLendingDTO>>;
 }

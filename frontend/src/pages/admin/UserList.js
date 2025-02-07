@@ -13,6 +13,9 @@ const UserList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [isBookSelectModalOpen, setBookSelectModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
+    const [onSubmit, setOnSubmit] = useState(() => {});
+    const [fetchBooks, setFetchBooks] = useState(() => {});
+    const [modalTitle, setModalTitle] = useState("");
 
     const [errorModal, setErrorModal] = useState({
         isOpen: false,
@@ -44,17 +47,16 @@ const UserList = () => {
         fetchUsers();
     }, [fetchUsers]);
 
-    const openBookSelectModal = (userId) => {
-        setSelectedUserId(userId);
-        setBookSelectModalOpen(true);
-    };
-
     const closeBookSelectModal = () => {
         setBookSelectModalOpen(false);
     };
 
     const handleLendBook = (userId) => {
-        openBookSelectModal(userId);
+        setSelectedUserId(userId);
+        setModalTitle("Select a book to lend");
+        setFetchBooks(fetchAvailableBooks);
+        setOnSubmit(handleConfirmLend)
+        setBookSelectModalOpen(true);
     };
 
     const handleConfirmLend = async (userID, selectedBook) => {
@@ -73,8 +75,28 @@ const UserList = () => {
         }
     };
 
+    const fetchBorrowedBooks = async (searchTerm) => {
+        const response = await api.get(`/users/${selectedUserId}/my-books?searchTerm=${searchTerm}`);
+        if (Array.isArray(response.data.items)) {
+            return response.data.items; 
+        } else {
+            console.error('Expected items to be an array:', response.data.items);
+            return []; 
+        }
+    };
+
     const handleReturnBook = (userId) => {
-        console.log(`Return book from user with ID: ${userId}`);
+        setSelectedUserId(userId);
+        setModalTitle("Select a book to return");
+        setFetchBooks(fetchBorrowedBooks);
+        setOnSubmit(handleConfirmReturn)
+        setBookSelectModalOpen(true);
+    };
+
+    const handleConfirmReturn = async (userID, selectedBook) => {
+        if (selectedBook) {
+            await api.post(`/users/${userID}/books/${selectedBook}/return`);
+        }
     };
 
     return (
@@ -144,12 +166,14 @@ const UserList = () => {
                 message="Are you sure you want to perform this action?"
             />
             <BookSelectModal 
+                title = {modalTitle}
                 isOpen={isBookSelectModalOpen} 
                 onClose={closeBookSelectModal} 
                 userID={selectedUserId} 
-                fetchBooks={fetchAvailableBooks}
-                onSubmit={handleConfirmLend}
+                fetchBooks={fetchBooks}
+                onSubmit={onSubmit}
             />
+            
         </div>
     );
 };

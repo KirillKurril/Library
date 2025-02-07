@@ -50,13 +50,14 @@ namespace Library.Presentation.Controllers
         public async Task<ActionResult<PaginationListModel<IEnumerable<BookLendingDTO>>>> GetBorrowedList(
 
             [FromRoute] Guid userId,
+            [FromQuery] string? searchTerm,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
             if(_userDataAccessor.IsAdmin() || _userDataAccessor.IsBookOwner(userId))
             {
-                var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
+                var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage, searchTerm);
                 var result = await _mediator.Send(query, cancellationToken);
                 return Ok(result);
             }

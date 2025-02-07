@@ -34,9 +34,12 @@ namespace Library.Application.BookUseCases.Queries
 
             var pageNumber = request.PageNo ?? 1;
 
-            var items = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize).ToList();
+            if(request.ItemsPerPage != null)
+                query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize).ToList();
+
+            var items = query.ToList();
 
             return new PaginationListModel<BookCatalogDTO>()
             {

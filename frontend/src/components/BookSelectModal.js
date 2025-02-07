@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './BookSelectModal.css'; 
 import './ErrorModal.css';  
 
-const BookSelectModal = ({ isOpen, onClose, userID, onSubmit, fetchBooks }) => {
+const BookSelectModal = ({title, isOpen, onClose, userID, onSubmit, fetchBooks }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [books, setBooks] = useState([]);
     const [selectedBook, setSelectedBook] = useState('');
@@ -27,7 +27,7 @@ const BookSelectModal = ({ isOpen, onClose, userID, onSubmit, fetchBooks }) => {
         <div className="modal-overlay">
             <div className="modal-content mb-0">
                 <div className="modal-header">
-                    <h2>Select a book</h2>
+                    <h2>{title}</h2>
                     <button className="close-button" onClick={onClose}>&times;</button>
                 </div>
                 <div className="modal-body mb-0">

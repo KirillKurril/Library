@@ -81,7 +81,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 It.IsAny<Expression<Func<Book, object>>[]>()))
                 .Returns(books.AsQueryable());
 
-            var query = new GetBorrowedBooksQuery(userId, 1, 10);
+            var query = new GetBorrowedBooksQuery(userId, 1, 10, null);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -140,7 +140,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 It.IsAny<Expression<Func<Book, object>>[]>()))
                 .Returns(books.AsQueryable());
 
-            var query = new GetBorrowedBooksQuery(userId, null, null);
+            var query = new GetBorrowedBooksQuery(userId, null, null, null);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -168,7 +168,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 It.IsAny<Expression<Func<Book, object>>>()))
                 .Returns(books);
 
-            var query = new GetBorrowedBooksQuery(userId, 1, 10);
+            var query = new GetBorrowedBooksQuery(userId, 1, 10, null);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 

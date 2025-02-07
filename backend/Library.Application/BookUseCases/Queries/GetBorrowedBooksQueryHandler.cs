@@ -19,6 +19,8 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<PaginationListModel<BookLendingDTO>> Handle(GetBorrowedBooksQuery request, CancellationToken cancellationToken)
         {
+            var searchTerm = request.SearchTerm?.ToLower();
+
             var query = _unitOfWork.BookLendingRepository
                 .GetQueryable()
                 .Where(bl => bl.UserId == request.UserId)
@@ -28,7 +30,10 @@ namespace Library.Application.BookUseCases.Queries
                     b => b.Id,
                     (bl, b) => new JoinLendingDTO(){ Book = b, BookLending = bl }
                 )
+                .Where( b => (string.IsNullOrEmpty(searchTerm) ||
+                        b.Book.Title.ToLower().Contains(searchTerm)))
                 .ProjectToType<BookLendingDTO>();
+
 
             var totalItems = query.Count();
             var pageSize = request.ItemsPerPage
@@ -36,9 +41,12 @@ namespace Library.Application.BookUseCases.Queries
 
             var pageNumber = request.PageNo ?? 1;
 
-            var items = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize).ToList();
+            if(request.ItemsPerPage != null)
+                query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize).ToList();
+
+            var items = query.ToList();
 
             var result = new PaginationListModel<BookLendingDTO>()
             {
