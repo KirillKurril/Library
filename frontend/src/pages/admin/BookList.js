@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Pagination from '../../components/Pagination';
 import ConfirmModal from '../../components/ConfirmModal';
 import CoverManageModal from '../../components/CoverManageModal';
 import AdminBookSearchBar from '../../components/searchbars/AdminBookSearchBar';
 import '../../styles/AdminTable.css';
+import { api } from '../../utils/axios';
 
 const BookList = () => {
     const [books, setBooks] = useState([]);
@@ -18,7 +18,7 @@ const BookList = () => {
 
     const fetchBooks = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?pageNo=${currentPage}`);
+            const response = await api.get(`/books/catalog?pageNo=${currentPage}`);
             setBooks(response.data.items);
             setTotalPages(response.data.totalPages);
             
@@ -47,9 +47,9 @@ const BookList = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL}/books/${id}/delete`);
+            await api.delete(`/books/${id}/delete`);
             
-            const updatedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/books/catalog?pageNo=${currentPage}`);
+            const updatedResponse = await api.get(`/books/catalog?pageNo=${currentPage}`);
             
             if (updatedResponse.data.totalPages === 0) {
                 setNoBooks(true);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { keycloakUserApi } from '../../utils/axios';
 import { Link } from 'react-router-dom';
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
@@ -22,16 +22,16 @@ const UserList = () => {
 
     const fetchUsers = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/admin/realms/Library/users?first=${(currentPage - 1) * 8 + 1}&max=8`);
+            const response = await keycloakUserApi.get(`?first=${(currentPage - 1) * 8 + 1}&max=8`);
 
             setUsers(response.data);
-            setTotalPages(Math.ceil(response.data.length / 8)); // Установка общего количества страниц
+            setTotalPages(Math.ceil(response.data.length / 8));
         } catch (error) {
             console.error('Error fetching users:', error);
             setErrorModal({
                 isOpen: true,
-                title: 'Ошибка',
-                message: 'Не удалось загрузить пользователей.'
+                title: 'Error',
+                message: 'Users data fetching error.'
             });
         }
     }, [currentPage]);

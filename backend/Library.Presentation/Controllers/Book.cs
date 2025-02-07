@@ -40,7 +40,7 @@ namespace Library.Presentation.Controllers
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet]
         [Route("/users/{userId:guid}/my-books")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(typeof(PaginationListModel<IEnumerable<BookLendingDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -143,7 +143,7 @@ namespace Library.Presentation.Controllers
         [HttpPost]
         [Route("/users/{userId:guid}/books/{bookId:guid}/lend")]
         [AllowAnonymous]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -171,7 +171,7 @@ namespace Library.Presentation.Controllers
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost]
         [Route("/users/{userId:guid}/books/{bookId:guid}/return")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -196,7 +196,7 @@ namespace Library.Presentation.Controllers
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost]
         [Route("create")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(typeof(CreateEntityResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -227,7 +227,7 @@ namespace Library.Presentation.Controllers
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPut]
         [Route("update")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -254,7 +254,7 @@ namespace Library.Presentation.Controllers
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpDelete]
         [Route("{id:guid}/delete")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -280,7 +280,7 @@ namespace Library.Presentation.Controllers
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpPost("{id:guid}/upload-cover/")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -314,7 +314,7 @@ namespace Library.Presentation.Controllers
         /// <response code="404">Книга не найдена</response>
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpDelete("{id:guid}/remove-cover/")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

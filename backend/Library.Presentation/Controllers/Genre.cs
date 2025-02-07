@@ -5,6 +5,7 @@ using MediatR;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Library.Application.Common.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Library.Presentation.Controllers
 {
@@ -56,7 +57,7 @@ namespace Library.Presentation.Controllers
 
         [HttpPost]
         [Route("create")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<CreateEntityResponse>> Create(
             [FromBody] string genreName,
             CancellationToken cancellationToken)
@@ -69,7 +70,7 @@ namespace Library.Presentation.Controllers
 
         [HttpPut]
         [Route("update")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(
             [FromBody] UpdateGenreDTO updateGenreDTO,
             CancellationToken cancellationToken)
@@ -81,7 +82,7 @@ namespace Library.Presentation.Controllers
 
         [HttpDelete]
         [Route("{id:Guid}/delete")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
                    [FromRoute] Guid id,
                    CancellationToken cancellationToken)

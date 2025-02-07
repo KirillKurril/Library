@@ -64,7 +64,7 @@ namespace Library.Presentation.Controllers
 
         [HttpPost]
         [Route("create")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create(
             [FromBody] CreateAuthorDTO createAuthorDTO,
             CancellationToken cancellationToken)
@@ -77,7 +77,7 @@ namespace Library.Presentation.Controllers
 
         [HttpPut]
         [Route("update")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Update(
             [FromBody] UpdateAuthorDTO updateAuthorDTO,
             CancellationToken cancellationToken)
@@ -89,7 +89,7 @@ namespace Library.Presentation.Controllers
 
         [HttpDelete]
         [Route("{id:guid}/delete")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(
             [FromRoute] Guid id,
             CancellationToken cancellationToken)
