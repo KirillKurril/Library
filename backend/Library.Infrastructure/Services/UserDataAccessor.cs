@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Library.Application.Common.Interfaces;
 using Library.Application.Common.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -12,16 +14,30 @@ public class UserDataAccessor : IUserDataAccessor
     private readonly ITokenAccessor _tokenAccessor;
     private readonly IConfiguration _configuration;
     private readonly ILogger<UserDataAccessor> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     public UserDataAccessor(
         ITokenAccessor tokenAccessor,
         HttpClient httpClient,
         IConfiguration configuration,
-        ILogger<UserDataAccessor> logger)
+        ILogger<UserDataAccessor> logger,
+        IHttpContextAccessor httpContextAccessor)
     {
         _httpClient = httpClient;
         _tokenAccessor = tokenAccessor;
         _configuration = configuration;
         _logger = logger;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public bool IsAdmin()
+    {
+        return _httpContextAccessor.HttpContext?.User?.IsInRole("admin") ?? false;
+    }
+
+    public bool IsBookOwner(Guid userId)
+    {
+        return _httpContextAccessor.HttpContext?.User
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value == userId.ToString();
     }
 
     public async Task<ResponseData<JsonElement>> GetUserDataAsJson(Guid userId)

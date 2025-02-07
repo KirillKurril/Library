@@ -18,14 +18,17 @@ namespace Library.Presentation.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IBookImageService _imageService;
+        private readonly IUserDataAccessor _userDataAccessor;
         private readonly ILogger<BookController> _logger;
         public BookController(
             IMediator mediator,
             IBookImageService bookImageService,
+            IUserDataAccessor userDataAccessor,
             ILogger<BookController> logger)
         {
             _mediator = mediator;
             _imageService = bookImageService;
+            _userDataAccessor = userDataAccessor;
             _logger = logger;
         }
 
@@ -40,19 +43,24 @@ namespace Library.Presentation.Controllers
         /// <response code="500">Внутренняя ошибка сервера</response>
         [HttpGet]
         [Route("/users/{userId:guid}/my-books")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         [ProducesResponseType(typeof(PaginationListModel<IEnumerable<BookLendingDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PaginationListModel<IEnumerable<BookLendingDTO>>>> GetBorrowedList(
+
             [FromRoute] Guid userId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
             CancellationToken cancellationToken)
         {
-            var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
-            var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            if(_userDataAccessor.IsAdmin() || _userDataAccessor.IsBookOwner(userId))
+            {
+                var query = new GetBorrowedBooksQuery(userId, pageNo, itemsPerPage);
+                var result = await _mediator.Send(query, cancellationToken);
+                return Ok(result);
+            }
+            return Unauthorized();
         }
 
         /// <summary>

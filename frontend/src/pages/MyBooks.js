@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../utils/axios'
 import BorrowedBookCard from '../components/BorrowedBookCard';
 import Pagination from '../components/Pagination';
 import { useSearchParams } from 'react-router-dom';
 import './MyBooks.css';
+import useAuth from '../hooks/useAuth';
 
 const MyBooks = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [books, setBooks] = useState({ items: [], currentPage: 1, totalPages: 1 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { userId } = useAuth();
     const itemsPerPage = 3;
 
     useEffect(() => {
         const fetchMyBooks = async () => {
             try {
                 setLoading(true);
-                const userId = localStorage.getItem('user_id');
                 if (!userId) {
                     setError('User ID not found. Please log in.');
                     return;
@@ -27,8 +28,8 @@ const MyBooks = () => {
                 params.append('pageNo', currentPage);
                 params.append('itemsPerPage', itemsPerPage);
 
-                const response = await axios.get(
-                    `${process.env.REACT_APP_API_URL}/users/${userId}/my-books?${params.toString()}`
+                const response = await api.get(
+                    `/users/${userId}/my-books?${params.toString()}`
                 );
 
                 setBooks(response.data);
@@ -42,7 +43,7 @@ const MyBooks = () => {
         };
 
         fetchMyBooks();
-    }, [searchParams]);
+    }, [searchParams, userId]);
 
     const handlePageChange = (newPage) => {
         const newSearchParams = new URLSearchParams(searchParams);

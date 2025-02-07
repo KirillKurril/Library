@@ -32,6 +32,7 @@ namespace Library.Infrastructure
                 .AddRoutingConfiguration()
                 .AddApplication()
                 .AddPersistence(configuration)
+                .AddHttpContextAccessor()
                 .AddTokenConfiguration(keycloakSettings)
                 .AddImageHandler()
                 .AddKeycloakAuthentication(keycloakSettings)

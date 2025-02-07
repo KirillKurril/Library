@@ -1,5 +1,5 @@
 import React from 'react';
-import './ErrorModal.css';  // Переиспользуем стили от ErrorModal
+import './ErrorModal.css';  
 
 const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     if (!isOpen) return null;

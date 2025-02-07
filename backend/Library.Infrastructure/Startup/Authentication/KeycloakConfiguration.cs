@@ -52,8 +52,10 @@ public static class KeycloakConfiguration
                        .FirstOrDefault(c => c.Type == "resource_access")?.Value;
 
                    var resourceAccess = JObject.Parse(resourceAccessClaim);
-                   var apiRoles = resourceAccess["aspnet-api"]?["roles"] as JArray;
+                   
+                   var apiRoles = resourceAccess?["aspnet-api"]?["roles"] as JArray;
 
+                   if(apiRoles != null)
                    foreach (var role in apiRoles.Values<string>())
                        identity.AddClaim(new Claim(ClaimTypes.Role, role));
 

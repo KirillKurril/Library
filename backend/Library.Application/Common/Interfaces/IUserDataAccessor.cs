@@ -5,8 +5,10 @@ namespace Library.Application.Common.Interfaces
 {
     public interface IUserDataAccessor
     {
-        public Task<ResponseData<IEnumerable<DebtorNotification>>> EnrichNotifications(IEnumerable<DebtorNotification> notifications);
-        public Task<ResponseData<JsonElement>> GetUserDataAsJson(Guid userId);
-        public Task<bool> UserExist(Guid userId);
+        Task<ResponseData<IEnumerable<DebtorNotification>>> EnrichNotifications(IEnumerable<DebtorNotification> notifications);
+        Task<ResponseData<JsonElement>> GetUserDataAsJson(Guid userId);
+        Task<bool> UserExist(Guid userId);
+        bool IsAdmin();
+        bool IsBookOwner(Guid userId);
     }
 }
