@@ -62,6 +62,15 @@ namespace Library.Application.Common.Mappings
                 .Map(dest => dest.Author, src => src.Author)
                 .Map(dest => dest.Genre, src => src.Genre)
                 .Map(dest => dest.IsAvailable, src => src.IsAvailable);
+
+            config.NewConfig<UpdateBookDTO, UpdateBookCommand>()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Title, src => src.Title)
+                .Map(dest => dest.ISBN, src => src.ISBN)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.Quantity, src => src.Quantity)
+                .Map(dest => dest.AuthorId, src => src.AuthorId)
+                .Map(dest => dest.GenreId, src => src.GenreId);
         }
     }
 }

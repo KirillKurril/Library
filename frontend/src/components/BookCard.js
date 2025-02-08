@@ -29,7 +29,7 @@ const BookCard = ({ book, author, genre }) => {
         <div className="book-card">
             <div className="book-card-image">
                 <img 
-                    src={`${process.env.REACT_APP_API_URL}${book.imageUrl.substring(book.imageUrl.indexOf('/images'))}`} 
+                    src={book.imageUrl ? `${process.env.REACT_APP_API_URL}${book.imageUrl.substring(book.imageUrl.indexOf('/images'))}` : `${process.env.REACT_APP_API_URL}/images/covers/default.jpg`}
                     alt={book.title} 
                     onError={(e) => {
                         e.target.src = `${process.env.REACT_APP_API_URL}/images/covers/default.jpg`;
