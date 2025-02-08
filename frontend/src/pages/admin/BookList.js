@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Pagination from '../../components/Pagination';
 import ConfirmModal from '../../components/ConfirmModal';
-import CoverManageModal from '../../components/CoverManageModal';
+import UpdateCoverModal from '../../components/UpdateCoverModal';
 import AdminBookSearchBar from '../../components/searchbars/AdminBookSearchBar';
 import '../../styles/AdminTable.css';
 import { api } from '../../utils/axios';
@@ -12,7 +12,7 @@ const BookList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, bookId: null, bookTitle: '' });
-    const [coverModal, setCoverModal] = useState({ isOpen: false, bookId: null });
+    const [updateCoverModal, setUpdateCoverModal] = useState({ isOpen: false, book: null });
     const [noBooks, setNoBooks] = useState(false);
     const navigate = useNavigate();
 
@@ -88,8 +88,8 @@ const BookList = () => {
         return description?.length > 50 ? description.substring(0, 50) + '...' : description;
     };
 
-    const handleCoverUpdate = async (bookId) => {
-        setCoverModal({ isOpen: true, bookId: bookId });
+    const handleCoverUpdate = (book) => {
+        setUpdateCoverModal({ isOpen: true, book: book });
     };
 
     if (noBooks) {
@@ -158,7 +158,7 @@ const BookList = () => {
                                     </button>
                                     <button
                                         className="edit-button"
-                                        onClick={() => handleCoverUpdate(book.id)}
+                                        onClick={() => handleCoverUpdate(book)}
                                     >
                                         Update Cover
                                     </button>
@@ -188,10 +188,10 @@ const BookList = () => {
                 title="Confirm Deletion"
                 message={`Are you sure you want to delete "${deleteModal.bookTitle}"?`}
             />
-            <CoverManageModal
-                isOpen={coverModal.isOpen}
-                onClose={() => setCoverModal({ isOpen: false, bookId: null })}
-                bookId={coverModal.bookId}
+            <UpdateCoverModal
+                isOpen={updateCoverModal.isOpen}
+                onClose={() => setUpdateCoverModal({ isOpen: false, book: null })}
+                book={updateCoverModal.book}
                 onSuccess={fetchBooks}
             />
         </div>

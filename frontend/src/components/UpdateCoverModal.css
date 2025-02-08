@@ -1,0 +1,137 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.modal-header {
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.book-cover-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.book-cover-preview {
+    max-width: 200px;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.5rem 0 0 0;
+    padding: 1.5rem 0 0 0;
+}
+
+.file-input-container {
+    width: 100%;
+    display: flex;
+    direction: row;
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-confirm {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background-color: #218838;
+    color: white !important;
+}
+
+.btn-default {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-default:hover {
+    background-color: #0056b3;
+    color: white !important;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #c82333;
+    color: white !important;
+}
+
+.custom-file-input {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #333;
+    font-weight: 500;
+}
+
+.custom-file-input:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+.custom-file-input svg {
+    margin-right: 0.5rem;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+    color: #666;
+}
