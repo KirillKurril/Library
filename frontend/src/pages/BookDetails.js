@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../utils/axios';
 import './BookDetails.css';
 
 const BookDetails = () => {
@@ -15,7 +15,7 @@ const BookDetails = () => {
         const fetchBook = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/${id}`);
+                const response = await api.get(`/books/${id}`);
                 setBook(response.data);
                 setError(null);
             } catch (err) {

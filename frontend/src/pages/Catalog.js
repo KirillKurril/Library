@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../utils/axios';
 import BookCard from '../components/BookCard';
 import Pagination from '../components/Pagination';
 import BookSearchBar from '../components/searchbars/BookSearchBar';
@@ -16,13 +16,12 @@ const Catalog = () => {
 
     const itemsPerPage = 16;
 
-    // Separate effect for loading filter data (authors and genres)
     useEffect(() => {
         const fetchFilterData = async () => {
             try {
                 const [authorsResponse, genresResponse] = await Promise.all([
-                    axios.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`),
-                    axios.get(`${process.env.REACT_APP_API_URL}/genres/list`)
+                    api.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`),
+                    api.get(`${process.env.REACT_APP_API_URL}/genres/list`)
                 ]);
 
                 setAuthors(authorsResponse.data);
@@ -34,9 +33,8 @@ const Catalog = () => {
         };
 
         fetchFilterData();
-    }, []); // Run only once on component mount
+    }, []);
 
-    // Separate effect for loading books
     useEffect(() => {
         const fetchBooks = async () => {
             try {
@@ -53,8 +51,7 @@ const Catalog = () => {
                 params.append('pageNo', currentPage);
                 params.append('itemsPerPage', itemsPerPage);
 
-                const catalogUrl = `${process.env.REACT_APP_API_URL}/books/catalog?${params.toString()}`;
-                const booksResponse = await axios.get(catalogUrl);
+                const booksResponse = await api.get(`/books/catalog?${params.toString()}`);
 
                 setBooks(booksResponse.data);
                 setError(null);
@@ -67,7 +64,7 @@ const Catalog = () => {
         };
 
         fetchBooks();
-    }, [searchParams]); // Run only when search parameters change
+    }, [searchParams]); 
 
     const handlePageChange = (newPage) => {
         const newSearchParams = new URLSearchParams(searchParams);

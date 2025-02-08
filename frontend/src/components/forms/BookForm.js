@@ -89,9 +89,11 @@ const BookForm = ({ initialData, isUpdate = false }) => {
             }
 
             if (isUpdate) {
-                await api.put(`/books/update`, requestData);
+                const response = await api.put(`/books/update`, requestData);
+                console.log(response.data);
             } else {
-                await api.post(`/books/create`, requestData);
+                const response = await api.post(`/books/create`, requestData);
+                console.log(response.data);
             }
 
             navigate('/admin/books');

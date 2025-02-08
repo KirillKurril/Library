@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios';
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -24,7 +24,7 @@ const GenreList = () => {
 
     const fetchGenres = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genres/filtred-list?pageNo=${currentPage}&itemsPerPage=8`);
+            const response = await api.get(`/genres/filtred-list?pageNo=${currentPage}&itemsPerPage=8`);
             setGenres(response.data.items);
             setTotalPages(response.data.totalPages);
         } catch (error) {
@@ -51,7 +51,7 @@ const GenreList = () => {
     const handleDeleteConfirm = async () => {
         const id = confirmModal.genreId;
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL}/genres/${id}/delete`);
+            await api.delete(`/genres/${id}/delete`);
             if (genres.length === 1 && currentPage > 1) {
                 setCurrentPage(prev => prev - 1);
             } else {

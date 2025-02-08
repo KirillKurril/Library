@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios';
 import BookForm from '../../components/forms/BookForm';
 
 const EditBook = () => {
@@ -13,7 +13,7 @@ const EditBook = () => {
     useEffect(() => {
         const fetchBook = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/books/${id}`);
+                const response = await api.get(`/books/${id}`);
                 setBook(response.data);
             } catch (error) {
                 console.error('Error fetching book:', error);

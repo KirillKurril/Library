@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios';
 import GenreForm from '../../components/forms/GenreForm';
 import { validateGenreForm } from '../../validators/genreValidators';
 import ErrorModal from '../../components/ErrorModal';
@@ -22,7 +22,7 @@ const CreateGenre = () => {
         }
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/genres/create`, 
+            await api.post(`/genres/create`, 
                 JSON.stringify(genreName),
                 {
                     headers: {

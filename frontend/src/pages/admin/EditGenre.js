@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios';
 import GenreForm from '../../components/forms/GenreForm';
 import { validateGenreForm } from '../../validators/genreValidators';
 import ErrorModal from '../../components/ErrorModal';
@@ -19,7 +19,7 @@ const EditGenre = () => {
 
     const fetchGenre = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/genres/${id}`);
+            const response = await api.get(`/genres/${id}`);
             setGenre(response.data);
         } catch (error) {
             console.error('Error fetching genre:', error);
@@ -47,7 +47,7 @@ const EditGenre = () => {
                 id: id,
                 name: genreName
             };
-            await axios.put(`${process.env.REACT_APP_API_URL}/genres/update`, updateData);
+            await api.put(`/genres/update`, updateData);
             navigate('/admin/genres');
         } catch (error) {
             if (error.response?.status === 400 && error.response?.data?.errors) {
