@@ -8,5 +8,6 @@ namespace Library.Application.BookUseCases.Queries
         Guid? GenreId,
         Guid? AuthorId,
         int? PageNo,
-        int? ItemsPerPage) : IRequest<PaginationListModel<BookCatalogDTO>>;
+        int? ItemsPerPage,
+        bool? availableOnly) : IRequest<PaginationListModel<BookCatalogDTO>>;
 }

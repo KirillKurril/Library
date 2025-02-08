@@ -3,7 +3,6 @@ import { keycloakUserApi, api } from '../../utils/axios';
 import { Link } from 'react-router-dom';
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
-import ConfirmModal from '../../components/ConfirmModal';
 import Pagination from '../../components/Pagination';
 import BookSelectModal from '../../components/BookSelectModal';
 
@@ -22,17 +21,18 @@ const UserList = () => {
         title: '',
         message: ''
     });
-    const [confirmModal, setConfirmModal] = useState({
-        isOpen: false,
-        userId: null
-    });
+
+    const itemsPerPage = 2;
 
     const fetchUsers = useCallback(async () => {
         try {
-            const response = await keycloakUserApi.get(`?first=${(currentPage - 1) * 8 + 1}&max=8`);
+            const response = await keycloakUserApi.get(`?first=${(currentPage - 1) * itemsPerPage}&max=${itemsPerPage}`);
+            const totalUsers = await keycloakUserApi.get(`?count`);
+
+            console.log("totalUsersCount", totalUsers)
 
             setUsers(response.data);
-            setTotalPages(Math.ceil(response.data.length / 8));
+            setTotalPages(Math.ceil(totalUsers / itemsPerPage));
         } catch (error) {
             console.error('Error fetching users:', error);
             setErrorModal({
@@ -51,53 +51,44 @@ const UserList = () => {
         setBookSelectModalOpen(false);
     };
 
-    const handleLendBook = (userId) => {
-        setSelectedUserId(userId);
-        setModalTitle("Select a book to lend");
-        setFetchBooks(fetchAvailableBooks);
-        setOnSubmit(handleConfirmLend)
-        setBookSelectModalOpen(true);
-    };
-
-    const handleConfirmLend = async (userID, selectedBook) => {
+    const fetchAvailableBooks = useCallback(async (searchTerm) => {
+        const response = await api.get(`/books/catalog?searchTerm=${searchTerm}&availibleOnly=true`);
+        return Array.isArray(response.data.items) ? response.data.items : [];
+    }, []);
+    
+    const fetchBorrowedBooks = useCallback(async (searchTerm) => {
+        const response = await api.get(`/users/${selectedUserId}/my-books`);
+        return Array.isArray(response.data.items) ? response.data.items : [];
+    }, [selectedUserId]);
+    
+    const handleConfirmLend = useCallback(async (userID, selectedBook) => {
         if (selectedBook) {
             await api.post(`/users/${userID}/books/${selectedBook}/lend`);
         }
-    };
-
-    const fetchAvailableBooks = async (searchTerm) => {
-        const response = await api.get(`/books/catalog?searchTerm=${searchTerm}`);
-        if (Array.isArray(response.data.items)) {
-            return response.data.items; 
-        } else {
-            console.error('Expected items to be an array:', response.data.items);
-            return []; 
-        }
-    };
-
-    const fetchBorrowedBooks = async (searchTerm) => {
-        const response = await api.get(`/users/${selectedUserId}/my-books?searchTerm=${searchTerm}`);
-        if (Array.isArray(response.data.items)) {
-            return response.data.items; 
-        } else {
-            console.error('Expected items to be an array:', response.data.items);
-            return []; 
-        }
-    };
-
-    const handleReturnBook = (userId) => {
-        setSelectedUserId(userId);
-        setModalTitle("Select a book to return");
-        setFetchBooks(fetchBorrowedBooks);
-        setOnSubmit(handleConfirmReturn)
-        setBookSelectModalOpen(true);
-    };
-
-    const handleConfirmReturn = async (userID, selectedBook) => {
+    }, []);
+    
+    const handleConfirmReturn = useCallback(async (userID, selectedBook) => {
         if (selectedBook) {
             await api.post(`/users/${userID}/books/${selectedBook}/return`);
         }
+    }, []);
+    
+    const handleReturnBook = (userId) => {
+        setModalTitle("Select a book to return");
+        setFetchBooks(() => fetchBorrowedBooks);
+        setOnSubmit(() => handleConfirmReturn);
+        setSelectedUserId(userId);
+        setBookSelectModalOpen(true);
     };
+    
+    const handleLendBook = (userId) => {
+        setModalTitle("Select a book to lend");
+        setFetchBooks(() => fetchAvailableBooks);
+        setOnSubmit(() => handleConfirmLend);
+        setSelectedUserId(userId);
+        setBookSelectModalOpen(true);
+    };
+    
 
     return (
         <div className="admin-table-container">
@@ -124,13 +115,13 @@ const UserList = () => {
                                     <td className="action-column">
                                         <div className="action-buttons">
                                             <button
-                                                className="lend-button"
+                                                className="btn btn-primary"
                                                 onClick={() => handleLendBook(user.id)}
                                             >
                                                 Lend Book
                                             </button>
                                             <button
-                                                className="return-button"
+                                                className="btn btn-primary"
                                                 onClick={() => handleReturnBook(user.id)}
                                             >
                                                 Return Book
@@ -157,13 +148,6 @@ const UserList = () => {
                 onClose={() => setErrorModal({ ...errorModal, isOpen: false })}
                 title={errorModal.title}
                 message={errorModal.message}
-            />
-            <ConfirmModal
-                isOpen={confirmModal.isOpen}
-                onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
-                onConfirm={() => { /* Логика подтверждения удаления */ }}
-                title="Confirm Action"
-                message="Are you sure you want to perform this action?"
             />
             <BookSelectModal 
                 title = {modalTitle}

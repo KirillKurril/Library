@@ -24,22 +24,24 @@ namespace Library.Application.BookUseCases.Queries
                         b.Title.ToLower().Contains(searchTerm))
                         && (request.GenreId == null || b.GenreId == request.GenreId)
                         && (request.AuthorId == null || b.AuthorId == request.AuthorId))
-               .OrderBy(b => b.Id)
-               .ProjectToType<BookCatalogDTO>().ToList();
+               .OrderBy(b => b.Id);
 
+            if(request.availableOnly == true)
+                query.Where(b => b.IsAvailable == true);
 
             var totalItems = query.Count();
-            var pageSize = request.ItemsPerPage
-                ?? _configuration.GetValue<int>("ItemsPerPage");
-
+            var pageSize = request.ItemsPerPage ?? 1;
             var pageNumber = request.PageNo ?? 1;
 
             if(request.ItemsPerPage != null)
+            {
                 query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize).ToList();
+                     .Skip((pageNumber - 1) * pageSize)
+                     .Take(pageSize).ToList();
+            }
+ 
 
-            var items = query.ToList();
+            var items = query.ProjectToType<BookCatalogDTO>().ToList();
 
             return new PaginationListModel<BookCatalogDTO>()
             {

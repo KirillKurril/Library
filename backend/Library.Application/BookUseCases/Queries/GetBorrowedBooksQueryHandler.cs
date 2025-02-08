@@ -36,15 +36,16 @@ namespace Library.Application.BookUseCases.Queries
 
 
             var totalItems = query.Count();
-            var pageSize = request.ItemsPerPage
-                ?? int.Parse(_config.GetSection("ItemsPerPage").Value);
-
+            var pageSize = request.ItemsPerPage ?? 1;
             var pageNumber = request.PageNo ?? 1;
 
             if(request.ItemsPerPage != null)
+            {
                 query
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize).ToList();
+            }
+
 
             var items = query.ToList();
 

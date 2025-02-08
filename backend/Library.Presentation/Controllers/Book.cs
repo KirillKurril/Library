@@ -85,9 +85,10 @@ namespace Library.Presentation.Controllers
             [FromQuery] Guid? AuthorId,
             [FromQuery] int? pageNo,
             [FromQuery] int? itemsPerPage,
+            [FromQuery] bool? availableOnly,
             CancellationToken cancellationToken)
         {
-            var query = new SearchBooksQuery(searchTerm, genreId, AuthorId, pageNo, itemsPerPage);
+            var query = new SearchBooksQuery(searchTerm, genreId, AuthorId, pageNo, itemsPerPage, availableOnly);
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }

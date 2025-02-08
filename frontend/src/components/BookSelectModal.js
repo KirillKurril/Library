@@ -8,6 +8,14 @@ const BookSelectModal = ({title, isOpen, onClose, userID, onSubmit, fetchBooks }
     const [selectedBook, setSelectedBook] = useState('');
 
     useEffect(() => {
+        if (!isOpen) {
+            setSearchTerm('');
+            setBooks([]);
+            setSelectedBook('');
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
         const fetchBooksData = async () => {
             if (searchTerm) {
                 const fetchedBooks = await fetchBooks(searchTerm); 
