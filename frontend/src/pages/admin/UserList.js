@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { keycloakUserApi, api } from '../../utils/axios';
-import { Link } from 'react-router-dom';
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
 import Pagination from '../../components/Pagination';
@@ -10,6 +9,7 @@ const UserList = () => {
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
     const [isBookSelectModalOpen, setBookSelectModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [onSubmit, setOnSubmit] = useState(() => {});
@@ -26,10 +26,8 @@ const UserList = () => {
 
     const fetchUsers = useCallback(async () => {
         try {
-            const response = await keycloakUserApi.get(`?first=${(currentPage - 1) * itemsPerPage}&max=${itemsPerPage}`);
-            const totalUsers = await keycloakUserApi.get(`?count`);
-
-            console.log("totalUsersCount", totalUsers)
+            const response = await keycloakUserApi.get(`?first=${(currentPage - 1) * itemsPerPage}&max=${itemsPerPage}&search=${searchTerm}`);
+            const totalUsers = await keycloakUserApi.get(`/count?search=${searchTerm}`);
 
             setUsers(response.data);
             setTotalPages(Math.ceil(totalUsers / itemsPerPage));
@@ -41,11 +39,16 @@ const UserList = () => {
                 message: 'Users data fetching error.'
             });
         }
-    }, [currentPage]);
+    }, [currentPage, searchTerm]);
 
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        setCurrentPage(1);
+    };
 
     const closeBookSelectModal = () => {
         setBookSelectModalOpen(false);
@@ -92,6 +95,15 @@ const UserList = () => {
 
     return (
         <div className="admin-table-container">
+            <div className="admin-header">
+                <input
+                    type="text"
+                    placeholder="Search by username..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    className="search-input"
+                />
+            </div>
             {users.length > 0 ? (
                 <>
                     <table className="admin-table">

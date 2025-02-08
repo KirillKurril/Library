@@ -12,27 +12,32 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
 
     useEffect(() => {
         if (isOpen) {
+            console.log('Modal opened with bookId:', bookId);
             setUploadModalOpen(false);
             setSelectedFile(null);
         }
-    }, [isOpen]);
+    }, [isOpen, bookId]);
 
     if (!isOpen) return null;
 
     const handleClose = () => {
+        console.log('Modal closing');
         setUploadModalOpen(false);
         setSelectedFile(null);
         onClose();
     };
 
     const handleRemoveCover = async () => {
+        console.log('Attempting to remove cover for bookId:', bookId);
         setIsLoading(true);
         try {
             await api.delete(`/books/${bookId}/remove-cover`);
+            console.log('Cover removed successfully');
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Error removing cover:', error);
+            console.log('Error response:', error.response);
             setError({
                 isOpen: true,
                 message: error.response?.data || 'Failed to remove cover. Please try again.'
@@ -43,11 +48,13 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
     };
 
     const handleFileSelect = (event) => {
+        console.log('File selected:', event.target.files[0]);
         setSelectedFile(event.target.files[0]);
     };
 
     const handleUpload = async () => {
         if (!selectedFile) {
+            console.log('No file selected');
             setError({
                 isOpen: true,
                 message: 'Please select a file to upload.'
@@ -55,12 +62,16 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
             return;
         }
 
+        console.log('Starting file upload for bookId:', bookId);
+        console.log('Selected file:', selectedFile);
+        
         setIsLoading(true);
         const formData = new FormData();
         formData.append('image', selectedFile);
 
         try {
-            await api.post(
+            console.log('Sending upload request');
+            const response = await api.post(
                 `/books/${bookId}/upload-cover`,
                 formData,
                 {
@@ -69,10 +80,12 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
                     },
                 }
             );
+            console.log('Upload successful:', response);
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Error uploading cover:', error);
+            console.log('Error response:', error.response);
             setError({
                 isOpen: true,
                 message: error.response?.data || 'Failed to upload cover. Please try again.'
@@ -88,9 +101,9 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
 
     return (
         <>
-            <div className="modal-overlay">
+            <div className="modal-overlay" onClick={handleClose}>
                 {!uploadModalOpen ? (
-                    <div className="modal">
+                    <div className="modal" onClick={e => e.stopPropagation()}>
                         <button onClick={handleClose} className="close-button">&times;</button>
                         <div className="modal-header">
                             <h2>Manage Book Cover</h2>
@@ -113,7 +126,7 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
                         </div>
                     </div>
                 ) : (
-                    <div className="modal">
+                    <div className="modal" onClick={e => e.stopPropagation()}>
                         <button onClick={handleClose} className="close-button">&times;</button>
                         <div className="modal-header">
                             <h2>Upload New Cover</h2>

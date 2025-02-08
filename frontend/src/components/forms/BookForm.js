@@ -13,6 +13,7 @@ const BookForm = ({ initialData, isUpdate = false }) => {
         quantity: '',
         genreId: '',
         authorId: '',
+        imageUrl: '',
         ...initialData,
         ...(initialData && {
             genreId: initialData.genreId || initialData.genre?.id,
@@ -66,12 +67,17 @@ const BookForm = ({ initialData, isUpdate = false }) => {
         e.preventDefault();
         setIsSubmitting(true);
 
+        console.log('Form submission started');
+        console.log('Form data:', formData);
+
         try {
-        
             const validationErrors = validateBook(formData, isUpdate);
+            console.log('Validation errors:', validationErrors);
+            
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors);
                 setIsSubmitting(false);
+                console.log('Form submission stopped due to validation errors');
                 return;
             }
 
@@ -81,28 +87,44 @@ const BookForm = ({ initialData, isUpdate = false }) => {
                 description: formData.description || '',
                 quantity: parseInt(formData.quantity),
                 genreId: formData.genreId,
-                authorId: formData.authorId
+                authorId: formData.authorId,
+                imageUrl: formData.imageUrl 
             };
 
             if (isUpdate) {
                 requestData.id = formData.id;
+                requestData.imageUrl = formData.imageUrl || '';
             }
+
+            console.log('Request data being sent:', requestData);
+            console.log('Is update mode:', isUpdate);
 
             if (isUpdate) {
+                console.log('Sending PUT request to /books/update');
                 const response = await api.put(`/books/update`, requestData);
-                console.log(response.data);
+                console.log('Update response:', response.data);
             } else {
+                console.log('Sending POST request to /books/create');
                 const response = await api.post(`/books/create`, requestData);
-                console.log(response.data);
+                console.log('Create response:', response.data);
             }
 
+            console.log('Request successful, navigating to /admin/books');
             navigate('/admin/books');
         } catch (error) {
             console.error('Error submitting form:', error);
-            setErrors(prev => ({
-                ...prev,
-                submit: 'Error submitting form. Please try again.'
-            }));
+            if (error.response?.data?.errors) {
+                const serverErrors = error.response.data.errors;
+                const formattedErrors = {};
+                Object.keys(serverErrors).forEach(key => {
+                    formattedErrors[key.toLowerCase()] = serverErrors[key][0];
+                });
+                setErrors(formattedErrors);
+            } else {
+                setErrors({
+                    submit: error.response?.data || 'An error occurred while saving the book. Please try again.'
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }

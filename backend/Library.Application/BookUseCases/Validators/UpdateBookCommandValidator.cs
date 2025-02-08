@@ -70,7 +70,7 @@ namespace Library.Application.BookUseCases.Validators
         }
         private bool BeAValidUrl(string url)
         {
-            string pattern = @"^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$";
+            string pattern = @"^(https?|ftp):\/\/[^\s/$.?#][\s\S]*$";
             return Regex.IsMatch(url, pattern, RegexOptions.IgnoreCase);
         }
     }

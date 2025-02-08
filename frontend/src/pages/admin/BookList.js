@@ -88,6 +88,10 @@ const BookList = () => {
         return description?.length > 50 ? description.substring(0, 50) + '...' : description;
     };
 
+    const handleCoverUpdate = async (bookId) => {
+        setCoverModal({ isOpen: true, bookId: bookId });
+    };
+
     if (noBooks) {
         return (
             <div className="admin-table-container">
@@ -154,7 +158,7 @@ const BookList = () => {
                                     </button>
                                     <button
                                         className="edit-button"
-                                        onClick={() => setCoverModal({ isOpen: true, bookId: book.id })}
+                                        onClick={() => handleCoverUpdate(book.id)}
                                     >
                                         Update Cover
                                     </button>

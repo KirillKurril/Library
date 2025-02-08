@@ -43,15 +43,5 @@ export const validateBook = (values, isUpdate = false) => {
             errors.authorId = 'Author is required';
         }
     }
-
-    if (values.imageUrl) {
-        const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
-        if (values.imageUrl.length > 200) {
-            errors.imageUrl = 'Image URL must not exceed 200 characters';
-        } else if (!urlRegex.test(values.imageUrl)) {
-            errors.imageUrl = 'Invalid URL format';
-        }
-    }
-
     return errors;
 };

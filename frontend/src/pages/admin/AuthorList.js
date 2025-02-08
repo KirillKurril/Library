@@ -77,10 +77,20 @@ const AuthorList = () => {
         try {
             const response = await api.get(`/authors/${id}`);
             if (response.data) {
-                navigate(`/admin/authors/edit/${id}`, { state: { authorData: response.data } });
+                navigate(`/admin/authors/edit/${id}`, { 
+                    state: { 
+                        authorData: response.data,
+                        isEdit: true 
+                    } 
+                });
             }
         } catch (error) {
             console.error('Error fetching author details:', error);
+            setErrorModal({
+                isOpen: true,
+                title: 'Error',
+                message: 'Failed to fetch author details.'
+            });
         }
     };
 
