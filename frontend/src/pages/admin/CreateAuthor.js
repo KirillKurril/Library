@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../utils/axios'
+import { api } from '../../utils/axios';
 import AuthorForm from '../../components/forms/AuthorForm';
 
 const CreateAuthor = () => {
@@ -42,12 +42,10 @@ const CreateAuthor = () => {
             await api.post(`/authors/create`, values);
             navigate('/admin/authors');
         } catch (error) {
-            if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
-            } else {
-                console.error('Error creating author:', error);
-                setErrors({ submit: 'Failed to create author. Please try again.' });
-            }
+            console.error('Error creating author:', error);
+            setErrors({
+                submit: error.response?.data?.message || 'Failed to create author. Please try again.'
+            });
         }
     };
 
@@ -58,6 +56,7 @@ const CreateAuthor = () => {
                 onSubmit={handleSubmit}
                 errors={errors}
                 initialValues={{
+                    id: '', 
                     name: '',
                     surname: '',
                     birthDate: '',

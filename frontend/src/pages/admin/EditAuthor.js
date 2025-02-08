@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { api } from '../../utils/axios'
+import { useNavigate, useParams } from 'react-router-dom';
+import { api } from '../../utils/axios';
 import AuthorForm from '../../components/forms/AuthorForm';
 
 const EditAuthor = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const location = useLocation();
     const [author, setAuthor] = useState(null);
     const [errors, setErrors] = useState({});
 
@@ -21,32 +20,23 @@ const EditAuthor = () => {
     }, [id, navigate]);
 
     useEffect(() => {
-        if (location.state?.authorData) {
-            setAuthor(location.state.authorData);
-        } else {
-            fetchAuthor();
-        }
-    }, [location.state, fetchAuthor]);
+        fetchAuthor();
+    }, [fetchAuthor]);
 
     const validateForm = (values) => {
         const errors = {};
-
         if (values.name && values.name.length > 100) {
             errors.name = 'Name must be less than 100 characters';
         }
-
         if (values.surname && values.surname.length > 100) {
             errors.surname = 'Surname must be less than 100 characters';
         }
-
         if (values.birthDate && new Date(values.birthDate) >= new Date()) {
             errors.birthDate = 'Birth date must be in the past';
         }
-
         if (values.country && values.country.length > 100) {
             errors.country = 'Country must be less than 100 characters';
         }
-
         return errors;
     };
 
@@ -58,10 +48,7 @@ const EditAuthor = () => {
         }
 
         try {
-            const updateData = {
-                id: id,
-                ...values
-            };
+            const updateData = { id, ...values };
             await api.put(`/authors/update`, updateData);
             navigate('/admin/authors');
         } catch (error) {
@@ -88,7 +75,8 @@ const EditAuthor = () => {
                     name: author.name || '',
                     surname: author.surname || '',
                     birthDate: author.birthDate ? new Date(author.birthDate).toISOString().split('T')[0] : '',
-                    country: author.country || ''
+                    country: author.country || '',
+                    id: author.id || ''
                 }}
             />
         </div>

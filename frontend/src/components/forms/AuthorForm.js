@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../utils/axios'
-import { validateAuthor, validateAuthorUpdate } from '../../validators/authorValidators';
 import './Form.css';
 
-const AuthorForm = ({ initialValues, isUpdate = false }) => {
+const AuthorForm = ({ initialValues = {}, onSubmit, errors = {} }) => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState(initialValues || {
+    const [formData, setFormData] = useState({
         name: '',
         surname: '',
         birthDate: '',
-        country: ''
+        country: '',
+        id: ''
     });
-    const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        setFormData(initialValues);
+    }, [initialValues]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -21,12 +23,6 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
             ...prev,
             [name]: value
         }));
-        if (errors[name]) {
-            setErrors(prev => ({
-                ...prev,
-                [name]: undefined
-            }));
-        }
     };
 
     const handleSubmit = async (e) => {
@@ -34,40 +30,9 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
         setIsSubmitting(true);
 
         try {
-            const validationErrors = isUpdate 
-                ? validateAuthorUpdate(formData)
-                : validateAuthor(formData);
-
-            if (Object.keys(validationErrors).length > 0) {
-                setErrors(validationErrors);
-                setIsSubmitting(false);
-                return;
-            }
-
-            const requestData = {
-                name: formData.name,
-                surname: formData.surname,
-                birthDate: formData.birthDate || null,
-                country: formData.country
-            };
-
-            if (isUpdate) {
-                requestData.id = formData.id;
-            }
-
-            if (isUpdate) {
-                await api.put(`/authors/update`, requestData);
-            } else {
-                await api.post(`/authors/create`, requestData);
-            }
-
-            navigate('/admin/authors');
+            await onSubmit(formData);
         } catch (error) {
             console.error('Error submitting form:', error);
-            setErrors(prev => ({
-                ...prev,
-                submit: 'Error submitting form. Please try again.'
-            }));
         } finally {
             setIsSubmitting(false);
         }
@@ -85,6 +50,7 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
                         value={formData.name}
                         onChange={handleChange}
                         className={errors.name ? 'error' : ''}
+                        required
                     />
                     {errors.name && <span className="error-message">{errors.name}</span>}
                 </div>
@@ -98,6 +64,7 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
                         value={formData.surname}
                         onChange={handleChange}
                         className={errors.surname ? 'error' : ''}
+                        required
                     />
                     {errors.surname && <span className="error-message">{errors.surname}</span>}
                 </div>
@@ -124,6 +91,7 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
                         value={formData.country}
                         onChange={handleChange}
                         className={errors.country ? 'error' : ''}
+                        required
                     />
                     {errors.country && <span className="error-message">{errors.country}</span>}
                 </div>
@@ -143,7 +111,7 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
                         disabled={isSubmitting}
                         className="submit-button"
                     >
-                        {isSubmitting ? 'Saving...' : (isUpdate ? 'Update Author' : 'Create Author')}
+                        {isSubmitting ? 'Saving...' : (formData.id ? 'Update Author' : 'Create Author')}
                     </button>
                 </div>
             </form>
