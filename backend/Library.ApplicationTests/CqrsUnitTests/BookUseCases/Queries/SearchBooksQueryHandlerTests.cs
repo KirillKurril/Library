@@ -68,7 +68,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 It.IsAny<Expression<Func<Book, object>>[]>()))
                 .Returns(books);
 
-            var query = new SearchBooksQuery("clean", null, null, 1, 10);
+            var query = new SearchBooksQuery("clean", null, null, 1, 10, false);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -104,7 +104,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 It.IsAny<Expression<Func<Book, object>>[]>()))
                 .Returns(books);
 
-            var query = new SearchBooksQuery(null, genreId, null, 1, 10);
+            var query = new SearchBooksQuery(null, genreId, null, 1, 10, false);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 

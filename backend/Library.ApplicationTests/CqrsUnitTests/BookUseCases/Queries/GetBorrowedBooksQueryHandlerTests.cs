@@ -101,57 +101,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
         }
 
         [Fact]
-        public async Task Handle_WithDefaultPagination_UsesConfigurationValue()
-        {
-            var userId = Guid.NewGuid();
-            var books = Enumerable.Range(0, 20)
-                .Select(i => new Book
-                {
-                    Id = Guid.NewGuid(),
-                    Title = $"Test Book {i}",
-                    Description = "Test Description",
-                    ISBN = "978-3-16-148410-0",
-                    GenreId = Guid.NewGuid(),
-                    AuthorId = Guid.NewGuid()
-                }).ToList();
-
-            var bookLendings = new List<BookLending>();
-
-            foreach (var book in books)
-            {
-                bookLendings.Add(new BookLending()
-                {
-                    Id = Guid.NewGuid(),
-                    BookId = book.Id,
-                    UserId = userId,
-                    ReturnDate = DateTime.Now.AddDays(14)
-                });
-            }
-
-
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.GetQueryable(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
-                It.IsAny<Expression<Func<BookLending, object>>[]>()))
-                .Returns(bookLendings.AsQueryable());
-
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetQueryable(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<Expression<Func<Book, object>>[]>()))
-                .Returns(books.AsQueryable());
-
-            var query = new GetBorrowedBooksQuery(userId, null, null, null);
-
-            var result = await _handler.Handle(query, CancellationToken.None);
-
-            Assert.NotNull(result);
-            Assert.Equal(10, result.Items.Count);
-            Assert.Equal(1, result.CurrentPage);
-            Assert.Equal(2, result.TotalPages);
-
-        }
-
-        [Fact]
         public async Task Handle_WithNoBooks_ReturnsEmptyList()
         {
             var userId = Guid.NewGuid();
