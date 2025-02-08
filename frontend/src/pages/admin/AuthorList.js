@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios'
 import '../../styles/AdminTable.css';
 import ErrorModal from '../../components/ErrorModal';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -24,7 +24,7 @@ const AuthorList = () => {
 
     const fetchAuthors = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/authors/filtred-list?pageNo=${currentPage}&itemsPerPage=8`);
+            const response = await api.get(`/authors/filtred-list?pageNo=${currentPage}&itemsPerPage=8`);
             setAuthors(response.data.items);
             setTotalPages(response.data.totalPages);
         } catch (error) {
@@ -46,7 +46,7 @@ const AuthorList = () => {
     const handleDeleteConfirm = async () => {
         const id = confirmModal.authorId;
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL}/authors/${id}/delete`);
+            await api.delete(`/authors/${id}/delete`);
             if (authors.length === 1 && currentPage > 1) {
                 setCurrentPage(prev => prev - 1);
             } else {
@@ -75,7 +75,7 @@ const AuthorList = () => {
 
     const handleEdit = async (id) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/authors/${id}`);
+            const response = await api.get(`/authors/${id}`);
             if (response.data) {
                 navigate(`/admin/authors/edit/${id}`, { state: { authorData: response.data } });
             }

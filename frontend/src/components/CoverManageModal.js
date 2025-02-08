@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../utils/axios';
 import ErrorModal from './ErrorModal';
 import './CoverManageModal.css';
 
@@ -28,7 +28,7 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
     const handleRemoveCover = async () => {
         setIsLoading(true);
         try {
-            await axios.delete(`${process.env.REACT_APP_API_URL}/books/${bookId}/remove-cover`);
+            await api.delete(`/books/${bookId}/remove-cover`);
             onSuccess();
             onClose();
         } catch (error) {
@@ -60,8 +60,8 @@ const CoverManageModal = ({ isOpen, onClose, bookId, onSuccess }) => {
         formData.append('image', selectedFile);
 
         try {
-            await axios.post(
-                `${process.env.REACT_APP_API_URL}/books/${bookId}/upload-cover`,
+            await api.post(
+                `/books/${bookId}/upload-cover`,
                 formData,
                 {
                     headers: {

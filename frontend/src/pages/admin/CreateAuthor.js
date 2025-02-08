@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios'
 import AuthorForm from '../../components/forms/AuthorForm';
 
 const CreateAuthor = () => {
@@ -39,7 +39,7 @@ const CreateAuthor = () => {
         }
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/authors/create`, values);
+            await api.post(`/authors/create`, values);
             navigate('/admin/authors');
         } catch (error) {
             if (error.response?.data?.errors) {

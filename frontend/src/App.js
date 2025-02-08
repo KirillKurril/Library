@@ -19,8 +19,6 @@ import GenreList from './pages/admin/GenreList';
 import CreateGenre from './pages/admin/CreateGenre';
 import EditGenre from './pages/admin/EditGenre';
 import UserList from './pages/admin/UserList';
-import CreateUser from './pages/admin/CreateUser';
-import EditUser from './pages/admin/EditUser';
 
 import PrivateRoute from "./helpers/PrivateRoute";
 import AdminRoute from './helpers/AdminRoute';
@@ -64,8 +62,6 @@ function App() {
                                                 <Route path="genres/create" element={<CreateGenre />} />
                                                 <Route path="genres/edit/:id" element={<EditGenre />} />
                                                 <Route path="users" element={<UserList />} />
-                                                <Route path="users/create" element={<CreateUser />} />
-                                                <Route path="users/edit/:id" element={<EditUser />} />
                                             </Routes>
                                         </div>
                                     </div>

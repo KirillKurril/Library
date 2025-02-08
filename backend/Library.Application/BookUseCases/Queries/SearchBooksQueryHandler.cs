@@ -23,11 +23,10 @@ namespace Library.Application.BookUseCases.Queries
                 .Where(b => (string.IsNullOrEmpty(searchTerm) ||
                         b.Title.ToLower().Contains(searchTerm))
                         && (request.GenreId == null || b.GenreId == request.GenreId)
-                        && (request.AuthorId == null || b.AuthorId == request.AuthorId))
-               .OrderBy(b => b.Id);
+                        && (request.AuthorId == null || b.AuthorId == request.AuthorId));
 
             if(request.availableOnly == true)
-                query.Where(b => b.IsAvailable == true);
+                query = query.Where(b => b.IsAvailable);
 
             var totalItems = query.Count();
             var pageSize = request.ItemsPerPage ?? 1;
@@ -35,11 +34,11 @@ namespace Library.Application.BookUseCases.Queries
 
             if(request.ItemsPerPage != null)
             {
-                query
-                     .Skip((pageNumber - 1) * pageSize)
-                     .Take(pageSize).ToList();
+                query = query.OrderBy(b => b.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
             }
- 
+
 
             var items = query.ProjectToType<BookCatalogDTO>().ToList();
 

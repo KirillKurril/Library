@@ -92,11 +92,6 @@ const UserList = () => {
 
     return (
         <div className="admin-table-container">
-            <div className="admin-actions">
-                <Link to="/admin/users/create" className="add-button">
-                    Add New User
-                </Link>
-            </div>
             {users.length > 0 ? (
                 <>
                     <table className="admin-table">

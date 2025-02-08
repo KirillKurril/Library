@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios';    
 import { validateBook } from '../../validators/bookValidators';
 import './Form.css';
 
@@ -14,7 +14,6 @@ const BookForm = ({ initialData, isUpdate = false }) => {
         genreId: '',
         authorId: '',
         ...initialData,
-        // If we're in edit mode and have initialData, ensure we use the correct IDs
         ...(initialData && {
             genreId: initialData.genreId || initialData.genre?.id,
             authorId: initialData.authorId || initialData.author?.id,
@@ -34,8 +33,8 @@ const BookForm = ({ initialData, isUpdate = false }) => {
     const fetchGenresAndAuthors = async () => {
         try {
             const [genresResponse, authorsResponse] = await Promise.all([
-                axios.get(`${process.env.REACT_APP_API_URL}/genres/list`),
-                axios.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`)
+                api.get(`/genres/list`),
+                api.get(`/authors/for-filtration`)
             ]);
             setGenres(genresResponse.data);
             setAuthors(authorsResponse.data);
@@ -54,7 +53,7 @@ const BookForm = ({ initialData, isUpdate = false }) => {
             ...prev,
             [name]: value
         }));
-        // Clear error when user starts typing
+        
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -68,7 +67,7 @@ const BookForm = ({ initialData, isUpdate = false }) => {
         setIsSubmitting(true);
 
         try {
-            // Validate form
+        
             const validationErrors = validateBook(formData, isUpdate);
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors);
@@ -76,7 +75,6 @@ const BookForm = ({ initialData, isUpdate = false }) => {
                 return;
             }
 
-            // Prepare request data
             const requestData = {
                 isbn: formData.isbn,
                 title: formData.title,
@@ -86,16 +84,14 @@ const BookForm = ({ initialData, isUpdate = false }) => {
                 authorId: formData.authorId
             };
 
-            // Add id for update requests
             if (isUpdate) {
                 requestData.id = formData.id;
             }
 
-            // Submit form
             if (isUpdate) {
-                await axios.put(`${process.env.REACT_APP_API_URL}/books/update`, requestData);
+                await api.put(`/books/update`, requestData);
             } else {
-                await axios.post(`${process.env.REACT_APP_API_URL}/books/create`, requestData);
+                await api.post(`/books/create`, requestData);
             }
 
             navigate('/admin/books');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios'
 import AuthorForm from '../../components/forms/AuthorForm';
 
 const EditAuthor = () => {
@@ -12,7 +12,7 @@ const EditAuthor = () => {
 
     const fetchAuthor = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/authors/${id}`);
+            const response = await api.get(`/authors/${id}`);
             setAuthor(response.data);
         } catch (error) {
             console.error('Error fetching author:', error);
@@ -62,7 +62,7 @@ const EditAuthor = () => {
                 id: id,
                 ...values
             };
-            await axios.put(`${process.env.REACT_APP_API_URL}/authors/update`, updateData);
+            await api.put(`/authors/update`, updateData);
             navigate('/admin/authors');
         } catch (error) {
             if (error.response?.data?.errors) {

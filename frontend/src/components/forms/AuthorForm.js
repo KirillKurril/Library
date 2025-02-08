@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../../utils/axios'
 import { validateAuthor, validateAuthorUpdate } from '../../validators/authorValidators';
 import './Form.css';
 
@@ -21,7 +21,6 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
             ...prev,
             [name]: value
         }));
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -35,7 +34,6 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
         setIsSubmitting(true);
 
         try {
-            // Validate form
             const validationErrors = isUpdate 
                 ? validateAuthorUpdate(formData)
                 : validateAuthor(formData);
@@ -46,7 +44,6 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
                 return;
             }
 
-            // Prepare request data
             const requestData = {
                 name: formData.name,
                 surname: formData.surname,
@@ -54,16 +51,14 @@ const AuthorForm = ({ initialValues, isUpdate = false }) => {
                 country: formData.country
             };
 
-            // Add id for update requests
             if (isUpdate) {
                 requestData.id = formData.id;
             }
 
-            // Submit form
             if (isUpdate) {
-                await axios.put(`${process.env.REACT_APP_API_URL}/authors/update`, requestData);
+                await api.put(`/authors/update`, requestData);
             } else {
-                await axios.post(`${process.env.REACT_APP_API_URL}/authors/create`, requestData);
+                await api.post(`/authors/create`, requestData);
             }
 
             navigate('/admin/authors');

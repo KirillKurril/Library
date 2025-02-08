@@ -15,12 +15,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             }
         }
 
-        // Всегда показываем последнюю страницу
         if (totalPages > 1) {
             range.push(totalPages);
         }
 
-        // Добавляем многоточие между страницами
         let prev = null;
         for (const i of range) {
             if (prev) {

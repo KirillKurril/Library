@@ -18,7 +18,7 @@ const BookList = () => {
 
     const fetchBooks = useCallback(async () => {
         try {
-            const response = await api.get(`/books/catalog?pageNo=${currentPage}`);
+            const response = await api.get(`/books/catalog?pageNo=${currentPage}&itemsPerPage=6`);
             setBooks(response.data.items);
             setTotalPages(response.data.totalPages);
             
@@ -41,7 +41,7 @@ const BookList = () => {
 
     const handleSearchResult = useCallback((searchResults) => {
         setBooks(searchResults);
-        setTotalPages(1); // При поиске показываем все результаты на одной странице
+        setTotalPages(1); 
         setNoBooks(searchResults.length === 0);
     }, []);
 
@@ -49,7 +49,7 @@ const BookList = () => {
         try {
             await api.delete(`/books/${id}/delete`);
             
-            const updatedResponse = await api.get(`/books/catalog?pageNo=${currentPage}`);
+            const updatedResponse = await api.get(`/books/catalog?pageNo=${currentPage}&itemsPerPage=6`);
             
             if (updatedResponse.data.totalPages === 0) {
                 setNoBooks(true);
