@@ -27,10 +27,18 @@ const UserList = () => {
     const fetchUsers = useCallback(async () => {
         try {
             const response = await keycloakUserApi.get(`?first=${(currentPage - 1) * itemsPerPage}&max=${itemsPerPage}&search=${searchTerm}`);
-            const totalUsers = await keycloakUserApi.get(`/count?search=${searchTerm}`);
+            const url = searchTerm ? `/count?search=${searchTerm}` : `/count`;
+            const totalUsers = await keycloakUserApi.get(url);
+
+            
+            console.log("fetched users", response.data);
 
             setUsers(response.data);
-            setTotalPages(Math.ceil(totalUsers / itemsPerPage));
+            console.log(`${totalUsers.data} / ${itemsPerPage} = ${Math.ceil(totalUsers.data / itemsPerPage)}`);
+            setTotalPages(Math.ceil(totalUsers.data / itemsPerPage));
+            
+            console.log("totalPages", totalPages);
+
         } catch (error) {
             console.error('Error fetching users:', error);
             setErrorModal({
