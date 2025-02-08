@@ -5,6 +5,8 @@ import ErrorModal from '../../components/ErrorModal';
 import Pagination from '../../components/Pagination';
 import BookSelectModal from '../../components/BookSelectModal';
 
+import { TextField, Box, IconButton } from '@mui/material';
+
 const UserList = () => {
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -53,10 +55,10 @@ const UserList = () => {
         fetchUsers();
     }, [fetchUsers]);
 
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value);
+    const handleSearch = useCallback(() => {
         setCurrentPage(1);
-    };
+        fetchUsers();
+    }, [fetchUsers]);
 
     const closeBookSelectModal = () => {
         setBookSelectModalOpen(false);
@@ -104,13 +106,43 @@ const UserList = () => {
     return (
         <div className="admin-table-container">
             <div className="admin-header">
-                <input
-                    type="text"
-                    placeholder="Search by username..."
+                <Box sx={{ 
+                width: '100%', 
+                py: 2,
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 2,
+                alignItems: 'center',
+                }}>
+                <TextField
+                    sx={{ flex: '1 1 400px' }}
+                    label="Search Genres"
+                    variant="outlined"
                     value={searchTerm}
-                    onChange={handleSearch}
-                    className="search-input"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSearch();
+                        }
+                    }}
+                    size="small"
                 />
+
+                <IconButton 
+                    onClick={handleSearch}
+                    sx={{ 
+                    flex: '0 0 auto',
+                    bgcolor: 'primary.main', 
+                    color: 'white',
+                    '&:hover': {
+                        bgcolor: 'primary.dark',
+                    }
+                    }}
+                    size="small"
+                >
+                    <i className="fas fa-search"></i>
+                </IconButton>
+                </Box>                
             </div>
             {users.length > 0 ? (
                 <>
