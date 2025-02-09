@@ -76,7 +76,6 @@ const AuthorList = () => {
     const handleEdit = async (id) => {
         try {
             const response = await api.get(`/authors/${id}`);
-            console.log('Author details:', response.data);
 
             if (response.data) {
                 navigate(`/admin/authors/edit/${id}`, { 

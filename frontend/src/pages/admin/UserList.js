@@ -32,14 +32,9 @@ const UserList = () => {
             const url = searchTerm ? `/count?search=${searchTerm}` : `/count`;
             const totalUsers = await keycloakUserApi.get(url);
 
-            
-            console.log("fetched users", response.data);
-
             setUsers(response.data);
-            console.log(`${totalUsers.data} / ${itemsPerPage} = ${Math.ceil(totalUsers.data / itemsPerPage)}`);
             setTotalPages(Math.ceil(totalUsers.data / itemsPerPage));
             
-            console.log("totalPages", totalPages);
 
         } catch (error) {
             console.error('Error fetching users:', error);

@@ -67,12 +67,8 @@ const BookForm = ({ initialData, isUpdate = false }) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        console.log('Form submission started');
-        console.log('Form data:', formData);
-
         try {
             const validationErrors = validateBook(formData, isUpdate);
-            console.log('Validation errors:', validationErrors);
             
             if (Object.keys(validationErrors).length > 0) {
                 setErrors(validationErrors);
@@ -96,20 +92,12 @@ const BookForm = ({ initialData, isUpdate = false }) => {
                 requestData.imageUrl = formData.imageUrl || '';
             }
 
-            console.log('Request data being sent:', requestData);
-            console.log('Is update mode:', isUpdate);
-
             if (isUpdate) {
-                console.log('Sending PUT request to /books/update');
                 const response = await api.put(`/books/update`, requestData);
-                console.log('Update response:', response.data);
             } else {
-                console.log('Sending POST request to /books/create');
                 const response = await api.post(`/books/create`, requestData);
-                console.log('Create response:', response.data);
             }
 
-            console.log('Request successful, navigating to /admin/books');
             navigate('/admin/books');
         } catch (error) {
             console.error('Error submitting form:', error);

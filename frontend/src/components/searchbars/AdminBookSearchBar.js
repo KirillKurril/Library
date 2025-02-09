@@ -31,7 +31,6 @@ const AdminBookSearchBar = ({ onSearchResult }) => {
           axios.get(`${process.env.REACT_APP_API_URL}/authors/for-filtration`),
           axios.get(`${process.env.REACT_APP_API_URL}/genres/list`)
         ]);
-        console.log('Authors data:', authorsResponse.data);
         setAuthors(authorsResponse.data);
         setGenres(genresResponse.data);
       } catch (error) {

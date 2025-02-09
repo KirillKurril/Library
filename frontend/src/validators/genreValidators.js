@@ -1,7 +1,6 @@
 export const validateGenreForm = (values) => {
     const errors = {};
 
-    // Name validation
     if (!values.name) {
         errors.name = 'Genre name is required';
     } else if (values.name.length > 100) {
