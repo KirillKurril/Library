@@ -14,67 +14,54 @@ namespace Library.Persistance.Repositories
             _entities = context.Set<T>();
         }
 
-        public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default,
-            params Expression<Func<T, object>>[]? includesProperties)
+        public IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
-            IQueryable<T>? query = _entities.AsQueryable();
-            if (includesProperties?.Any() == true)
-            {
-                foreach (Expression<Func<T, object>>? included in
-               includesProperties)
-                {
-                    query = query.Include(included);
-                }
-            }
-            return await query.SingleOrDefaultAsync(i => i.Id == id, cancellationToken);
-        }
-        public async Task<IReadOnlyList<T>> ListAllAsync(CancellationToken cancellationToken = default)
-        {
-            IQueryable<T>? query = _entities.AsQueryable();
+            var query = _entities.AsQueryable();
 
-            return await query.ToListAsync(cancellationToken);
-        }
-        public async Task<IReadOnlyList<T>> ListAsync(Expression<Func<T, bool>> filter,
-            CancellationToken cancellationToken = default,
-            params Expression<Func<T, object>>[]? includesProperties)
-        {
-            IQueryable<T>? query = _entities.AsQueryable();
-            if (includesProperties?.Any() == true)
-            {
-                foreach (Expression<Func<T, object>>? included in
-               includesProperties)
-                {
-                    query = query.Include(included);
-                }
-            }
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-            return await query.ToListAsync(cancellationToken);
-        }
+            if (spec.Criteria != null)
+                query = query.Where(spec.Criteria);
 
-        public IQueryable<T> GetQueryable(
-            Expression<Func<T, bool>>? filter = null,
-            params Expression<Func<T, object>>[]? includesProperties)
-        {
-            IQueryable<T> query = _entities.AsQueryable();
-            if (includesProperties?.Any() == true)
-            {
-                foreach (var included in includesProperties)
-                {
-                    query = query.Include(included);
-                }
-            }
+            if (spec.Includes != null)
+                query = spec.Includes.Aggregate(query,
+                (current, include) => current.Include(include));
 
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
+            if (spec.OrderBy != null)
+                query = query.OrderBy(spec.OrderBy);
+            else if (spec.OrderByDescending != null)
+                query = query.OrderByDescending(spec.OrderByDescending);
+
+            if (spec.IsPagingEnabled && spec.Skip.HasValue && spec.Take.HasValue)
+                query = query.Skip(spec.Skip.Value).Take(spec.Take.Value);
 
             return query;
         }
 
+        public async Task<T?> FirstOrDefault(
+             ISpecification<T> specification,
+             CancellationToken cancellationToken = default
+         )
+        {
+            var query = ApplySpecification(specification);
+            var items = await query.FirstOrDefaultAsync(cancellationToken);
+            return items;
+        }
+        public async Task<IReadOnlyList<T>> GetAsync(
+             ISpecification<T> specification,
+             CancellationToken cancellationToken = default
+         )
+        {
+            var query = ApplySpecification(specification);
+            var items = await query.ToListAsync(cancellationToken);
+            return items;
+        }
+
+        public async Task<int> CountAsync(
+            ISpecification<T> specification,
+            CancellationToken cancellationToken = default)
+        {
+            var query = ApplySpecification(specification);
+            return await query.CountAsync(cancellationToken);
+        }
         public T Add(T entity)
         {
             var entry = _entities.Add(entity);
@@ -91,23 +78,5 @@ namespace Library.Persistance.Repositories
         {
             _context.Remove(entity);
         }
-
-        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> filter,
-            CancellationToken cancellationToken = default,
-            params Expression<Func<T, object>>[]? includesProperties)
-        {
-            IQueryable<T>? query = _entities.AsQueryable();
-            if (includesProperties?.Any() == true)
-            {
-                foreach (Expression<Func<T, object>>? included in
-               includesProperties)
-                {
-                    query = query.Include(included);
-                }
-            }
-
-            return await query.FirstOrDefaultAsync(filter,cancellationToken);
-        }
-
     }
 }

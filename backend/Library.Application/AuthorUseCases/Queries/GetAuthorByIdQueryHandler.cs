@@ -1,3 +1,5 @@
+using Library.Domain.Specifications.AuthorSpecification;
+
 namespace Library.Application.AuthorUseCases.Queries;
 
 public class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQuery, Author>
@@ -11,9 +13,11 @@ public class GetAuthorByIdQueryHandler : IRequestHandler<GetAuthorByIdQuery, Aut
 
     public async Task<Author> Handle(GetAuthorByIdQuery request, CancellationToken cancellationToken)
     {
-        var author = await _unitOfWork.AuthorRepository.GetByIdAsync(request.Id, cancellationToken);
+        var spec = new AuthorByIdSpecification(request.Id);
+        var author = await _unitOfWork.AuthorRepository.FirstOrDefault(spec, cancellationToken);
+
         if (author == null)
-            throw new NotFoundException($"Author with ID {request.Id} not found");
+            throw new NotFoundException(nameof(Author), $"ID: {request.Id}");
 
         return author;
     }

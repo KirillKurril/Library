@@ -1,3 +1,5 @@
+using Library.Domain.Specifications;
+
 namespace Library.Application.AuthorUseCases.Commands;
 
 public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand, Unit>
@@ -11,6 +13,7 @@ public class DeleteAuthorHandler : IRequestHandler<DeleteAuthorCommand, Unit>
 
     public async Task<Unit> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
     {
+        var spec = new AllItemsSpecification()
         var author = await _unitOfWork.AuthorRepository.GetByIdAsync(request.Id, cancellationToken);
 
         _unitOfWork.AuthorRepository.Delete(author);

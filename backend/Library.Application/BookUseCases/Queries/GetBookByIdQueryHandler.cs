@@ -1,4 +1,5 @@
 using Library.Application.DTOs;
+using Library.Domain.Specifications.AuthorSpecification;
 
 namespace Library.Application.BookUseCases.Queries
 {
@@ -13,16 +14,11 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<BookDetailsDTO> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(
-                request.Id,
-                cancellationToken,
-                b => b.Author,
-                b => b.Genre);
+            var spec = new BookByIdSpecification(request.Id);
+            var book = _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
 
             if (book == null)
-            {
-                throw new NotFoundException(nameof(Book), request.Id);
-            }
+                throw new NotFoundException(nameof(Book), $"ID: {request.Id}");
 
             BookDetailsDTO response = book.Adapt<BookDetailsDTO>();
 

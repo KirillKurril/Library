@@ -1,4 +1,5 @@
 ﻿using Library.Application.DTOs;
+using Library.Domain.Specifications;
 
 
 namespace Library.Application.AuthorUseCases.Queries
@@ -15,7 +16,9 @@ namespace Library.Application.AuthorUseCases.Queries
 
         public async Task<IEnumerable<AuthorBriefDTO>> Handle(GetAllForFiltrationAuthorsQuery request, CancellationToken cancellationToken)
         {
-            var authors = await _unitOfWork.AuthorRepository.ListAllAsync(cancellationToken);
+            var spec = new AllItemsSpecification<Author>();
+            var authors = await _unitOfWork.AuthorRepository.GetAsync(spec, cancellationToken);
+
             var authorBriefDTOs = authors.Adapt<IEnumerable<AuthorBriefDTO>>();
             return authorBriefDTOs;
         }

@@ -1,4 +1,6 @@
-﻿namespace Library.Application.AuthorUseCases.Queries;
+﻿using Library.Domain.Specifications;
+
+namespace Library.Application.AuthorUseCases.Queries;
 
 public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, IEnumerable<Author>>
 {
@@ -11,6 +13,7 @@ public class GetAllAuthorsQueryHandler : IRequestHandler<GetAllAuthorsQuery, IEn
 
     public async Task<IEnumerable<Author>> Handle(GetAllAuthorsQuery request, CancellationToken cancellationToken)
     {
-        return await _unitOfWork.AuthorRepository.ListAllAsync(cancellationToken);
+        var spec = new AllItemsSpecification<Author>();
+        return await _unitOfWork.AuthorRepository.GetAsync(spec, cancellationToken);
     }
 }

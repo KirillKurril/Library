@@ -1,5 +1,6 @@
 using Library.Application.Common.Models;
 using Library.Application.DTOs;
+using Library.Domain.Specifications.AuthorSpecification;
 using Microsoft.Extensions.Configuration;
 
 namespace Library.Application.AuthorUseCases.Queries;
@@ -19,30 +20,23 @@ public class GetAuthorsListQueryHandler : IRequestHandler<GetAuthorsListQuery, P
 
     public async Task<PaginationListModel<Author>> Handle(GetAuthorsListQuery request, CancellationToken cancellationToken)
     {
-        var searchTerm = request.SearchTerm?.ToLower();
+        var itemsSpec = new AuthorsFiltredListSpecification(
+            request.SearchTerm,
+            request.PageNo,
+            request.ItemsPerPage
+            );
 
-        var query = _unitOfWork.AuthorRepository.GetQueryable()
-               .Where(a => (string.IsNullOrEmpty(searchTerm) ||
-                       (a.Name + " " + a.Surname).ToLower().Contains(searchTerm)))
-               .OrderBy(a => a.Id);
+        var items = await _unitOfWork.AuthorRepository.GetAsync(itemsSpec, cancellationToken);
 
-
-
-        var totalItems = query.Count();
-        var pageSize = request.ItemsPerPage
-            ?? _configuration.GetValue<int>("ItemsPerPage");
-
-        var pageNumber = request.PageNo ?? 1;
-
-        var items = query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize).ToList();
+        var countSpec = new AuthorsFiltredListCountSpecification(request.SearchTerm);
+        var totalItems = await _unitOfWork.AuthorRepository.CountAsync(countSpec, cancellationToken);
 
         return new PaginationListModel<Author>()
         {
             Items = items,
-            CurrentPage = pageNumber,
-            TotalPages = totalItems / pageSize + (totalItems % pageSize > 1 ? 1 : 0)
+            CurrentPage = request.PageNo ?? 1,
+            TotalPages = totalItems / request.ItemsPerPage??10
+                + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
         };
     }
 }
