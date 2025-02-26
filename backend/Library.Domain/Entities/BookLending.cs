@@ -6,5 +6,7 @@
         public Guid UserId { get; set; }
         public DateTime BorrowedAt { get; set; }
         public DateTime ReturnDate { get; set; }
+
+        public Book? Book { get; set; }
     }
 }

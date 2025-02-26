@@ -21,8 +21,7 @@ namespace Library.Persistance.Repositories
             if (spec.Criteria != null)
                 query = query.Where(spec.Criteria);
 
-            if (spec.Includes != null)
-                query = spec.Includes.Aggregate(query,
+            query = spec.Includes.Aggregate(query,
                 (current, include) => current.Include(include));
 
             if (spec.OrderBy != null)

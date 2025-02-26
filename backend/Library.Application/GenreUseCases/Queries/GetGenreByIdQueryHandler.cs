@@ -1,3 +1,6 @@
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.GenreSpecification;
+
 namespace Library.Application.GenreUseCases.Queries
 {
     public class GetGenreByIdQueryHandler : IRequestHandler<GetGenreByIdQuery, Genre>
@@ -11,9 +14,11 @@ namespace Library.Application.GenreUseCases.Queries
 
         public async Task<Genre> Handle(GetGenreByIdQuery request, CancellationToken cancellationToken)
         {
-            var genre = await _unitOfWork.GenreRepository.GetByIdAsync(request.Id, cancellationToken);
+            var spec = new GenreByIdSpecification(request.Id);
+            var genre = await _unitOfWork.GenreRepository.FirstOrDefault(spec, cancellationToken);
+
             if (genre == null)
-                throw new NotFoundException($"Genre with ID {request.Id} not found");
+                throw new NotFoundException(nameof(Genre), $"ID: {request.Id}");
 
             return genre;
         }

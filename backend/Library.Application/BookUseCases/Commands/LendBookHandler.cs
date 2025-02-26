@@ -1,5 +1,6 @@
 using Library.Application.Common.Interfaces;
 using Library.Domain.Entities;
+using Library.Domain.Specifications.AuthorSpecification;
 using System.ComponentModel.DataAnnotations;
 
 namespace Library.Application.BookUseCases.Commands
@@ -32,8 +33,9 @@ namespace Library.Application.BookUseCases.Commands
 
             _unitOfWork.BookLendingRepository.Add(lending);
 
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.BookId, cancellationToken);
-            
+            var spec = new BookByIdSpecification(request.BookId);
+            var book = await _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
+
             book.Quantity -= 1;
             _unitOfWork.BookRepository.Update(book);
 

@@ -1,3 +1,4 @@
+using Library.Domain.Specifications.GenreSpecification;
 using MediatR;
 
 namespace Library.Application.GenreUseCases.Commands
@@ -17,7 +18,9 @@ namespace Library.Application.GenreUseCases.Commands
 
         public async Task<Unit> Handle(UpdateGenreCommand request, CancellationToken cancellationToken)
         {
-            var existingGenre = await _unitOfWork.GenreRepository.GetByIdAsync(request.Id, cancellationToken);
+            var spec = new GenreByIdSpecification(request.Id);
+            var existingGenre = await _unitOfWork.GenreRepository.FirstOrDefault(spec);
+
             var updatedGenre = _mapper.Map(request, existingGenre);
             _unitOfWork.GenreRepository.Update(updatedGenre);
             await _unitOfWork.SaveChangesAsync();

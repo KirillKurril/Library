@@ -1,25 +1,24 @@
 ﻿using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 
-
-namespace Library.Domain.Specifications.AuthorSpecification
+namespace Library.Domain.Specifications.GenreSpecification
 {
-    public class AuthorsFiltredListSpecification : BaseSpecification<Author>
+    public class GenreFiltredListSpecification : BaseSpecification<Genre>
     {
-        public AuthorsFiltredListSpecification(
+        public GenreFiltredListSpecification(
             string? searchTerm,
             int? pageNumber,
             int? pageSize)
         {
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                Criteria = a =>
-                    (a.Name + " " + a.Surname).ToLower().Contains(searchTerm.ToLower());
+                Criteria = g =>
+                    (g.Name).ToLower().Contains(searchTerm.ToLower());
             }
 
-            ApplyOrderBy(a => a.Id);
+            ApplyOrderBy(g => g.Id);
 
-            if(pageNumber.HasValue && pageSize.HasValue)
+            if (pageNumber.HasValue && pageSize.HasValue)
                 ApplyPaging(
                     (pageNumber.Value - 1) * pageSize.Value,
                     pageSize.Value

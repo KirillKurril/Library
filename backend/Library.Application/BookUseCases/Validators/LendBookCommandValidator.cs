@@ -1,5 +1,6 @@
 using Library.Application.BookUseCases.Commands;
 using Library.Application.Common.Interfaces;
+using Library.Domain.Specifications.BookSpecifications;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -15,10 +16,9 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x.BookId)
                 .MustAsync(async (bookId, ct) =>
                 {
-                    var book = await unitOfWork.BookRepository
-                        .GetByIdAsync(bookId, ct);
-
-                    return book != null && book.IsAvailable;
+                    var spec = new BookExistAndAvailableSpecification(bookId);
+                    var exist = await unitOfWork.BookRepository.CountAsync(spec, ct);
+                    return exist == 1;
                 }).WithMessage("Book is not available for borrowing or does not exist.")
                 .When(x => x.BookId != Guid.Empty);
 

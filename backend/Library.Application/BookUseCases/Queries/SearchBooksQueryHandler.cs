@@ -1,5 +1,6 @@
 using Library.Application.Common.Models;
 using Library.Application.DTOs;
+using Library.Domain.Specifications.BookSpecifications;
 using Microsoft.Extensions.Configuration;
 
 namespace Library.Application.BookUseCases.Queries
@@ -17,36 +18,32 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<PaginationListModel<BookCatalogDTO>> Handle(SearchBooksQuery request, CancellationToken cancellationToken)
         {
-            var searchTerm = request.SearchTerm?.ToLower();
+            var booksSpec = new BookCatalogSpecification(
+                     request.SearchTerm,
+                     request.GenreId,
+                     request.AuthorId,
+                     request.availableOnly,
+                     request.PageNo,
+                     request.ItemsPerPage
+                 );
+            var items = await _unitOfWork.BookRepository.GetAsync(booksSpec, cancellationToken);
 
-            var query = _unitOfWork.BookRepository.GetQueryable()
-                .Where(b => (string.IsNullOrEmpty(searchTerm) ||
-                        b.Title.ToLower().Contains(searchTerm))
-                        && (request.GenreId == null || b.GenreId == request.GenreId)
-                        && (request.AuthorId == null || b.AuthorId == request.AuthorId));
+            var countSpec = new BookCatalogCountSpecification(
+                request.SearchTerm,
+                request.GenreId,
+                request.AuthorId,
+                request.availableOnly
+            );
+            var totalItems = await _unitOfWork.BookRepository.CountAsync(countSpec, cancellationToken);
 
-            if(request.availableOnly == true)
-                query = query.Where(b => b.IsAvailable);
-
-            var totalItems = query.Count();
-            var pageSize = request.ItemsPerPage ?? 1;
-            var pageNumber = request.PageNo ?? 1;
-
-            if(request.ItemsPerPage != null)
-            {
-                query = query.OrderBy(b => b.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
-            }
-
-
-            var items = query.ProjectToType<BookCatalogDTO>().ToList();
+            var bookCatalogDtos = items.Adapt<List<BookCatalogDTO>>();
 
             return new PaginationListModel<BookCatalogDTO>()
             {
-                Items = items,
-                CurrentPage = pageNumber,
-                TotalPages = totalItems / pageSize + (totalItems % pageSize > 1 ? 1 : 0)
+                Items = bookCatalogDtos,
+                CurrentPage = request.PageNo ?? 1,
+                TotalPages = totalItems / request.ItemsPerPage ?? 10
+                    + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
             };
         }
     }

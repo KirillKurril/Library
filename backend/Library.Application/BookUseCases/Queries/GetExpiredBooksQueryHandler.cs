@@ -1,4 +1,5 @@
 using Library.Application.Common.Models;
+using Library.Domain.Specifications.BookSpecifications;
 using System.Data;
 
 namespace Library.Application.BookUseCases.Queries
@@ -14,33 +15,24 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<IEnumerable<DebtorNotification>> Handle(GetExpiredBooksQuery request, CancellationToken cancellationToken)
         {
+            var spec = new ExpiredBooksSpecification();
+            var expiredBooksSpec = new ExpiredBooksSpecification();
 
-            var response = _unitOfWork.BookLendingRepository.GetQueryable()
-                .Where(bl => bl.ReturnDate < DateTime.UtcNow)
-                .Join(
-                    _unitOfWork.BookRepository.GetQueryable(),
-                    bl => bl.BookId,
-                    b => b.Id,
-                    (bl, b) => new { BookLending = bl, Book = b }
-                )
-                .Join(
-                    _unitOfWork.AuthorRepository.GetQueryable(),
-                    bb => bb.Book.AuthorId,
-                    a => a.Id,
-                    (bb, a) => new { bb.BookLending, bb.Book, AuthorName = a.Name }
-                )
-                .GroupBy(exb => exb.BookLending.UserId)
+            var expiredBookLendings = await _unitOfWork.BookLendingRepository
+                .GetAsync(expiredBooksSpec, cancellationToken);
+
+            return expiredBookLendings
+                .GroupBy(exb => exb.UserId)
                 .Select(g => new DebtorNotification
                 {
                     UserID = g.Key,
                     ExpiredBooks = g.Select(exb => new BookBrief
                     {
                         BookName = exb.Book.Title,
-                        AuthorName = exb.AuthorName
+                        AuthorName = exb.Book.Author.Name
                     }).ToList()
-                }).AsEnumerable();
-
-            return response;
+                })
+                .ToList();
         }
     }
 }

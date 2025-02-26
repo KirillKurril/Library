@@ -1,4 +1,7 @@
 using Library.Application.BookUseCases.Commands;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
+using Library.Domain.Specifications.GenreSpecification;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -16,8 +19,9 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("ISBN is required")
                 .MustAsync(async (isbn, ct) =>
                 {
-                    var book = await unitOfWork.BookRepository.FirstOrDefaultAsync(b => b.ISBN == isbn, ct);
-                    return book == null;
+                    var spec = new BookByIsbnSpecification(isbn);
+                    var book = await unitOfWork.BookRepository.CountAsync(spec);
+                    return book == 0;
                 }).WithMessage("A book with this ISBN already exists");
 
             RuleFor(x => x.Title)
@@ -36,8 +40,9 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Genre is required")
                 .MustAsync(async (genreId, ct) =>
                 {
-                    var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
-                    return genre != null;
+                    var spec = new GenreByIdSpecification(genreId);
+                    var exist = await unitOfWork.GenreRepository.CountAsync(spec);
+                    return exist == 1;
                 }).WithMessage("Genre with specified ID does not exist");
 
 
@@ -45,8 +50,9 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Author ID is required")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
-                    return author != null;
+                    var spec = new AuthorByIdSpecification(authorId);
+                    var exist = await unitOfWork.AuthorRepository.CountAsync(spec);
+                    return exist == 1;
                 }).WithMessage("Author with specified ID does not exist");
         }
     }

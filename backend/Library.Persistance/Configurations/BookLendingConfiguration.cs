@@ -20,11 +20,11 @@ namespace Library.Persistance.Configurations
                 .IsRequired();
 
             builder
-                .HasOne<Book>()
+                .HasOne(b => b.Book)
                 .WithMany()
-                .HasForeignKey(bl => bl.BookId)
+                .HasForeignKey(b => b.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
+
             builder
                 .Property(bl => bl.UserId)
                 .IsRequired();

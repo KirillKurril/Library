@@ -1,5 +1,9 @@
 using Library.Application.BookUseCases.Commands;
+using Library.Domain.Abstractions;
+using Library.Domain.Specifications.AuthorSpecification;
+using MediatR;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -8,12 +12,13 @@ namespace Library.Application.BookUseCases.Validators
         public UpdateBookImageCommandValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(x => x.BookId)
-                .NotEmpty().WithMessage("Book ID is required")
-                .MustAsync(async (bookId, ct) =>
-                {
-                    var book = await unitOfWork.BookRepository.GetByIdAsync(bookId);
-                    return book != null;
-                }).WithMessage("Book with specified ID does not exist");
+            .NotEmpty().WithMessage("Book ID is required")
+            .MustAsync(async (bookId, ct) =>
+            {
+                var spec = new BookByIdSpecification(bookId);
+                var exist = await unitOfWork.BookRepository.CountAsync(spec, ct);
+                return exist == 1;
+            }).WithMessage("Book with specified ID does not exist");
 
 
             RuleFor(x => x.ImageUrl)

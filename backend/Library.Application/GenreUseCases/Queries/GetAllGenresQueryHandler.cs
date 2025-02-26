@@ -1,4 +1,6 @@
-﻿namespace Library.Application.GenreUseCases.Queries
+﻿using Library.Domain.Specifications;
+
+namespace Library.Application.GenreUseCases.Queries
 {
     public class GetAllGenresQueryHandler : IRequestHandler<GetAllGenresQuery, IEnumerable<Genre>>
     {
@@ -11,7 +13,8 @@
 
         public async Task<IEnumerable<Genre>> Handle(GetAllGenresQuery request, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.GenreRepository.ListAllAsync(cancellationToken);
+            var spec = new AllItemsSpecification<Genre>();
+            return await _unitOfWork.GenreRepository.GetAsync(spec, cancellationToken);
         }
     }
 }

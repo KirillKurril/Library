@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Library.Domain.Abstractions
 {
@@ -9,7 +8,6 @@ namespace Library.Domain.Abstractions
         public List<Expression<Func<T, object>>> Includes { get; } = new();
         public Expression<Func<T, object>>? OrderBy { get; protected set; }
         public Expression<Func<T, object>>? OrderByDescending { get; protected set; }
-        public List<Func<IQueryable<T>, IQueryable<object>>>? Joins { get; protected set; }
         public int? Take { get; protected set; }
         public int? Skip { get; protected set; }
         public bool IsPagingEnabled { get; protected set; }
@@ -35,13 +33,6 @@ namespace Library.Domain.Abstractions
             Take = take;
             IsPagingEnabled = true;
         }
-
-        protected void AddJoin(Func<IQueryable<T>, IQueryable<object>> joinOperation)
-        {
-            Joins ??= new List<Func<IQueryable<T>, IQueryable<object>>>();
-            Joins.Add(joinOperation);
-        }
-
 
         private Expression<Func<T, bool>> CombineExpression(
            Expression<Func<T, bool>> left,

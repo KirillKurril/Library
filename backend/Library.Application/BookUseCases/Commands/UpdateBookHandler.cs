@@ -1,3 +1,5 @@
+using Library.Domain.Specifications.AuthorSpecification;
+
 namespace Library.Application.BookUseCases.Commands
 {
     public class UpdateBookHandler : IRequestHandler<UpdateBookCommand, Unit>
@@ -15,7 +17,9 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task<Unit> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
+            var spec = new BookByIdSpecification(request.Id);
+            var book = await _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
+
             _mapper.Map(request, book);
             _unitOfWork.BookRepository.Update(book);
 

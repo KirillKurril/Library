@@ -1,4 +1,5 @@
 using Library.Application.AuthorUseCases.Commands;
+using Library.Domain.Specifications.AuthorSpecification;
 
 namespace Library.Application.AuthorUseCases.Validators;
 
@@ -10,7 +11,8 @@ public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorComman
                 .NotEmpty().WithMessage("Author ID is required")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId);
+                    var spec = new AuthorByIdSpecification(authorId);
+                    var author = await unitOfWork.AuthorRepository.GetAsync(spec);
                     return author != null;
                 }).WithMessage($"Author being updated doesn't exist");
 

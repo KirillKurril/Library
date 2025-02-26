@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-
+﻿
 namespace Library.Domain.Abstractions
 {
     public interface IRepository<T> where T : BaseEntity

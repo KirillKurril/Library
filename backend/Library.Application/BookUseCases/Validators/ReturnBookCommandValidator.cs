@@ -1,5 +1,6 @@
 ﻿using Library.Application.BookUseCases.Commands;
 using Library.Domain.Abstractions;
+using Library.Domain.Specifications.BookSpecifications;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -10,10 +11,9 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x)
                .MustAsync(async (command, ct) =>
                {
-                   var lending = await unitOfWork.BookLendingRepository
-                       .FirstOrDefaultAsync(
-                           bl => bl.UserId == command.UserId && bl.BookId == command.BookId, ct);
-                   return lending != null;
+                   var spec = new BookLendingByBookIdUserIdSpecification(command.BookId, command.UserId);
+                   var exist = await unitOfWork.BookLendingRepository.CountAsync(spec, ct);
+                   return exist == 1;
                }).WithMessage("Book has not been borrowed by this user.");
         }
     }

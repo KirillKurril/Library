@@ -1,5 +1,6 @@
 using Library.Application.Common.Models;
 using Library.Application.DTOs;
+using Library.Domain.Specifications.BookSpecifications;
 using Microsoft.Extensions.Configuration;
 
 namespace Library.Application.BookUseCases.Queries
@@ -19,43 +20,30 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<PaginationListModel<BookLendingDTO>> Handle(GetBorrowedBooksQuery request, CancellationToken cancellationToken)
         {
-            var searchTerm = request.SearchTerm?.ToLower();
+            var itemsSpec = new BorrowedBooksSpecification(
+                request.UserId,
+                request.SearchTerm,
+                request.PageNo,
+                request.ItemsPerPage
+            );
 
-            var query = _unitOfWork.BookLendingRepository
-                .GetQueryable()
-                .Where(bl => bl.UserId == request.UserId)
-                .Join(
-                    _unitOfWork.BookRepository.GetQueryable(),
-                    bl => bl.BookId,
-                    b => b.Id,
-                    (bl, b) => new JoinLendingDTO(){ Book = b, BookLending = bl }
-                )
-                .Where( b => (string.IsNullOrEmpty(searchTerm) ||
-                        b.Book.Title.ToLower().Contains(searchTerm)))
-                .ProjectToType<BookLendingDTO>();
+            var items = await _unitOfWork.BookLendingRepository.GetAsync(itemsSpec, cancellationToken);
 
+            var countSpec = new BorrowedBooksCountSpecification(
+                request.UserId,
+                request.SearchTerm
+            );
+            var totalItems = await _unitOfWork.BookLendingRepository.CountAsync(countSpec, cancellationToken);
 
-            var totalItems = query.Count();
-            var pageSize = request.ItemsPerPage ?? 1;
-            var pageNumber = request.PageNo ?? 1;
+            var mappedItems = items.Adapt<List<BookLendingDTO>>();
 
-            if(request.ItemsPerPage != null)
+            return new PaginationListModel<BookLendingDTO>()
             {
-                query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize).ToList();
-            }
-
-
-            var items = query.ToList();
-
-            var result = new PaginationListModel<BookLendingDTO>()
-            {
-                Items = items,
-                CurrentPage = pageNumber,
-                TotalPages = totalItems / pageSize + ((totalItems % pageSize) > 0 ? 1 : 0)
+                Items = mappedItems,
+                CurrentPage = request.PageNo ?? 1,
+                TotalPages = totalItems / request.ItemsPerPage ?? 10
+                    + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
             };
-            return result;
         }
     }
 }

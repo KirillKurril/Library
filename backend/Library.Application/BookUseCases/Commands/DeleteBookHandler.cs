@@ -1,3 +1,5 @@
+using Library.Domain.Specifications.AuthorSpecification;
+
 namespace Library.Application.BookUseCases.Commands
 {
     public class DeleteBookHandler : IRequestHandler<DeleteBookCommand, Unit>
@@ -11,7 +13,8 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task<Unit> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.BookRepository.GetByIdAsync(request.Id);
+            var spec = new BookByIdSpecification(request.Id);
+            var book = await _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
 
             _unitOfWork.BookRepository.Delete(book);
             await _unitOfWork.SaveChangesAsync();

@@ -1,4 +1,7 @@
 using Library.Application.BookUseCases.Commands;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
+using Library.Domain.Specifications.GenreSpecification;
 using MediatR;
 using System.Text.RegularExpressions;
 
@@ -12,8 +15,9 @@ namespace Library.Application.BookUseCases.Validators
                 .NotEmpty().WithMessage("Book ID is required")
                 .MustAsync(async (bookId, ct) =>
                 {
-                    var book = await unitOfWork.BookRepository.GetByIdAsync(bookId);
-                    return book != null;
+                    var spec = new BookByIdSpecification(bookId);
+                    var exist = await unitOfWork.BookRepository.CountAsync(spec);
+                    return exist == 1;
                 }).WithMessage($"Book being updated doesn't exist");
 
             RuleFor(x => x.ISBN)
@@ -24,11 +28,11 @@ namespace Library.Application.BookUseCases.Validators
                 .When(x => x.ISBN != null);
 
             RuleFor(x => x)
-                .MustAsync(async (br, ct) =>
+                .MustAsync(async (command, ct) =>
                 {
-                    var book = await unitOfWork.BookRepository
-                        .FirstOrDefaultAsync(b => b.ISBN == br.ISBN && b.Id != br.Id, ct);
-                    return book == null;
+                    var spec = new UniqueIsbnCheckSpecification(command.Id, command.ISBN);
+                    var book = await unitOfWork.BookRepository.CountAsync(spec);
+                    return book == 0;
                 })
                 .WithMessage("Book with such ISBN already exists")
                 .When(x => !string.IsNullOrEmpty(x.ISBN));
@@ -49,18 +53,20 @@ namespace Library.Application.BookUseCases.Validators
             RuleFor(x => x.AuthorId)
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId.Value);
-                    return author != null;
+                    var spec = new AuthorByIdSpecification(authorId.Value);
+                    var exist = await unitOfWork.AuthorRepository.CountAsync(spec);
+                    return exist == 1;
                 }).WithMessage("Author with specified ID does not exist")
-                .When(x => x.AuthorId != null);
+                .When(x => x.AuthorId.HasValue);
 
             RuleFor(x => x.GenreId)
                 .MustAsync(async (genreId, ct) =>
                 {
-                    var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId.Value);
-                    return genre != null;
+                    var spec = new GenreByIdSpecification(genreId.Value);
+                    var exist = await unitOfWork.GenreRepository.CountAsync(spec);
+                    return exist == 1;
                 }).WithMessage("Genre with specified ID does not exist")
-                .When(x => x.GenreId != null);
+                .When(x => x.GenreId.HasValue);
 
             RuleFor(x => x.ImageUrl)
                 .MaximumLength(200).WithMessage("Image URL must not exceed 500 characters")

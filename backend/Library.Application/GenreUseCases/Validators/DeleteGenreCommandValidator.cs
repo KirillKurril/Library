@@ -1,4 +1,6 @@
 ﻿using Library.Application.GenreUseCases.Commands;
+using Library.Domain.Specifications.BookSpecifications;
+using Library.Domain.Specifications.GenreSpecification;
 
 namespace Library.Application.GenreUseCases.Validators;
 
@@ -10,14 +12,15 @@ public class DeleteGenreCommandValidator : AbstractValidator<DeleteGenreCommand>
             .NotEmpty().WithMessage("Genre ID is required")
             .MustAsync(async (genreId, ct) =>
             {
-                var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId, ct);
-                return genre != null;
+                var spec = new GenreByIdSpecification(genreId);
+                var exist = await unitOfWork.GenreRepository.CountAsync(spec);
+                return exist == 0;
             }).WithMessage($"Genre being deleted doesn't exist")
             .MustAsync(async (genreId, ct) =>
             {
-                var hasBooks = await unitOfWork.BookRepository.FirstOrDefaultAsync(
-                    b => b.GenreId == genreId);
-                return hasBooks == null;
+                var spec = new BookCatalogCountSpecification(null, genreId, null, null);
+                var exist = await unitOfWork.BookRepository.CountAsync(spec);
+                return exist == 0;
             }).WithMessage($"No books should belong to the genre being removed ");
     }
 }

@@ -1,3 +1,7 @@
+using Library.Domain.Abstractions;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.GenreSpecification;
+
 namespace Library.Application.GenreUseCases.Commands
 {
     public class DeleteGenreHandler : IRequestHandler<DeleteGenreCommand, Unit>
@@ -11,7 +15,8 @@ namespace Library.Application.GenreUseCases.Commands
 
         public async Task<Unit> Handle(DeleteGenreCommand request, CancellationToken cancellationToken)
         {
-            var genre = await _unitOfWork.GenreRepository.GetByIdAsync(request.Id, cancellationToken);
+            var spec = new GenreByIdSpecification(request.Id);
+            var genre = await _unitOfWork.GenreRepository.FirstOrDefault(spec);
 
             _unitOfWork.GenreRepository.Delete(genre);
             await _unitOfWork.SaveChangesAsync();

@@ -1,4 +1,6 @@
 using Library.Application.AuthorUseCases.Commands;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
 
 namespace Library.Application.AuthorUseCases.Validators;
 
@@ -11,14 +13,15 @@ public class DeleteAuthorCommandValidator : AbstractValidator<DeleteAuthorComman
                 .NotEmpty().WithMessage("Author ID is required")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var author = await unitOfWork.AuthorRepository.GetByIdAsync(authorId, ct);
-                    return author != null;
+                    var spec = new AuthorByIdSpecification(authorId);
+                    var exist = await unitOfWork.AuthorRepository.CountAsync(spec, ct);
+                    return exist == 1;
                 }).WithMessage($"Author being deleted doesn't exist")
                 .MustAsync(async (authorId, ct) =>
                 {
-                    var hasBooks = await unitOfWork.BookRepository.FirstOrDefaultAsync(
-                        b => b.AuthorId == authorId, ct);
-                    return hasBooks == null;
+                    var spec = new BookCatalogSpecification(null, null, authorId, null);
+                    var exist = await unitOfWork.BookRepository.CountAsync(spec, ct);
+                    return exist == 0;
                 }).WithMessage($"Author being deleted must have no books");
     }
 }

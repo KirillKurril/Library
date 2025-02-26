@@ -1,4 +1,6 @@
 using Library.Application.Common.Models;
+using Library.Application.DTOs;
+using Library.Domain.Specifications.GenreSpecification;
 using Microsoft.Extensions.Configuration;
 
 namespace Library.Application.GenreUseCases.Queries
@@ -18,28 +20,22 @@ namespace Library.Application.GenreUseCases.Queries
 
         public async Task<PaginationListModel<Genre>> Handle(GetGenresListQuery request, CancellationToken cancellationToken)
         {
-            var searchTerm = request.SearchTerm?.ToLower();
+            var specItems = new GenreFiltredListSpecification(
+                request.SearchTerm,
+                request.PageNo,
+                request.ItemsPerPage);
 
-            var query = _unitOfWork.GenreRepository.GetQueryable()
-                   .Where(g => (string.IsNullOrEmpty(searchTerm) ||
-                           (g.Name).ToLower().Contains(searchTerm)))
-               .OrderBy(g => g.Id);
+            var items = await _unitOfWork.GenreRepository.GetAsync(specItems, cancellationToken);
 
-            var totalItems = query.Count();
-            var pageSize = request.ItemsPerPage 
-                ?? int.Parse(_configuration.GetSection("ItemsPerPage").Value ?? "10");
-
-            var pageNumber = request.PageNo ?? 1;
-
-            var items = query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize).ToList();
+            var specCount = new GenreFiltredListCountSpecification(request.SearchTerm);
+            var totalItems = await _unitOfWork.GenreRepository.CountAsync(specCount);
 
             return new PaginationListModel<Genre>()
             {
                 Items = items,
-                CurrentPage = pageNumber,
-                TotalPages = totalItems / pageSize + (totalItems % pageSize > 1 ? 1 : 0)
+                CurrentPage = request.PageNo ?? 1,
+                TotalPages = totalItems / request.ItemsPerPage ?? 10
+                    + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
             };
         }
     }
