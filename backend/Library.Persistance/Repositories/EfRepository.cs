@@ -77,14 +77,12 @@ namespace Library.Persistance.Repositories
 
         public T Add(T entity)
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
             var entry = _entities.Add(entity);
             return entry.Entity;
         }
 
         public void Update(T entity)
         {
-            if (entity == null) throw new ArgumentNullException(nameof(entity));
             var entry = _context.Entry(entity);
             entry.State = EntityState.Modified;
         }

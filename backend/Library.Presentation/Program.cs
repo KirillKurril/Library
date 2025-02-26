@@ -15,32 +15,29 @@ namespace Library.Presentation
             var app = builder.Build();
 
             ConfigureMiddleware(app);
-            ConfigureEndpoints(app);
 
             app.Run();
         }
         private static void ConfigureMiddleware(WebApplication app)
         {
+            app.UseGlobalExceptionHandling();
+
+            app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
+
+            app.UseCors("AllowAll");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.UseCors("AllowAll");
-            app.UseStaticFiles();
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseGlobalExceptionHandling();
         }
-
-        private static void ConfigureEndpoints(WebApplication app)
-        {
-            app.MapControllers();
-        }
-
     }
 }

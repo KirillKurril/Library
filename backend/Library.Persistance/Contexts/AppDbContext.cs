@@ -10,9 +10,7 @@ namespace Library.Persistance.Contexts
         public DbSet<Genre> Genres { get; set; }
         public DbSet<BookLending> BookLendings { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
