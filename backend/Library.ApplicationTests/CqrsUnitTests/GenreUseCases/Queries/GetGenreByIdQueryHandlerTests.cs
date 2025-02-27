@@ -24,7 +24,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Queries
             var genre = new Genre { Id = genreId, Name = "Fiction" };
             var query = new GetGenreByIdQuery(genreId);
 
-            _mockUnitOfWork.Setup(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()))
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(genre);
 
             var result = await _handler.Handle(query, CancellationToken.None);
@@ -32,7 +34,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Queries
             Assert.NotNull(result);
             Assert.Equal(genre.Id, result.Id);
             Assert.Equal(genre.Name, result.Name);
-            _mockUnitOfWork.Verify(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
@@ -41,13 +46,18 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Queries
             var genreId = Guid.NewGuid();
             var query = new GetGenreByIdQuery(genreId);
 
-            _mockUnitOfWork.Setup(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()))
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Genre)null);
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(query, CancellationToken.None));
 
-            _mockUnitOfWork.Verify(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
         }
     }
 }

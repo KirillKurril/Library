@@ -35,7 +35,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Queries
             };
             var query = new GetAuthorByIdQuery(authorId);
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _handler.Handle(query, CancellationToken.None);
@@ -44,7 +44,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Queries
             Assert.Equal(authorId, result.Id);
             Assert.Equal(author.Name, result.Name);
             Assert.Equal(author.Surname, result.Surname);
-            _mockAuthorRepository.Verify(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockAuthorRepository.Verify(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -53,13 +53,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Queries
             var authorId = Guid.NewGuid();
             var query = new GetAuthorByIdQuery(authorId);
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Author)null);
 
             await Assert.ThrowsAsync<NotFoundException>(() =>
                 _handler.Handle(query, CancellationToken.None));
 
-            _mockAuthorRepository.Verify(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockAuthorRepository.Verify(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

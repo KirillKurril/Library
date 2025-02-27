@@ -1,10 +1,5 @@
 ﻿using Library.Domain.Abstractions;
 using Library.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Library.Domain.Specifications.BookSpecifications
 {
@@ -33,7 +28,7 @@ namespace Library.Domain.Specifications.BookSpecifications
 
             if (availableOnly == true)
             {
-                AddCriteria(b => b.IsAvailable);
+                AddCriteria(b => b.Quantity > 0);
             }
         }
     }

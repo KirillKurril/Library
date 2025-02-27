@@ -18,13 +18,16 @@ namespace Library.Application.BookUseCases.Queries
 
         public async Task<PaginationListModel<BookCatalogDTO>> Handle(SearchBooksQuery request, CancellationToken cancellationToken)
         {
+            var itemsPerPage = request.ItemsPerPage ?? _configuration.GetValue<int?>("LibrarySettings:DefaultItemsPerPage") ?? 3;
+            var pageNumber = request.PageNo ?? 1;
+
             var booksSpec = new BookCatalogSpecification(
                      request.SearchTerm,
                      request.GenreId,
                      request.AuthorId,
                      request.availableOnly,
-                     request.PageNo,
-                     request.ItemsPerPage
+                     pageNumber,
+                     itemsPerPage
                  );
             var items = await _unitOfWork.BookRepository.GetAsync(booksSpec, cancellationToken);
 
@@ -41,9 +44,8 @@ namespace Library.Application.BookUseCases.Queries
             return new PaginationListModel<BookCatalogDTO>()
             {
                 Items = bookCatalogDtos,
-                CurrentPage = request.PageNo ?? 1,
-                TotalPages = totalItems / request.ItemsPerPage ?? 10
-                    + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
+                CurrentPage = (request.PageNo ?? 1),
+                TotalPages = (int)Math.Ceiling((double)totalItems / itemsPerPage)
             };
         }
     }

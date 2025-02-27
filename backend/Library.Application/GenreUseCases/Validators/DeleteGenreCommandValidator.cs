@@ -14,7 +14,7 @@ public class DeleteGenreCommandValidator : AbstractValidator<DeleteGenreCommand>
             {
                 var spec = new GenreByIdSpecification(genreId);
                 var exist = await unitOfWork.GenreRepository.CountAsync(spec);
-                return exist == 0;
+                return exist == 1;
             }).WithMessage($"Genre being deleted doesn't exist")
             .MustAsync(async (genreId, ct) =>
             {

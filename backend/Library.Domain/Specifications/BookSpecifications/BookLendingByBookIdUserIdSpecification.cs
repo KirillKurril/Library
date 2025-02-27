@@ -7,7 +7,8 @@ namespace Library.Domain.Specifications.BookSpecifications
     {
         public BookLendingByBookIdUserIdSpecification(Guid bookId, Guid userId)
         {
-            AddCriteria(bl => bl.BookId == bookId && bl.UserId == userId);  
+            AddCriteria(bl => bl.BookId == bookId);
+            AddCriteria(bl => bl.UserId == userId);
         }
     }
 }

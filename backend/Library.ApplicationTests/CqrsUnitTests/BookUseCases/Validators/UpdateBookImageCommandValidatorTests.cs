@@ -4,7 +4,6 @@ using Library.Application.BookUseCases.Validators;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
 {
@@ -28,10 +27,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 "http://valid-url.com/image.jpg"
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
+                .ReturnsAsync(1);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -47,8 +46,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 "http://valid-url.com/image.jpg"
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
@@ -67,8 +66,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
             var command = new UpdateBookImageCommand(bookId, imageUrl);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -87,8 +86,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
             var command = new UpdateBookImageCommand(bookId, imageUrl);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -106,8 +105,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
             var command = new UpdateBookImageCommand(bookId, imageUrl);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 

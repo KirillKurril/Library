@@ -2,7 +2,6 @@ using Library.Application.BookUseCases.Commands;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
-using System.Linq.Expressions;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
 {
@@ -52,13 +51,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 ReturnDate = DateTime.UtcNow.AddDays(7)
             };
 
-            _mockBookLendingRepository.Setup(r => r.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
+            _mockBookLendingRepository.Setup(r => r.FirstOrDefault(
+                It.IsAny<ISpecification<BookLending>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(lending);
 
 
-            _mockBookRepository.Setup(r => r.GetByIdAsync(bookId, CancellationToken.None))
+            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), CancellationToken.None))
                 .ReturnsAsync(book);
 
             await _handler.Handle(command, CancellationToken.None);

@@ -57,7 +57,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Commands
                 Country = command.Country
             };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingAuthor);
 
             _mockMapper.Setup(m => m.Map(command, existingAuthor))

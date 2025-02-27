@@ -34,11 +34,14 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             var command = new DeleteAuthorCommand(authorId);
             var author = new Author { Id = authorId, Name = "John", Surname = "Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(author);
-            _mockBookRepository.Setup(r => r.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Book, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Book)null);
+            _mockAuthorRepository.Setup(r => r.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+            _mockBookRepository.Setup(r => r.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -51,7 +54,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             var authorId = Guid.NewGuid();
             var command = new DeleteAuthorCommand(authorId);
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Author)null);
 
             var result = await _validator.TestValidateAsync(command);

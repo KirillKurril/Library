@@ -3,7 +3,6 @@ using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using MapsterMapper;
 using Moq;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
 {
@@ -44,7 +43,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
             );
 
             Book capturedBook = null;
-            _mockBookRepository.Setup(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()))
+            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
             _mockBookRepository.Setup(r => r.Update(It.IsAny<Book>()))

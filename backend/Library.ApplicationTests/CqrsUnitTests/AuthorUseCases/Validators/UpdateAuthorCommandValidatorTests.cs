@@ -35,8 +35,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(author);
+            _mockAuthorRepository.Setup(r => r.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -55,7 +57,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
                 "USA"
             );
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Author)null);
 
             var result = await _validator.TestValidateAsync(command);
@@ -94,7 +96,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _validator.TestValidateAsync(command);
@@ -115,7 +117,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _validator.TestValidateAsync(command);
@@ -136,7 +138,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _validator.TestValidateAsync(command);
@@ -157,7 +159,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _validator.TestValidateAsync(command);
@@ -178,7 +180,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _validator.TestValidateAsync(command);
@@ -199,7 +201,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
             );
             var author = new Author { Id = authorId, Name = "Old John", Surname = "Old Doe" };
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             var result = await _validator.TestValidateAsync(command);

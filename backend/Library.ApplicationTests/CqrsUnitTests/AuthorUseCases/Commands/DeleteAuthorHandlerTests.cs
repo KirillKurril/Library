@@ -25,6 +25,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Commands
         [Fact]
         public async Task Handle_ValidId_ShouldDeleteAuthorAndReturnIt()
         {
+
+
             var authorId = Guid.NewGuid();
             var author = new Author
             {
@@ -34,12 +36,12 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Commands
             };
             var command = new DeleteAuthorCommand(authorId);
 
-            _mockAuthorRepository.Setup(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(author);
 
             await _handler.Handle(command, CancellationToken.None);
 
-            _mockAuthorRepository.Verify(r => r.GetByIdAsync(authorId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockAuthorRepository.Verify(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()), Times.Once);
             _mockAuthorRepository.Verify(r => r.Delete(author), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }

@@ -1,5 +1,4 @@
 using Library.Application.Common.Models;
-using Library.Application.DTOs;
 using Library.Domain.Specifications.GenreSpecification;
 using Microsoft.Extensions.Configuration;
 
@@ -20,10 +19,13 @@ namespace Library.Application.GenreUseCases.Queries
 
         public async Task<PaginationListModel<Genre>> Handle(GetGenresListQuery request, CancellationToken cancellationToken)
         {
+            var itemsPerPage = request.ItemsPerPage ??_configuration.GetValue<int?>("LibrarySettings:DefaultItemsPerPage") ?? 3;
+            var pageNumber = request.PageNo ?? 1;
+
             var specItems = new GenreFiltredListSpecification(
                 request.SearchTerm,
-                request.PageNo,
-                request.ItemsPerPage);
+                pageNumber,
+                itemsPerPage);
 
             var items = await _unitOfWork.GenreRepository.GetAsync(specItems, cancellationToken);
 
@@ -33,9 +35,8 @@ namespace Library.Application.GenreUseCases.Queries
             return new PaginationListModel<Genre>()
             {
                 Items = items,
-                CurrentPage = request.PageNo ?? 1,
-                TotalPages = totalItems / request.ItemsPerPage ?? 10
-                    + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
+                CurrentPage = (request.PageNo ?? 1),
+                TotalPages = (int)Math.Ceiling((double)totalItems / itemsPerPage)
             };
         }
     }

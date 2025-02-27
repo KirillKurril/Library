@@ -3,9 +3,6 @@ using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Library.Application.Common.Exceptions;
 using Moq;
-using Xunit;
-using System.Linq.Expressions;
-using System.Threading;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
 {
@@ -42,11 +39,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 Genre = new Genre { Id = genreId, Name = "Test Genre" }
             };
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<Expression<Func<Book, object>>>(),
-                It.IsAny<Expression<Func<Book, object>>>()))
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(book);
 
             var query = new GetBookByIsbnQuery(isbn);
@@ -70,11 +65,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
         public async Task Handle_NonExistingBook_ThrowsNotFoundException()
         {
             var isbn = "978-3-16-148410-0";
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefaultAsync(
-                b => b.ISBN == isbn,
-                It.IsAny<CancellationToken>(),
-                It.IsAny<Expression<Func<Book, object>>>(),
-                It.IsAny<Expression<Func<Book, object>>>()))
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
             var query = new GetBookByIsbnQuery(isbn);

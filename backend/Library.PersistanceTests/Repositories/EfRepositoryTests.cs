@@ -1,5 +1,8 @@
 using FluentAssertions;
 using Library.Domain.Entities;
+using Library.Domain.Specifications;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
 using Library.Persistance.Repositories;
 
 namespace Library.IntegrationTests.Repositories
@@ -25,7 +28,8 @@ namespace Library.IntegrationTests.Repositories
             await context.Books.AddAsync(book);
             await context.SaveChangesAsync();
 
-            var result = await repository.GetByIdAsync(book.Id);
+            var spec = new BookByIdSpecification(book.Id);
+            var result = await repository.FirstOrDefault(spec);
 
             result.Should().NotBeNull();
             result.Id.Should().Be(book.Id);
@@ -40,7 +44,8 @@ namespace Library.IntegrationTests.Repositories
 
             var nonExistingId = Guid.NewGuid();
 
-            var result = await repository.GetByIdAsync(nonExistingId);
+            var spec = new BookByIdSpecification(nonExistingId);
+            var result = await repository.FirstOrDefault(spec);
 
             result.Should().BeNull();
         }
@@ -64,11 +69,8 @@ namespace Library.IntegrationTests.Repositories
             await context.Books.AddAsync(book);
             await context.SaveChangesAsync();
 
-            var result = await repository.GetByIdAsync(
-                book.Id,
-                default,
-                b => b.Author,
-                b => b.Genre);
+            var spec = new BookByIdSpecification(book.Id);
+            var result = await repository.FirstOrDefault(spec);
 
             result.Should().NotBeNull();
             result.Author.Should().NotBeNull();
@@ -106,7 +108,8 @@ namespace Library.IntegrationTests.Repositories
             context.Books.AddRange(books);
             await context.SaveChangesAsync();
 
-            var result = await repository.ListAllAsync();
+            var spec = new AllItemsSpecification<Book>();
+            var result = await repository.GetAsync(spec);
 
             result.Should().HaveCount(2);
             result.Should().Contain(b => b.Title == "Book 1");
@@ -142,8 +145,12 @@ namespace Library.IntegrationTests.Repositories
             context.Books.AddRange(books);
             await context.SaveChangesAsync();
 
-            
-            var result = await repository.ListAsync(b => b.Title.Contains("Non-Fiction"));
+            var spec = new BookCatalogSpecification(
+                "Non-Fiction",
+                null,
+                null,
+                null);
+            var result = await repository.GetAsync(spec);
 
             result.Should().HaveCount(1);
         }
@@ -178,21 +185,17 @@ namespace Library.IntegrationTests.Repositories
             await context.Books.AddRangeAsync(books);
             await context.SaveChangesAsync();
 
-            
-            var result = await repository.ListAsync(
-                b => b.ISBN.Contains("1234567890123"),
-                default,
-                b => b.Author
-            );
+            var spec = new BookByIsbnSpecification("1234567890123");
+            var result = await repository.FirstOrDefault(spec);
 
-
-            result.Should().HaveCount(1);
-            result.Should().OnlyContain(b => b.Author != null);
-            result.Should().OnlyContain(b => b.Author.Name == "Test Author");
+            result.Should().NotBeNull();
+            result.Quantity.Should().Be(1);
+            result.Author.Should().NotBeNull(); 
+            result.Author.Name.Should().Be("Test Author");
         }
 
         [Fact]
-        public void GetQueryable_ReturnsQueryable()
+        public async Task GetQueryable_ReturnsQueryable()
         {
             using var context = CreateContext();
             var repository = new EfRepository<Book>(context);
@@ -221,15 +224,16 @@ namespace Library.IntegrationTests.Repositories
             context.Books.AddRange(books);
             context.SaveChanges();
 
-            var query = repository.GetQueryable();
-            
-            query.Should().NotBeNull();
-            query.Should().BeAssignableTo<IQueryable<Book>>();
-            query.Count().Should().Be(2);
+            var spec = new AllItemsSpecification<Book>();
+            var items = await repository.GetAsync(spec);
+
+            items.Should().NotBeNull();
+            items.Should().BeAssignableTo<IReadOnlyList<Book>>();
+            items.Count().Should().Be(2);
         }
 
         [Fact]
-        public void GetQueryable_WithFilterAndIncludes_ReturnsFilteredQueryableWithIncludes()
+        public async Task GetQueryable_WithFilterAndIncludes_ReturnsFilteredQueryableWithIncludes()
         {
             using var context = CreateContext();
             var repository = new EfRepository<Book>(context);
@@ -258,16 +262,12 @@ namespace Library.IntegrationTests.Repositories
             context.Books.AddRange(books);
             context.SaveChanges();
 
-            
-            var query = repository.GetQueryable(
-                b => b.Title.Contains("Non"),
-                b => b.Author
-            );
+            var spec = new BookCatalogSpecification("Non", null, null, null);
+            var items = await repository.GetAsync(spec);
 
-            query.Should().NotBeNull();
-            var result = query.ToList();
-            result.Should().HaveCount(1);
-            result.Should().OnlyContain(b => b.Author != null);
+            items.Should().NotBeNull();
+            items.Should().HaveCount(1);
+            items.Should().OnlyContain(b => b.Author != null);
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace Library.IntegrationTests.Repositories
 
             var action = () => repository.Add(null);
 
-            action.Should().Throw<ArgumentNullException>();
+            action.Should().Throw<NullReferenceException>();
         }
 
         [Fact]

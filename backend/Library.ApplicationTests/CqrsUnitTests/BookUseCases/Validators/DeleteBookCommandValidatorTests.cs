@@ -5,7 +5,6 @@ using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
 using System.Linq.Expressions;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
 {
@@ -19,13 +18,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _validator = new DeleteBookCommandValidator(_mockUnitOfWork.Object);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book());
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
+                It.IsAny<ISpecification<BookLending>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((BookLending)null);
         }
@@ -36,16 +35,15 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
             var command = new DeleteBookCommand(bookId);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<Expression<Func<BookLending, object>>[]>()))
-                .ReturnsAsync((BookLending)null);
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.CountAsync(
+                It.IsAny<ISpecification<BookLending>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
 
             var result = await _validator.TestValidateAsync(command);
             result.ShouldNotHaveAnyValidationErrors();
@@ -68,8 +66,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
             var command = new DeleteBookCommand(bookId);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
@@ -85,15 +83,15 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
             var command = new DeleteBookCommand(bookId);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.CountAsync(
+                It.IsAny<ISpecification<BookLending>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new BookLending { BookId = bookId });
+                .ReturnsAsync(1);
 
             var result = await _validator.TestValidateAsync(command);
 

@@ -8,23 +8,27 @@ namespace Library.Application.BookUseCases.Queries
     public class GetBorrowedBooksQueryHandler : IRequestHandler<GetBorrowedBooksQuery,PaginationListModel<BookLendingDTO>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IConfiguration _config;
+        private readonly IConfiguration _configuration;
 
         public GetBorrowedBooksQueryHandler(
             IUnitOfWork unitOfWork,
-            IConfiguration config)
+            IConfiguration configuration,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _config = config;
+            _configuration = configuration;
         }
 
         public async Task<PaginationListModel<BookLendingDTO>> Handle(GetBorrowedBooksQuery request, CancellationToken cancellationToken)
         {
+            var itemsPerPage = request.ItemsPerPage ?? _configuration.GetValue<int?>("LibrarySettings:DefaultItemsPerPage") ?? 3;
+            var pageNumber = request.PageNo ?? 1;
+
             var itemsSpec = new BorrowedBooksSpecification(
                 request.UserId,
                 request.SearchTerm,
-                request.PageNo,
-                request.ItemsPerPage
+                pageNumber,
+                itemsPerPage
             );
 
             var items = await _unitOfWork.BookLendingRepository.GetAsync(itemsSpec, cancellationToken);
@@ -35,14 +39,13 @@ namespace Library.Application.BookUseCases.Queries
             );
             var totalItems = await _unitOfWork.BookLendingRepository.CountAsync(countSpec, cancellationToken);
 
-            var mappedItems = items.Adapt<List<BookLendingDTO>>();
+            var bookLendingDTOs = items.Adapt<List<BookLendingDTO>>();
 
             return new PaginationListModel<BookLendingDTO>()
             {
-                Items = mappedItems,
-                CurrentPage = request.PageNo ?? 1,
-                TotalPages = totalItems / request.ItemsPerPage ?? 10
-                    + (totalItems % (request.ItemsPerPage ?? 10) > 0 ? 1 : 0)
+                Items = bookLendingDTOs,
+                CurrentPage = (request.PageNo ?? 1),
+                TotalPages = (int)Math.Ceiling((double)totalItems / itemsPerPage)
             };
         }
     }

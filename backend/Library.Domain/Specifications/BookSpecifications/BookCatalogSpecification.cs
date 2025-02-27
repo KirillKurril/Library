@@ -31,7 +31,7 @@ namespace Library.Domain.Specifications.BookSpecifications
 
             if (availableOnly == true)
             {
-                AddCriteria(b => b.IsAvailable);
+                AddCriteria(b => b.Quantity > 0);
             }
 
             ApplyOrderBy(b => b.Id);

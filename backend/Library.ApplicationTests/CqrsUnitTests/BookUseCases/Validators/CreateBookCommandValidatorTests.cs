@@ -3,6 +3,8 @@ using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Validators;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
 using Moq;
 using System.Linq.Expressions;
 using Xunit;
@@ -18,20 +20,20 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Book, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Book)null);
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Genre());
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.AuthorRepository.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Author());
+                .ReturnsAsync(1);
 
             _validator = new CreateBookCommandValidator(_mockUnitOfWork.Object);
         }
@@ -39,8 +41,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         [Fact]
         public async Task Validate_ValidCommand_ShouldNotHaveValidationError()
         {
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<BookByIsbnSpecification>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
+
             var command = new CreateBookCommand(
-                "978-0-7475-3269-9",
+                "978-0-7478-3269-9",
                 "Test Book",
                 "Test Description",
                 10,
@@ -74,8 +81,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         public async Task Validate_DuplicateISBN_ShouldHaveValidationError()
         {
             var existingIsbn = "978-0-7475-3269-9";
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Book, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { ISBN = existingIsbn });
 
@@ -147,10 +154,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         [Fact]
         public async Task Validate_NonExistentGenre_ShouldHaveValidationError()
         {
-            _mockUnitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Genre)null);
+                .ReturnsAsync(0);
 
             var command = new CreateBookCommand(
                 "978-0-7475-3269-9",
@@ -168,10 +175,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
         [Fact]
         public async Task Validate_NonExistentAuthor_ShouldHaveValidationError()
         {
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.AuthorRepository.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Author)null);
+                .ReturnsAsync(0);
 
             var command = new CreateBookCommand(
                 "978-0-7475-3269-9",

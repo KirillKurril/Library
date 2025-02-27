@@ -32,12 +32,12 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 Quantity = 5
             };
 
-            _mockBookRepository.Setup(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()))
+            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(book);
 
             await _handler.Handle(command, CancellationToken.None);
 
-            _mockBookRepository.Verify(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockBookRepository.Verify(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()), Times.Once);
             _mockBookRepository.Verify(r => r.Delete(book), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }

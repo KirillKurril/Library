@@ -3,6 +3,7 @@ using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Validators;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
+using Library.Domain.Specifications.BookSpecifications;
 using Moq;
 using System.Linq.Expressions;
 
@@ -26,14 +27,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var userId = Guid.NewGuid();
             var command = new ReturnBookCommand(bookId, userId);
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.CountAsync(
+                It.IsAny<ISpecification<BookLending>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new BookLending
-                {
-                    BookId = bookId,
-                    UserId = userId
-                });
+                .ReturnsAsync(1);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -47,8 +44,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var userId = Guid.NewGuid();
             var command = new ReturnBookCommand(bookId, userId);
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                bl => bl.UserId == userId && bl.BookId == bookId,
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
+                It.IsAny<ISpecification<BookLending>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((BookLending)null);
 
@@ -66,13 +63,16 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var otherUserId = Guid.NewGuid();
             var command = new ReturnBookCommand(bookId, userId);
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                bl => bl.UserId == userId && bl.BookId == bookId,
+            var checkSpec = new BookLendingByBookIdUserIdSpecification(bookId, userId);
+            var getblSpec = new BookLendingsByBookIdSpecification(bookId);
+
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
+                checkSpec,
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((BookLending)null);
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefaultAsync(
-                bl => bl.BookId == bookId,
+            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
+                getblSpec,
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BookLending
                 {

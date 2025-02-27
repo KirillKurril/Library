@@ -41,8 +41,8 @@ namespace Library.Persistance.Repositories
          )
         {
             var query = ApplySpecification(specification);
-            var items = await query.FirstOrDefaultAsync(cancellationToken);
-            return items;
+            var item = await query.FirstOrDefaultAsync(cancellationToken);
+            return item;
         }
         public async Task<IReadOnlyList<T>> GetAsync(
              ISpecification<T> specification,

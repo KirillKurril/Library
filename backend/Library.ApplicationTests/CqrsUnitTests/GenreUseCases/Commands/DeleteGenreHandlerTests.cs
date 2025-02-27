@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Library.Application.GenreUseCases.Commands;
 using Library.Domain.Entities;
 using Library.Domain.Abstractions;
 using Moq;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Commands
 {
@@ -29,7 +23,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Commands
             var command = new DeleteGenreCommand(genreId);
             var genre = new Genre { Id = genreId, Name = "Fiction" };
 
-            _mockUnitOfWork.Setup(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()))
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(genre);
 
             _mockUnitOfWork.Setup(uow => uow.SaveChangesAsync())

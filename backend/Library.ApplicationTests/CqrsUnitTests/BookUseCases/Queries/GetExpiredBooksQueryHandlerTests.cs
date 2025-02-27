@@ -27,62 +27,53 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
             var authorId1 = Guid.NewGuid();
             var authorId2 = Guid.NewGuid();
 
-            var bookLendings = new List<BookLending>
-            {
-                new BookLending
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = userId1,
-                    BookId = bookId1,
-                    ReturnDate = DateTime.UtcNow.AddDays(-10)
-                },
-                new BookLending
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = userId2,
-                    BookId = bookId2,
-                    ReturnDate = DateTime.UtcNow.AddDays(-5)
-                }
-            }.AsQueryable();
-
             var books = new List<Book>
             {
                 new Book
                 {
                     Id = bookId1,
                     Title = "Expired Book 1",
-                    AuthorId = authorId1
+                    AuthorId = authorId1,
+                    Author = new Author { Id = authorId1, Name = "Author 1" }
                 },
                 new Book
                 {
                     Id = bookId2,
                     Title = "Expired Book 2",
-                    AuthorId = authorId2
+                    AuthorId = authorId2,
+                    Author = new Author { Id = authorId2, Name = "Author 2" }
                 }
-            }.AsQueryable();
+            };
 
-            var authors = new List<Author>
+                    var bookLendings = new List<BookLending>
             {
-                new Author { Id = authorId1, Name = "Author 1" },
-                new Author { Id = authorId2, Name = "Author 2" }
-            }.AsQueryable();
+                new BookLending
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId1,
+                    BookId = bookId1,
+                    ReturnDate = DateTime.UtcNow.AddDays(-10),
+                    Book = books[0]
+                },
+                new BookLending
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId2,
+                    BookId = bookId2,
+                    ReturnDate = DateTime.UtcNow.AddDays(-5),
+                    Book = books[1]
+                }
+            };
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.GetQueryable(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
-                It.IsAny<Expression<Func<BookLending, object>>[]>()))
-                .Returns(bookLendings);
+            _mockUnitOfWork
+                .Setup(x => x.BookLendingRepository.GetAsync(
+                    It.IsAny<ISpecification<BookLending>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(bookLendings);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetQueryable(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<Expression<Func<Book, object>>[]>()))
-                .Returns(books);
+            var handler = new GetExpiredBooksQueryHandler(_mockUnitOfWork.Object);
 
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.GetQueryable(
-                It.IsAny<Expression<Func<Author, bool>>>(),
-                It.IsAny<Expression<Func<Author, object>>[]>()))
-                .Returns(authors);
-
-            var result = await _handler.Handle(new GetExpiredBooksQuery(), CancellationToken.None);
+            var result = await handler.Handle(new GetExpiredBooksQuery(), CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
@@ -106,26 +97,24 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 new BookLending
                 {
                     Id = Guid.NewGuid(),
-                    ReturnDate = DateTime.UtcNow.AddDays(10)
+                    ReturnDate = DateTime.UtcNow.AddDays(10),
+                    Book = new Book
+                    {
+                        Title = "Not Expired Book",
+                        Author = new Author { Name = "Some Author" }
+                    }
                 }
-            }.AsQueryable();
+            };
 
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.GetQueryable(
-                It.IsAny<Expression<Func<BookLending, bool>>>(),
-                It.IsAny<Expression<Func<BookLending, object>>>()))
-                .Returns(bookLendings);
+            _mockUnitOfWork
+                .Setup(x => x.BookLendingRepository.GetAsync(
+                    It.IsAny<ISpecification<BookLending>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<BookLending>());
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetQueryable(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<Expression<Func<Book, object>>>()))
-                .Returns(new List<Book>().AsQueryable());
+            var handler = new GetExpiredBooksQueryHandler(_mockUnitOfWork.Object);
 
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.GetQueryable(
-                It.IsAny<Expression<Func<Author, bool>>>(),
-                It.IsAny<Expression<Func<Author, object>>>()))
-                .Returns(new List<Author>().AsQueryable());
-
-            var result = await _handler.Handle(new GetExpiredBooksQuery(), CancellationToken.None);
+            var result = await handler.Handle(new GetExpiredBooksQuery(), CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Empty(result);

@@ -12,8 +12,8 @@ public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorComman
                 .MustAsync(async (authorId, ct) =>
                 {
                     var spec = new AuthorByIdSpecification(authorId);
-                    var author = await unitOfWork.AuthorRepository.GetAsync(spec);
-                    return author != null;
+                    var exist = await unitOfWork.AuthorRepository.CountAsync(spec);
+                    return exist == 1 ;
                 }).WithMessage($"Author being updated doesn't exist");
 
         RuleFor(x => x.Name)

@@ -5,7 +5,6 @@ using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
 using System.Linq.Expressions;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
 {
@@ -24,8 +23,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
         public async Task Validate_WithValidName_ShouldNotHaveValidationError()
         {
             var command = new CreateGenreCommand("Fiction");
-            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Genre, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Genre)null);
 
@@ -40,8 +39,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
         public async Task Validate_WithEmptyOrNullName_ShouldHaveValidationError(string name)
         {
             var command = new CreateGenreCommand(name);
-            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Genre, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Genre)null);
 
@@ -55,8 +54,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
         public async Task Validate_WithTooLongName_ShouldHaveValidationError()
         {
             var command = new CreateGenreCommand(new string('a', 101));
-            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Genre, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Genre)null);
 
@@ -72,10 +71,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
             var existingGenre = new Genre { Id = Guid.NewGuid(), Name = "Fiction" };
             var command = new CreateGenreCommand("Fiction");
 
-            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Genre, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingGenre);
+                .ReturnsAsync(1);
 
             var result = await _validator.TestValidateAsync(command);
 

@@ -1,5 +1,8 @@
 using FluentAssertions;
 using Library.Domain.Entities;
+using Library.Domain.Specifications;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.GenreSpecification;
 using Library.Persistance.Contexts;
 using Library.Persistance.Repositories;
 
@@ -44,10 +47,14 @@ namespace Library.IntegrationTests.Repositories
             _unitOfWork.BookRepository.Add(book);
             await _unitOfWork.SaveChangesAsync();
 
-            
-            var savedBook = await _unitOfWork.BookRepository.GetByIdAsync(book.Id);
-            var savedAuthor = await _unitOfWork.AuthorRepository.GetByIdAsync(author.Id);
-            var savedGenre = await _unitOfWork.GenreRepository.GetByIdAsync(genre.Id);
+
+            var authorSpec = new AuthorByIdSpecification(author.Id);
+            var bookSpec = new BookByIdSpecification(book.Id);
+            var genreSpec = new GenreByIdSpecification(genre.Id);
+
+            var savedAuthor = await _unitOfWork.AuthorRepository.FirstOrDefault(authorSpec);
+            var savedBook = await _unitOfWork.BookRepository.FirstOrDefault(bookSpec);
+            var savedGenre = await _unitOfWork.GenreRepository.FirstOrDefault(genreSpec);
 
             savedBook.Should().NotBeNull();
             savedAuthor.Should().NotBeNull();
@@ -89,9 +96,11 @@ namespace Library.IntegrationTests.Repositories
             }
             catch
             {
-                
-                var authors = await _unitOfWork.AuthorRepository.ListAllAsync();
-                var books = await _unitOfWork.BookRepository.ListAllAsync();
+                var authorListSpec = new AllItemsSpecification<Author>();
+                var bookListSpec = new AllItemsSpecification<Book>();
+
+                var authors = await _unitOfWork.AuthorRepository.GetAsync(authorListSpec);
+                var books = await _unitOfWork.BookRepository.GetAsync(bookListSpec);
 
                 authors.Should().BeEmpty();
                 books.Should().BeEmpty();
@@ -101,10 +110,13 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task UnitOfWork_SaveChanges_ShouldPersistAllChangesTransactionally()
         {
-            
-            var initialBookCount = (await _unitOfWork.BookRepository.ListAllAsync()).Count();
-            var initialAuthorCount = (await _unitOfWork.AuthorRepository.ListAllAsync()).Count();
-            var initialGenreCount = (await _unitOfWork.GenreRepository.ListAllAsync()).Count();
+            var authorListSpec = new AllItemsSpecification<Author>();
+            var bookListSpec = new AllItemsSpecification<Book>();
+            var genreListSpec = new AllItemsSpecification<Genre>();
+
+            var initialBookCount = (await _unitOfWork.BookRepository.GetAsync(bookListSpec)).Count();
+            var initialAuthorCount = (await _unitOfWork.AuthorRepository.GetAsync(authorListSpec)).Count();
+            var initialGenreCount = (await _unitOfWork.GenreRepository.GetAsync(genreListSpec)).Count();
 
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
@@ -124,12 +136,15 @@ namespace Library.IntegrationTests.Repositories
             book.GenreId = genre.Id;
 
             _unitOfWork.BookRepository.Add(book);
-            await _unitOfWork.SaveChangesAsync(); 
+            await _unitOfWork.SaveChangesAsync();
 
-            
-            var savedAuthor = await _unitOfWork.AuthorRepository.GetByIdAsync(author.Id);
-            var savedGenre = await _unitOfWork.GenreRepository.GetByIdAsync(genre.Id);
-            var savedBook = await _unitOfWork.BookRepository.GetByIdAsync(book.Id);
+            var authorByIdSpec = new AuthorByIdSpecification(author.Id);
+            var bookByIdSpec = new BookByIdSpecification(book.Id);
+            var genreByIdSpec = new GenreByIdSpecification(genre.Id);
+
+            var savedAuthor = await _unitOfWork.AuthorRepository.FirstOrDefault(authorByIdSpec);
+            var savedGenre = await _unitOfWork.GenreRepository.FirstOrDefault(genreByIdSpec);
+            var savedBook = await _unitOfWork.BookRepository.FirstOrDefault(bookByIdSpec);
 
             savedAuthor.Should().NotBeNull();
             savedAuthor.Name.Should().Be("Test Author");
@@ -142,9 +157,9 @@ namespace Library.IntegrationTests.Repositories
             savedBook.AuthorId.Should().Be(author.Id);
             savedBook.GenreId.Should().Be(genre.Id);
 
-            var finalBookCount = (await _unitOfWork.BookRepository.ListAllAsync()).Count();
-            var finalAuthorCount = (await _unitOfWork.AuthorRepository.ListAllAsync()).Count();
-            var finalGenreCount = (await _unitOfWork.GenreRepository.ListAllAsync()).Count();
+            var finalBookCount = (await _unitOfWork.BookRepository.GetAsync(bookListSpec)).Count();
+            var finalAuthorCount = (await _unitOfWork.AuthorRepository.GetAsync(authorListSpec)).Count();
+            var finalGenreCount = (await _unitOfWork.GenreRepository.GetAsync(genreListSpec)).Count();
 
             finalBookCount.Should().Be(initialBookCount + 1);
             finalAuthorCount.Should().Be(initialAuthorCount + 1);
@@ -154,10 +169,13 @@ namespace Library.IntegrationTests.Repositories
         [Fact]
         public async Task UnitOfWork_RollbackTransaction_ShouldRevertChanges()
         {
-            
-            var initialBookCount = (await _unitOfWork.BookRepository.ListAllAsync()).Count();
-            var initialAuthorCount = (await _unitOfWork.AuthorRepository.ListAllAsync()).Count();
-            var initialGenreCount = (await _unitOfWork.GenreRepository.ListAllAsync()).Count();
+            var authorListSpec = new AllItemsSpecification<Author>();
+            var bookListSpec = new AllItemsSpecification<Book>();
+            var genreListSpec = new AllItemsSpecification<Genre>();
+
+            var initialBookCount = (await _unitOfWork.BookRepository.GetAsync(bookListSpec)).Count();
+            var initialAuthorCount = (await _unitOfWork.AuthorRepository.GetAsync(authorListSpec)).Count();
+            var initialGenreCount = (await _unitOfWork.GenreRepository.GetAsync(genreListSpec)).Count();
 
             var author = new Author { Name = "Test Author" };
             var genre = new Genre { Name = "Test Genre" };
@@ -186,13 +204,12 @@ namespace Library.IntegrationTests.Repositories
             catch
             {
                 
-                var finalBookCount = (await _unitOfWork.BookRepository.ListAllAsync()).Count();
+                var finalBookCount = (await _unitOfWork.BookRepository.GetAsync(bookListSpec)).Count();
+                var finalAuthorCount = (await _unitOfWork.AuthorRepository.GetAsync(authorListSpec)).Count();
+                var finalGenreCount = (await _unitOfWork.GenreRepository.GetAsync(genreListSpec)).Count();
+
                 finalBookCount.Should().Be(initialBookCount);
-
-                var finalAuthorCount = (await _unitOfWork.AuthorRepository.ListAllAsync()).Count();
                 finalAuthorCount.Should().Be(initialAuthorCount);
-
-                var finalGenreCount = (await _unitOfWork.GenreRepository.ListAllAsync()).Count();
                 finalGenreCount.Should().Be(initialGenreCount);
             }
         }

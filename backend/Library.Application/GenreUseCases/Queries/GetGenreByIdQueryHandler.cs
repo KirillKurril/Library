@@ -1,4 +1,3 @@
-using Library.Domain.Specifications.AuthorSpecification;
 using Library.Domain.Specifications.GenreSpecification;
 
 namespace Library.Application.GenreUseCases.Queries

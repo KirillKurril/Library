@@ -2,7 +2,6 @@ using Library.Application.BookUseCases.Commands;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
 using Moq;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
 {
@@ -33,13 +32,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 ImageUrl = "http://example.com/image.jpg"
             };
 
-            _mockBookRepository.Setup(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()))
+            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(book);
 
             await _handler.Handle(command, CancellationToken.None);
 
             Assert.Equal(command.ImageUrl, book.ImageUrl);
-            _mockBookRepository.Verify(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockBookRepository.Verify(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync());
         }
     }

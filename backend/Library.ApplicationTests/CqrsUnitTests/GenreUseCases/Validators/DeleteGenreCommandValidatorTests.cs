@@ -26,9 +26,11 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
             _mockUnitOfWork.Setup(uow => uow.GenreRepository).Returns(_mockGenreRepository.Object);
             _mockUnitOfWork.Setup(uow => uow.BookRepository).Returns(_mockBookRepository.Object);
 
-            _mockBookRepository.Setup(r => r.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Book, bool>>>(), It.IsAny<CancellationToken>()))
+            _mockBookRepository.Setup(r => r.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
+
             _validator = new DeleteGenreCommandValidator(_mockUnitOfWork.Object);
         }
 
@@ -39,7 +41,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
             var command = new DeleteGenreCommand(genreId);
             var genre = new Genre { Id = genreId, Name = "Fiction" };
 
-            _mockUnitOfWork.Setup(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()))
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(genre);
 
             var result = await _validator.TestValidateAsync(command);
@@ -53,8 +57,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
             var genreId = Guid.NewGuid();
             var command = new DeleteGenreCommand(genreId);
 
-            _mockUnitOfWork.Setup(uow => uow.GenreRepository.GetByIdAsync(genreId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Genre)null);
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
 
             var result = await _validator.TestValidateAsync(command);
 

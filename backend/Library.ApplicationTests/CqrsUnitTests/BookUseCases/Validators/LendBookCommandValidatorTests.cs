@@ -30,8 +30,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.Empty;
             var command = new LendBookCommand(bookId, userId);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
@@ -52,8 +52,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var bookId = Guid.NewGuid();
 
             var command = new LendBookCommand(bookId, userId);
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
@@ -80,10 +80,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 Quantity = 0
             };
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<Expression<Func<Book, object>>>()))
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(book);
 
             _userDataAccessor.Setup(x => x.UserExist(

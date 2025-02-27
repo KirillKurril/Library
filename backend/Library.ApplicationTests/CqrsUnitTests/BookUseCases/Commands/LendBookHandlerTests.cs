@@ -51,7 +51,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 GenreId = Guid.NewGuid()
             };
 
-            _mockBookRepository.Setup(r => r.GetByIdAsync(bookId, It.IsAny<CancellationToken>()))
+            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(book);
 
             BookLending capturedLending = null;

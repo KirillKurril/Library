@@ -3,9 +3,9 @@ using Library.Application.BookUseCases.Commands;
 using Library.Application.BookUseCases.Validators;
 using Library.Domain.Abstractions;
 using Library.Domain.Entities;
+using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
 using Moq;
-using System.Linq.Expressions;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
 {
@@ -37,25 +37,25 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 "http://test.com/image.jpg"
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<BookByIdSpecification>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefaultAsync(
-                b => b.ISBN == command.ISBN && b.Id != command.Id,
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<UniqueIsbnCheckSpecification>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Book)null);
+                .ReturnsAsync(0);
 
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.GetByIdAsync(
-                authorId,
+            _mockUnitOfWork.Setup(x => x.AuthorRepository.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Author { Id = authorId });
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(
-                genreId,
+            _mockUnitOfWork.Setup(x => x.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Genre { Id = genreId });
+                .ReturnsAsync(1);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -71,8 +71,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null, null, null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
@@ -95,8 +95,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null, null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -116,18 +116,19 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null, null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<BookByIdSpecification>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
+                .ReturnsAsync(1);
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefaultAsync(
-                It.IsAny<Expression<Func<Book, bool>>>(),
+            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
+                It.IsAny<UniqueIsbnCheckSpecification>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { ISBN = isbn });
+                .ReturnsAsync(1);
 
-            var book = await _mockUnitOfWork.Object.BookRepository
-                .FirstOrDefaultAsync(b => b.ISBN == command.ISBN && b.Id != command.Id);
+            var spec = new UniqueIsbnCheckSpecification(bookId, isbn);
+
+            var book = await _mockUnitOfWork.Object.BookRepository.FirstOrDefault(spec);
 
             var result = await _validator.TestValidateAsync(command);
 
@@ -146,8 +147,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -172,8 +173,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -195,8 +196,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -222,13 +223,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.GetByIdAsync(
-                authorId,
+            _mockUnitOfWork.Setup(x => x.AuthorRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Author>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Author)null);
 
@@ -254,13 +255,13 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
-            _mockUnitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(
-                genreId,
+            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Genre>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Genre)null);
 
@@ -284,8 +285,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 new string('a', 501)
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -313,8 +314,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 imageUrl
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -333,8 +334,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 null, null, null, null, null, null, null
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
@@ -367,8 +368,8 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 imageUrl
             );
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 

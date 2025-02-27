@@ -15,7 +15,7 @@ namespace Library.Application.BookUseCases.Queries
         public async Task<BookDetailsDTO> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
             var spec = new BookByIdSpecification(request.Id);
-            var book = _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
+            var book = await _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
 
             if (book == null)
                 throw new NotFoundException(nameof(Book), $"ID: {request.Id}");

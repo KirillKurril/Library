@@ -6,8 +6,6 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using System.Linq.Expressions;
-using Xunit;
 
 namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
 {
@@ -46,31 +44,48 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
         public async Task Handle_WithSearchTerm_ReturnsFilteredBooks()
         {
             var books = new List<Book>
+        {
+            new Book
             {
-                new Book
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Clean Code",
-                    GenreId = Guid.NewGuid(),
-                    AuthorId = Guid.NewGuid()
-                },
-                new Book
-                {
-                    Id = Guid.NewGuid(),
-                    Title = "Design Patterns",
-                    GenreId = Guid.NewGuid(),
-                    AuthorId = Guid.NewGuid()
-                }
-            }.AsQueryable();
+                Id = Guid.NewGuid(),
+                Title = "Clean Code",
+                GenreId = Guid.NewGuid(),
+                AuthorId = Guid.NewGuid(),
+                Genre = new Genre(),
+                Author = new Author()
+            },
+            new Book
+            {
+                Id = Guid.NewGuid(),
+                Title = "Design Patterns",
+                GenreId = Guid.NewGuid(),
+                AuthorId = Guid.NewGuid(),
+                Genre = new Genre(),
+                Author = new Author()
+            }
+        };
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetQueryable(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<Expression<Func<Book, object>>[]>()))
-                .Returns(books);
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(x => x.GetSection("LibrarySettings:DefaultItemsPerPage").Value)
+                .Returns("10");
+
+            _mockUnitOfWork
+                .Setup(x => x.BookRepository.GetAsync(
+                    It.IsAny<ISpecification<Book>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<Book> { books[0] });
+
+            _mockUnitOfWork
+                .Setup(x => x.BookRepository.CountAsync(
+                    It.IsAny<ISpecification<Book>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            var handler = new SearchBooksQueryHandler(_mockUnitOfWork.Object, mockConfiguration.Object);
 
             var query = new SearchBooksQuery("clean", null, null, 1, 10, false);
-
-            var result = await _handler.Handle(query, CancellationToken.None);
+            var result = await handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Single(result.Items);
@@ -88,25 +103,42 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                     Id = Guid.NewGuid(),
                     Title = "Programming Book",
                     GenreId = genreId,
-                    AuthorId = Guid.NewGuid()
+                    AuthorId = Guid.NewGuid(),
+                    Genre = new Genre { Id = genreId },
+                    Author = new Author()
                 },
                 new Book
                 {
                     Id = Guid.NewGuid(),
                     Title = "Another Book",
                     GenreId = Guid.NewGuid(),
-                    AuthorId = Guid.NewGuid()
+                    AuthorId = Guid.NewGuid(),
+                    Genre = new Genre(),
+                    Author = new Author()
                 }
-            }.AsQueryable();
+            };
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetQueryable(
-                It.IsAny<Expression<Func<Book, bool>>>(),
-                It.IsAny<Expression<Func<Book, object>>[]>()))
-                .Returns(books);
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration
+                .Setup(x => x.GetSection("LibrarySettings:DefaultItemsPerPage").Value)
+                .Returns("10");
+
+            _mockUnitOfWork
+                .Setup(x => x.BookRepository.GetAsync(
+                    It.IsAny<ISpecification<Book>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<Book> { books[0] });
+
+            _mockUnitOfWork
+                .Setup(x => x.BookRepository.CountAsync(
+                    It.IsAny<ISpecification<Book>>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            var handler = new SearchBooksQueryHandler(_mockUnitOfWork.Object, mockConfiguration.Object);
 
             var query = new SearchBooksQuery(null, genreId, null, 1, 10, false);
-
-            var result = await _handler.Handle(query, CancellationToken.None);
+            var result = await handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Single(result.Items);

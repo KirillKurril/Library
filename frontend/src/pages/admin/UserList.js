@@ -82,6 +82,12 @@ const UserList = () => {
     }, []);
     
     const handleReturnBook = (userId) => {
+        console.error('handleReturnBook userId:', userId);
+        if (!userId) {
+            console.error('Invalid userId for return book');
+            return;
+        }
+
         setModalTitle("Select a book to return");
         setFetchBooks(() => fetchBorrowedBooks);
         setOnSubmit(() => handleConfirmReturn);

@@ -38,11 +38,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
                 Genre = new Genre { Id = genreId, Name = "Test Genre" }
             };
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
-                It.IsAny<CancellationToken>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Book, object>>>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Book, object>>>()))
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(book);
 
             var query = new GetBookByIdQuery(bookId);
@@ -65,13 +63,10 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Queries
         [Fact]
         public async Task Handle_NonExistingBook_ThrowsNotFoundException()
         {
-            // Arrange
             var bookId = Guid.NewGuid();
-            _mockUnitOfWork.Setup(x => x.BookRepository.GetByIdAsync(
-                bookId,
-                It.IsAny<CancellationToken>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Book, object>>>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Book, object>>>()))
+            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Book)null);
 
             var query = new GetBookByIdQuery(bookId);
