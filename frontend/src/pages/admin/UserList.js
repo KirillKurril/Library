@@ -64,8 +64,10 @@ const UserList = () => {
         return Array.isArray(response.data.items) ? response.data.items : [];
     }, []);
     
-    const fetchBorrowedBooks = useCallback(async (searchTerm) => {
-        const response = await api.get(`/users/${selectedUserId}/my-books`);
+    const fetchBorrowedBooks = useCallback(async (searchTerm, userId) => {
+        const userIdToUse =  selectedUserId || userId;
+        console.log("userId Brfore request Books", selectedUserId);
+        const response = await api.get(`/users/${userIdToUse}/my-books?searchTerm=${searchTerm}`);
         return Array.isArray(response.data.items) ? response.data.items : [];
     }, [selectedUserId]);
     
@@ -82,17 +84,12 @@ const UserList = () => {
     }, []);
     
     const handleReturnBook = (userId) => {
-        console.error('handleReturnBook userId:', userId);
-        if (!userId) {
-            console.error('Invalid userId for return book');
-            return;
-        }
-
         setModalTitle("Select a book to return");
-        setFetchBooks(() => fetchBorrowedBooks);
+        setFetchBooks(() => (searchTerm) => fetchBorrowedBooks(searchTerm, userId));
         setOnSubmit(() => handleConfirmReturn);
         setSelectedUserId(userId);
         setBookSelectModalOpen(true);
+
     };
     
     const handleLendBook = (userId) => {

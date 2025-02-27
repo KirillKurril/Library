@@ -73,7 +73,7 @@ namespace Library.Application.Common.Mappings
                 .Map(dest => dest.GenreId, src => src.GenreId);
 
             config.NewConfig<BookLending, BookLendingDTO>()
-                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Id, src => src.BookId)
                 .Map(dest => dest.Title, src => src.Book.Title)
                 .Map(dest => dest.Description, src => src.Book.Description)
                 .Map(dest => dest.AuthorId, src => src.Book.AuthorId)

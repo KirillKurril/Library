@@ -17,7 +17,12 @@ const BookSelectModal = ({title, isOpen, onClose, userID, onSubmit, fetchBooks }
 
     useEffect(() => {
         const fetchBooksData = async () => {
+            if (!userID) {
+                console.log('Invalid userId for return book');
+                return;
+            }
             if (searchTerm) {
+                console.log('Searching with handleReturnBook userId:', userID, " searchterm ", searchTerm);
                 const fetchedBooks = await fetchBooks(searchTerm); 
                 setBooks(fetchedBooks); 
             } else {
@@ -25,7 +30,7 @@ const BookSelectModal = ({title, isOpen, onClose, userID, onSubmit, fetchBooks }
             }
         };
         fetchBooksData(); 
-    }, [searchTerm, fetchBooks]);
+    }, [searchTerm, fetchBooks, userID]);
 
 
 
@@ -49,6 +54,7 @@ const BookSelectModal = ({title, isOpen, onClose, userID, onSubmit, fetchBooks }
                     <ul className='book-list mb-0'>
                         {books.map((book) => (
                             <li key={book.id} className='list-group-item' onClick={() => {
+                                console.log(book);
                                 setSelectedBook(book.id);
                                 setSearchTerm(book.title); 
                             }}>
