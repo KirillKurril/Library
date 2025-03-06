@@ -35,10 +35,6 @@ namespace Library.Persistance.Repositories
          => _genreRepository.Value;
         public IRepository<BookLending> BookLendingRepository
          => _bookLendingRepository.Value;
-        public async Task CreateDataBaseAsync() =>
-         await _context.Database.EnsureCreatedAsync();
-        public async Task DeleteDataBaseAsync() =>
-         await _context.Database.EnsureDeletedAsync();
         public async Task SaveChangesAsync() =>
          await _context.SaveChangesAsync();
     }

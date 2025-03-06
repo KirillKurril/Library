@@ -14,7 +14,7 @@ namespace Library.Persistance.Repositories
             _entities = context.Set<T>();
         }
 
-        public IQueryable<T> ApplySpecification(ISpecification<T> spec)
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
             var query = _entities.AsQueryable();
 

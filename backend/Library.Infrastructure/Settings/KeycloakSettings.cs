@@ -1,4 +1,4 @@
-namespace Library.Application.Common.Settings
+namespace Library.Infrastructure.Settings
 {
     public class KeycloakSettings
     {

@@ -9,7 +9,5 @@ namespace Library.Domain.Abstractions
         IRepository<Genre> GenreRepository { get; }
         IRepository<BookLending> BookLendingRepository { get; }
         Task SaveChangesAsync();
-        Task DeleteDataBaseAsync();
-        Task CreateDataBaseAsync();
     }
 }

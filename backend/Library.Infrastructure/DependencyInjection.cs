@@ -1,6 +1,6 @@
 using Library.Application;
-using Library.Application.Common.Settings;
 using Library.Infrastructure.Authentication;
+using Library.Infrastructure.Settings;
 using Library.Infrastructure.Startup.Authentication;
 using Library.Infrastructure.Startup.Caching;
 using Library.Infrastructure.Startup.InfrastructureSe;

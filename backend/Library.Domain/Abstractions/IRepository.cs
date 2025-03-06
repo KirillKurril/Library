@@ -3,8 +3,6 @@ namespace Library.Domain.Abstractions
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        public IQueryable<T> ApplySpecification(ISpecification<T> spec);
-
         Task<T?> FirstOrDefault(
             ISpecification<T>? specification = null,
             CancellationToken cancellationToken = default

@@ -61,18 +61,6 @@ namespace Library.IntegrationTests.Repositories
             savedGenre.Should().NotBeNull();
         }
 
-
-        [Fact]
-        public async Task UnitOfWork_DeleteDatabase_ShouldDeleteDatabase()
-        {
-            await _unitOfWork.CreateDataBaseAsync();
-
-            await _unitOfWork.DeleteDataBaseAsync();
-
-            
-            _context.Database.EnsureCreated().Should().BeTrue(); 
-        }
-
         [Fact]
         public async Task UnitOfWork_TransactionScope_ShouldRollbackOnError()
         {

@@ -1,11 +1,10 @@
 using Library.Application.Common.Interfaces;
 using System.Net.Http.Headers;
-using Library.Application.Common.Settings;
 using Library.Application.Common.Models;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Library.Infrastructure.Settings;
 
 namespace Library.Infrastructure.Services
 {
@@ -13,17 +12,14 @@ namespace Library.Infrastructure.Services
     {
         private readonly HttpClient _httpClient;
         private readonly KeycloakSettings _settings;
-        private readonly HttpContext _httpContext;
         private readonly IDistributedCache _cache;
         private readonly string _tokenKey;
         public TokenAccesor(
-            IHttpContextAccessor contextAccessor,
             KeycloakSettings settings,
             HttpClient httpClient,
             IDistributedCache cache,
             IConfiguration configuration)
         {
-            _httpContext = contextAccessor.HttpContext;
             _settings = settings;
             _httpClient = httpClient;
             _cache = cache;
