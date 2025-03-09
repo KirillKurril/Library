@@ -26,7 +26,7 @@ namespace Library.Application.BookUseCases.Commands
 
             if(request.ISBN != null)
             {
-                var isbnSpec = new BookByIsbnSpecification(request.ISBN);
+                var isbnSpec = new UniqueIsbnCheckSpecification(request.Id, request.ISBN);
                 if (await _unitOfWork.BookRepository.CountAsync(isbnSpec, cancellationToken) == 1)
                     throw new ValidationException("A book with this ISBN already exists");
             }
