@@ -8,15 +8,11 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
     public class DeleteBookHandlerTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-        private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly DeleteBookHandler _handler;
 
         public DeleteBookHandlerTests()
         {
-            _mockBookRepository = new Mock<IRepository<Book>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-            _mockUnitOfWork.Setup(uow => uow.BookRepository)
-                .Returns(_mockBookRepository.Object);
             _handler = new DeleteBookHandler(_mockUnitOfWork.Object);
         }
 
@@ -32,13 +28,24 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 Quantity = 5
             };
 
-            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()))
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(book);
+
+            _mockUnitOfWork.Setup(uow => uow.BookLendingRepository.CountAsync(
+                It.IsAny<ISpecification<BookLending>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
 
             await _handler.Handle(command, CancellationToken.None);
 
-            _mockBookRepository.Verify(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()), Times.Once);
-            _mockBookRepository.Verify(r => r.Delete(book), Times.Once);
+            _mockUnitOfWork.Verify(uow => uow.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            _mockUnitOfWork.Verify(uow => uow.BookRepository.Delete(book), Times.Once);
             _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         }
     }

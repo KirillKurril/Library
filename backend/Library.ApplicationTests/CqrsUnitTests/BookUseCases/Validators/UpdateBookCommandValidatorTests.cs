@@ -62,25 +62,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             result.ShouldNotHaveAnyValidationErrors();
         }
 
-        [Fact]
-        public async Task Validate_NonExistentBook_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var command = new UpdateBookCommand(
-                bookId,
-                null, null, null, null, null, null, null
-            );
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Book)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.Id)
-                .WithErrorMessage("Book being updated doesn't exist");
-        }
 
         [Theory]
         [InlineData("123456789")]
@@ -103,37 +84,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             var result = await _validator.TestValidateAsync(command);
 
             result.ShouldHaveValidationErrorFor(x => x.ISBN);
-        }
-
-        [Fact]
-        public async Task Validate_DuplicateISBN_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var isbn = "978-0-7475-3269-9";
-            var command = new UpdateBookCommand(
-                bookId,
-                isbn,
-                null, null, null, null, null, null
-            );
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
-                It.IsAny<BookByIdSpecification>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
-                It.IsAny<UniqueIsbnCheckSpecification>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
-
-            var spec = new UniqueIsbnCheckSpecification(bookId, isbn);
-
-            var book = await _mockUnitOfWork.Object.BookRepository.FirstOrDefault(spec);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x)
-                .WithErrorMessage("Book with such ISBN already exists");
         }
 
         [Fact]
@@ -207,69 +157,9 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
                 .WithErrorMessage("Description must not exceed 2000 characters");
         }
 
-        [Fact]
-        public async Task Validate_NonExistentAuthor_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var authorId = Guid.NewGuid();
-            var command = new UpdateBookCommand(
-                bookId,
-                null,
-                null,
-                null,
-                null,
-                null,
-                authorId,
-                null
-            );
+    
 
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
-
-            _mockUnitOfWork.Setup(x => x.AuthorRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Author>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Author)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.AuthorId)
-                .WithErrorMessage("Author with specified ID does not exist");
-        }
-
-        [Fact]
-        public async Task Validate_NonExistentGenre_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var genreId = Guid.NewGuid();
-            var command = new UpdateBookCommand(
-                bookId,
-                null,
-                null,
-                null,
-                null,
-                genreId,
-                null,
-                null
-            );
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Book { Id = bookId });
-
-            _mockUnitOfWork.Setup(x => x.GenreRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Genre>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Genre)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.GenreId)
-                .WithErrorMessage("Genre with specified ID does not exist");
-        }
+    
 
         [Fact]
         public async Task Validate_ImageUrlTooLong_ShouldHaveValidationError()

@@ -12,19 +12,11 @@ namespace Library.Application.BookUseCases.Validators
         public UpdateBookImageCommandValidator(IUnitOfWork unitOfWork)
         {
             RuleFor(x => x.BookId)
-            .NotEmpty().WithMessage("Book ID is required")
-            .MustAsync(async (bookId, ct) =>
-            {
-                var spec = new BookByIdSpecification(bookId);
-                var exist = await unitOfWork.BookRepository.CountAsync(spec, ct);
-                return exist == 1;
-            }).WithMessage("Book with specified ID does not exist");
-
+            .NotEmpty().WithMessage("Book ID is required");
 
             RuleFor(x => x.ImageUrl)
                 .NotEmpty().WithMessage("Image url is required")
                 .MaximumLength(200).WithMessage("Image URL must not exceed 500 characters");
-
 
             RuleFor(x => x.ImageUrl)
                 .Must(BeAValidUrl)

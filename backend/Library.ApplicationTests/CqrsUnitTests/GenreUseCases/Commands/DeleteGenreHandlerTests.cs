@@ -28,6 +28,11 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Commands
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(genre);
 
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
+
             _mockUnitOfWork.Setup(uow => uow.SaveChangesAsync())
                 .Returns(Task.CompletedTask);
 

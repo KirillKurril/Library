@@ -49,21 +49,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
         }
 
         [Fact]
-        public async Task Validate_WithNonExistingId_ShouldHaveValidationError()
-        {
-            var authorId = Guid.NewGuid();
-            var command = new DeleteAuthorCommand(authorId);
-
-            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Author)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.Id)
-                .WithErrorMessage("Author being deleted doesn't exist");
-        }
-
-        [Fact]
         public async Task Validate_WithEmptyId_ShouldHaveValidationError()
         {
             var command = new DeleteAuthorCommand(Guid.Empty);

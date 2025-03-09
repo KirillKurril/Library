@@ -1,4 +1,5 @@
 using Library.Application.Common.Interfaces;
+using Library.Domain.Abstractions;
 using Library.Domain.Specifications.AuthorSpecification;
 using Library.Domain.Specifications.BookSpecifications;
 namespace Library.Application.BookUseCases.Commands
@@ -15,15 +16,17 @@ namespace Library.Application.BookUseCases.Commands
 
         public async Task<Unit> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
         {
-            var lendingSpec = new BookLendingByBookIdUserIdSpecification(request.BookId, request.UserId);
-            var lending = await _unitOfWork.BookLendingRepository.FirstOrDefault(lendingSpec, cancellationToken);
-
-            if (lending == null)
-                throw new NotFoundException($"Lending bookId: {request.BookId}, userId: {request.UserId}");
-
-            _unitOfWork.BookLendingRepository.Delete(lending);
-
+            var blSpec = new BookLendingByBookIdUserIdSpecification(request.BookId, request.UserId);
             var bookSpec = new BookByIdSpecification(request.BookId);
+
+            var bookLending = await _unitOfWork.BookLendingRepository.FirstOrDefault(blSpec, cancellationToken);
+
+            if (bookLending == null)
+                throw new ValidationException($"Book {request.BookId} has not been borrowed by user {request.UserId}");
+
+
+            _unitOfWork.BookLendingRepository.Delete(bookLending);
+
             var book = await _unitOfWork.BookRepository.FirstOrDefault(bookSpec, cancellationToken);
 
             book.Quantity += 1;

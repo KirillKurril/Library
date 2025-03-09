@@ -1,5 +1,5 @@
 using Library.Application.DTOs;
-using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
 
 namespace Library.Application.BookUseCases.Queries
 {

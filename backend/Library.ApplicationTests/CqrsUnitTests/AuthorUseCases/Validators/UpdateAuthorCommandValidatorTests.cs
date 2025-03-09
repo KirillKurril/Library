@@ -46,27 +46,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.AuthorUseCases.Validators
         }
 
         [Fact]
-        public async Task Validate_WithNonExistingId_ShouldHaveValidationError()
-        {
-            var authorId = Guid.NewGuid();
-            var command = new UpdateAuthorCommand(
-                authorId,
-                "John",
-                "Doe",
-                DateTime.UtcNow.AddYears(-30),
-                "USA"
-            );
-
-            _mockAuthorRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Author>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Author)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.Id)
-                .WithErrorMessage("Author being updated doesn't exist");
-        }
-
-        [Fact]
         public async Task Validate_WithEmptyId_ShouldHaveValidationError()
         {
             var command = new UpdateAuthorCommand(

@@ -1,7 +1,6 @@
 using Library.Application.Common.Interfaces;
-using Library.Domain.Entities;
-using Library.Domain.Specifications.AuthorSpecification;
-using System.ComponentModel.DataAnnotations;
+using Library.Domain.Abstractions;
+using Library.Domain.Specifications.BookSpecifications;
 
 namespace Library.Application.BookUseCases.Commands
 {
@@ -9,17 +8,30 @@ namespace Library.Application.BookUseCases.Commands
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILibrarySettings _librarySettings;
+        private readonly IUserDataAccessor _userDataAccessor;
 
         public LendBookHandler(
             IUnitOfWork unitOfWork,
-            ILibrarySettings librarySettings)
+            ILibrarySettings librarySettings,
+            IUserDataAccessor userDataAccessor)
         {
             _unitOfWork = unitOfWork;
             _librarySettings = librarySettings;
+            _userDataAccessor = userDataAccessor;
         }
 
         public async Task<Unit> Handle(LendBookCommand request, CancellationToken cancellationToken)
         {
+            var bookAvailableSpec = new BookExistAndAvailableSpecification(request.BookId);
+            var book = await _unitOfWork.BookRepository.FirstOrDefault(bookAvailableSpec, cancellationToken);
+            
+            if (book == null)
+                throw new ValidationException("Book is not available for borrowing or does not exist.");
+
+            if(!await _userDataAccessor.UserExist(request.UserId))
+                throw new ValidationException($"User {request.UserId} doesn't exist");
+
+
             var dateNow = DateTime.UtcNow;
             var loanPeriod = _librarySettings.DefaultLoanPeriodInDays;
             var returnDate = dateNow.AddDays(loanPeriod);
@@ -32,9 +44,6 @@ namespace Library.Application.BookUseCases.Commands
             };
 
             _unitOfWork.BookLendingRepository.Add(lending);
-
-            var spec = new BookByIdSpecification(request.BookId);
-            var book = await _unitOfWork.BookRepository.FirstOrDefault(spec, cancellationToken);
 
             book.Quantity -= 1;
             _unitOfWork.BookRepository.Update(book);

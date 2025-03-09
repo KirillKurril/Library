@@ -44,55 +44,5 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             result.ShouldHaveValidationErrorFor(x => x.BookId)
                 .WithErrorMessage("Book ID is required");
         }
-
-        [Fact]
-        public async Task BookId_ShouldHaveError_WhenBookNotExists()
-        {
-            var userId = Guid.NewGuid();
-            var bookId = Guid.NewGuid();
-
-            var command = new LendBookCommand(bookId, userId);
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Book)null);
-
-            _userDataAccessor.Setup(x => x.UserExist(
-                 It.IsAny<Guid>()))
-                 .ReturnsAsync(true);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.BookId)
-                .WithErrorMessage("Book is not available for borrowing or does not exist.");
-        }
-
-        [Fact]
-        public async Task BookId_ShouldHaveError_WhenBookAlreadyBorrowed()
-        {
-            var userId = Guid.NewGuid();
-            var bookId = Guid.NewGuid();
-
-            var command = new LendBookCommand(bookId, userId);
-            var book = new Book
-            {
-                Id = Guid.NewGuid(),
-                Quantity = 0
-            };
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(book);
-
-            _userDataAccessor.Setup(x => x.UserExist(
-                 It.IsAny<Guid>()))
-                 .ReturnsAsync(true);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.BookId)
-                .WithErrorMessage("Book is not available for borrowing or does not exist.");
-        }
     }
 }

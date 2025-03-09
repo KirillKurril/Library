@@ -17,10 +17,13 @@ public class UpdateAuthorHandler : IRequestHandler<UpdateAuthorCommand, Unit>
 
     public async Task<Unit> Handle(UpdateAuthorCommand request, CancellationToken cancellationToken)
     {
-        var spec = new AuthorByIdSpecification(request.Id);
-        var existingAuthor = await _unitOfWork.AuthorRepository.FirstOrDefault(spec, cancellationToken);
+        var authorSpec = new AuthorByIdSpecification(request.Id);
 
-        var updatedAuthor = _mapper.Map(request, existingAuthor);
+        var oldAuthor = await _unitOfWork.AuthorRepository.FirstOrDefault(authorSpec, cancellationToken);
+        if (oldAuthor == null)
+            throw new ValidationException($"Author with specified ID ({request.Id}) doesn't exist");
+
+        var updatedAuthor = _mapper.Map(request, oldAuthor);
         _unitOfWork.AuthorRepository.Update(updatedAuthor);
         await _unitOfWork.SaveChangesAsync();
 

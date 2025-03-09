@@ -2,6 +2,7 @@ using FluentAssertions;
 using Library.Domain.Entities;
 using Library.Domain.Specifications;
 using Library.Domain.Specifications.AuthorSpecification;
+using Library.Domain.Specifications.BookSpecifications;
 using Library.Domain.Specifications.GenreSpecification;
 using Library.Persistance.Contexts;
 using Library.Persistance.Repositories;

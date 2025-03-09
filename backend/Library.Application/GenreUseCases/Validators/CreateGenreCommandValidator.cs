@@ -10,12 +10,6 @@ public class CreateGenreCommandValidator : AbstractValidator<CreateGenreCommand>
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Genre name is required")
-            .MaximumLength(100).WithMessage("Genre name must not exceed 100 characters")
-            .MustAsync(async (name, ct) =>
-            {
-                var spec = new GenreFiltredListCountSpecification(name);
-                var exist = await unitOfWork.GenreRepository.CountAsync(spec);
-                return exist == 0;
-            }).WithMessage("A genre with this name already exists");
+            .MaximumLength(100).WithMessage("Genre name must not exceed 100 characters");
     }
 }

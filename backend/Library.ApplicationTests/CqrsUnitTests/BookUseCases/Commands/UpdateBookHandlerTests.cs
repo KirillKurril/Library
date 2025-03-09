@@ -10,16 +10,12 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<IMapper> _mockMapper;
-        private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly UpdateBookHandler _handler;
 
         public UpdateBookHandlerTests()
         {
-            _mockBookRepository = new Mock<IRepository<Book>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockMapper = new Mock<IMapper>();
-            _mockUnitOfWork.Setup(uow => uow.BookRepository)
-                .Returns(_mockBookRepository.Object);
             _handler = new UpdateBookHandler(
                 _mockUnitOfWork.Object,
                 _mockMapper.Object);
@@ -43,10 +39,29 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
             );
 
             Book capturedBook = null;
-            _mockBookRepository.Setup(r => r.FirstOrDefault(It.IsAny<ISpecification<Book>>(), It.IsAny<CancellationToken>()))
+
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.FirstOrDefault(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Book { Id = bookId });
 
-            _mockBookRepository.Setup(r => r.Update(It.IsAny<Book>()))
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
+
+            _mockUnitOfWork.Setup(uow => uow.AuthorRepository.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.Update(It.IsAny<Book>()))
                 .Callback<Book>(book => capturedBook = book);
 
             await _handler.Handle(command, CancellationToken.None);

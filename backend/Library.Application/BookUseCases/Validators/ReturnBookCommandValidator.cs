@@ -1,6 +1,4 @@
 ﻿using Library.Application.BookUseCases.Commands;
-using Library.Domain.Abstractions;
-using Library.Domain.Specifications.BookSpecifications;
 
 namespace Library.Application.BookUseCases.Validators
 {
@@ -8,13 +6,11 @@ namespace Library.Application.BookUseCases.Validators
     {
         public ReturnBookCommandValidator(IUnitOfWork unitOfWork)
         {
-            RuleFor(x => x)
-               .MustAsync(async (command, ct) =>
-               {
-                   var spec = new BookLendingByBookIdUserIdSpecification(command.BookId, command.UserId);
-                   var exist = await unitOfWork.BookLendingRepository.CountAsync(spec, ct);
-                   return exist == 1;
-               }).WithMessage("Book has not been borrowed by this user.");
+            RuleFor(x => x.BookId)
+                 .NotEmpty().WithMessage("Book ID is required");
+
+            RuleFor(x => x.UserId)
+                 .NotEmpty().WithMessage("User ID is required");
         }
     }
 }

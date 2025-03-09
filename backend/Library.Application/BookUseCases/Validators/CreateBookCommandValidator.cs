@@ -16,13 +16,8 @@ namespace Library.Application.BookUseCases.Validators
                 .WithMessage("Invalid ISBN format");
 
             RuleFor(x => x.ISBN)
-                .NotEmpty().WithMessage("ISBN is required")
-                .MustAsync(async (isbn, ct) =>
-                {
-                    var spec = new BookByIsbnSpecification(isbn);
-                    var book = await unitOfWork.BookRepository.CountAsync(spec);
-                    return book == 0;
-                }).WithMessage("A book with this ISBN already exists");
+                .NotEmpty().WithMessage("ISBN is required");
+
 
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Title is required")
@@ -37,23 +32,11 @@ namespace Library.Application.BookUseCases.Validators
                 .When(x => !string.IsNullOrEmpty(x.Description));
 
             RuleFor(x => x.GenreId)
-                .NotEmpty().WithMessage("Genre is required")
-                .MustAsync(async (genreId, ct) =>
-                {
-                    var spec = new GenreByIdSpecification(genreId);
-                    var exist = await unitOfWork.GenreRepository.CountAsync(spec);
-                    return exist == 1;
-                }).WithMessage("Genre with specified ID does not exist");
+                .NotEmpty().WithMessage("Genre is required");
 
 
             RuleFor(x => x.AuthorId)
-                .NotEmpty().WithMessage("Author ID is required")
-                .MustAsync(async (authorId, ct) =>
-                {
-                    var spec = new AuthorByIdSpecification(authorId);
-                    var exist = await unitOfWork.AuthorRepository.CountAsync(spec);
-                    return exist == 1;
-                }).WithMessage("Author with specified ID does not exist");
+                .NotEmpty().WithMessage("Author ID is required");
         }
     }
 }

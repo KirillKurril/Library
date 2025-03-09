@@ -59,44 +59,5 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
             result.ShouldHaveValidationErrorFor(x => x.Id)
                 .WithErrorMessage("Book ID is required");
         }
-
-        [Fact]
-        public async Task Validate_NonExistentBook_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var command = new DeleteBookCommand(bookId);
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.FirstOrDefault(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Book)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.Id)
-                .WithErrorMessage("Book with specified ID does not exist");
-        }
-
-        [Fact]
-        public async Task Validate_BookWithActiveLending_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var command = new DeleteBookCommand(bookId);
-
-            _mockUnitOfWork.Setup(x => x.BookRepository.CountAsync(
-                It.IsAny<ISpecification<Book>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
-
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.CountAsync(
-                It.IsAny<ISpecification<BookLending>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(1);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.Id)
-                .WithErrorMessage("Cannot delete book that is currently lent");
-        }
     }
 }

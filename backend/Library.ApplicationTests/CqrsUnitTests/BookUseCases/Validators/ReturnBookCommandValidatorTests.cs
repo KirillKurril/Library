@@ -36,54 +36,5 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Validators
 
             result.ShouldNotHaveAnyValidationErrors();
         }
-
-        [Fact]
-        public async Task Validate_BookNotBorrowedByUser_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var command = new ReturnBookCommand(bookId, userId);
-
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
-                It.IsAny<ISpecification<BookLending>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((BookLending)null);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x)
-                .WithErrorMessage("Book has not been borrowed by this user.");
-        }
-
-        [Fact]
-        public async Task Validate_DifferentUserBorrowedBook_ShouldHaveValidationError()
-        {
-            var bookId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var otherUserId = Guid.NewGuid();
-            var command = new ReturnBookCommand(bookId, userId);
-
-            var checkSpec = new BookLendingByBookIdUserIdSpecification(bookId, userId);
-            var getblSpec = new BookLendingsByBookIdSpecification(bookId);
-
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
-                checkSpec,
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync((BookLending)null);
-
-            _mockUnitOfWork.Setup(x => x.BookLendingRepository.FirstOrDefault(
-                getblSpec,
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new BookLending
-                {
-                    BookId = bookId,
-                    UserId = otherUserId
-                });
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x)
-                .WithErrorMessage("Book has not been borrowed by this user.");
-        }
     }
 }

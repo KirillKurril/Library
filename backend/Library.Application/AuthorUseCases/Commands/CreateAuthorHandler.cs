@@ -5,7 +5,6 @@ namespace Library.Application.AuthorUseCases.Commands;
 public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, CreateEntityResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IValidator<CreateAuthorCommand> _validator;
     private readonly IMapper _mapper;
 
     public CreateAuthorHandler(
@@ -14,7 +13,6 @@ public class CreateAuthorHandler : IRequestHandler<CreateAuthorCommand, CreateEn
         IMapper mapper)
     {
         _unitOfWork = unitOfWork;
-        _validator = validator;
         _mapper = mapper;
     }
 

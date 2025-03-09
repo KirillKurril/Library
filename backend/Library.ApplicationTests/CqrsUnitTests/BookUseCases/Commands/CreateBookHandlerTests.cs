@@ -9,16 +9,11 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
     public class CreateBookHandlerTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
-        private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly CreateBookHandler _handler;
 
         public CreateBookHandlerTests()
         {
-            _mockBookRepository = new Mock<IRepository<Book>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
-
-            _mockUnitOfWork.Setup(uow => uow.BookRepository)
-                .Returns(_mockBookRepository.Object);
 
             _handler = new CreateBookHandler(_mockUnitOfWork.Object);
         }
@@ -35,12 +30,27 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
                 AuthorId: Guid.NewGuid());
 
             var expectedBook = command.Adapt<Book>();
-            _mockBookRepository.Setup(r => r.Add(It.IsAny<Book>()))
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.Add(It.IsAny<Book>()))
                 .Returns(expectedBook);
+
+            _mockUnitOfWork.Setup(uow => uow.BookRepository.CountAsync(
+                It.IsAny<ISpecification<Book>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(0);
+
+            _mockUnitOfWork.Setup(uow => uow.AuthorRepository.CountAsync(
+                It.IsAny<ISpecification<Author>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            _mockUnitOfWork.Setup(uow => uow.GenreRepository.CountAsync(
+                It.IsAny<ISpecification<Genre>>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            _mockBookRepository.Verify(r => r.Add(It.Is<Book>(b =>
+            _mockUnitOfWork.Verify(uow => uow.BookRepository.Add(It.Is<Book>(b =>
                 b.ISBN == command.ISBN &&
                 b.Title == command.Title &&
                 b.Description == command.Description &&

@@ -52,22 +52,6 @@ namespace Library.ApplicationTests.CqrsUnitTests.GenreUseCases.Validators
         }
 
         [Fact]
-        public async Task Validate_WithNonExistingId_ShouldHaveValidationError()
-        {
-            var genreId = Guid.NewGuid();
-            var command = new DeleteGenreCommand(genreId);
-
-            _mockUnitOfWork.Setup(uow => uow.GenreRepository.CountAsync(
-                It.IsAny<ISpecification<Genre>>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(0);
-
-            var result = await _validator.TestValidateAsync(command);
-
-            result.ShouldHaveValidationErrorFor(x => x.Id);
-        }
-
-        [Fact]
         public async Task Validate_WithEmptyId_ShouldHaveValidationError()
         {
             var command = new DeleteGenreCommand(Guid.Empty);

@@ -1,4 +1,5 @@
 using Library.Application.DTOs;
+using Library.Domain.Specifications.GenreSpecification;
 
 namespace Library.Application.GenreUseCases.Commands
 {
@@ -17,6 +18,10 @@ namespace Library.Application.GenreUseCases.Commands
 
         public async Task<CreateEntityResponse> Handle(CreateGenreCommand request, CancellationToken cancellationToken)
         {
+           var spec = new GenreFiltredListCountSpecification(request.Name);
+           if (await _unitOfWork.GenreRepository.CountAsync(spec) != 0)
+              throw new ValidationException("A genre with this name already exists");
+
             var genre = _mapper.Map<Genre>(request);
             var createdGenre = _unitOfWork.GenreRepository.Add(genre);
             await _unitOfWork.SaveChangesAsync();

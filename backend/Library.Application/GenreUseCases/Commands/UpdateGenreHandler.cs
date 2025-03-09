@@ -1,5 +1,5 @@
 using Library.Domain.Specifications.GenreSpecification;
-using MediatR;
+using System.Xml.Linq;
 
 namespace Library.Application.GenreUseCases.Commands
 {
@@ -18,10 +18,17 @@ namespace Library.Application.GenreUseCases.Commands
 
         public async Task<Unit> Handle(UpdateGenreCommand request, CancellationToken cancellationToken)
         {
-            var spec = new GenreByIdSpecification(request.Id);
-            var existingGenre = await _unitOfWork.GenreRepository.FirstOrDefault(spec);
+            var oldGenreSpec = new GenreByIdSpecification(request.Id);
+            var filtredGenreSpec = new GenreFiltredListCountSpecification(request.Name);
 
-            var updatedGenre = _mapper.Map(request, existingGenre);
+            var oldGenre = await _unitOfWork.GenreRepository.FirstOrDefault(oldGenreSpec, cancellationToken);
+            if(oldGenre == null)
+                throw new ValidationException($"Genre with specified ID ({request.Id}) doesn't exist");
+
+            if(await _unitOfWork.GenreRepository.CountAsync(filtredGenreSpec, cancellationToken) != 0)
+                throw new ValidationException("A genre with this name already exists");
+
+            var updatedGenre = _mapper.Map(request, oldGenre);
             _unitOfWork.GenreRepository.Update(updatedGenre);
             await _unitOfWork.SaveChangesAsync();
             return Unit.Value;

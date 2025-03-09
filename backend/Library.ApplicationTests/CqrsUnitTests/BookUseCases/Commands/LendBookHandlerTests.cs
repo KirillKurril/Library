@@ -9,6 +9,7 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
     public class LendBookHandlerTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+        private readonly Mock<IUserDataAccessor> _mockUserDataAccessor;
         private readonly Mock<IRepository<Book>> _mockBookRepository;
         private readonly Mock<IRepository<BookLending>> _mockBookLendingRepository;
         private readonly Mock<ILibrarySettings> _mockLibrarySettings;
@@ -17,21 +18,26 @@ namespace Library.ApplicationTests.CqrsUnitTests.BookUseCases.Commands
         public LendBookHandlerTests()
         {
             _mockBookRepository = new Mock<IRepository<Book>>();
+            _mockUserDataAccessor = new Mock<IUserDataAccessor>();
             _mockBookLendingRepository = new Mock<IRepository<BookLending>>();
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockLibrarySettings = new Mock<ILibrarySettings>();
 
             _mockUnitOfWork.Setup(uow => uow.BookRepository)
                 .Returns(_mockBookRepository.Object);
+            _mockUserDataAccessor.Setup(uda => uda.UserExist(It.IsAny<Guid>()))
+                .ReturnsAsync(true);
             _mockUnitOfWork.Setup(uow => uow.BookLendingRepository)
                 .Returns(_mockBookLendingRepository.Object);
 
             _mockLibrarySettings.Setup(s => s.DefaultLoanPeriodInDays)
                 .Returns(14);
 
+
             _handler = new LendBookHandler(
                 _mockUnitOfWork.Object,
-                _mockLibrarySettings.Object);
+                _mockLibrarySettings.Object,
+                _mockUserDataAccessor.Object);
         }
 
         [Fact]

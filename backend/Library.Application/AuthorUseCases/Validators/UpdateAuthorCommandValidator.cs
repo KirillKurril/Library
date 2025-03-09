@@ -8,13 +8,7 @@ public class UpdateAuthorCommandValidator : AbstractValidator<UpdateAuthorComman
     public UpdateAuthorCommandValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("Author ID is required")
-                .MustAsync(async (authorId, ct) =>
-                {
-                    var spec = new AuthorByIdSpecification(authorId);
-                    var exist = await unitOfWork.AuthorRepository.CountAsync(spec);
-                    return exist == 1 ;
-                }).WithMessage($"Author being updated doesn't exist");
+                .NotEmpty().WithMessage("Author ID is required");
 
         RuleFor(x => x.Name)
             .MaximumLength(100)
